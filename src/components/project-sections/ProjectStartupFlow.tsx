@@ -68,8 +68,8 @@ const CustomNodeBlue = ({ data }: { data: { label: string; isPrimary?: boolean }
         {data.label}
       </div>
       {/* Handles for connections */}
-      <Handle type="source" position="right" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
-      <Handle type="target" position="left" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="source" position={Position.Right} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="target" position={Position.Left} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
     </div>
   )
 }
@@ -148,7 +148,7 @@ const UserFlowDiagramStartup: React.FC = () => {
     { id: 'e4-19', source: '4', target: '19', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
   ]
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [nodes, , onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   // Prevent node dragging by filtering out position changes
@@ -304,7 +304,7 @@ const OrbitContainer: React.FC<OrbitContainerProps> = ({ selectedCriteria, setSe
   const orbitRef = useRef<THREE.Group>(null)
   const radius = 2.5
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (orbitRef.current) {
       // Direct delta-based rotation for smooth, consistent motion
       orbitRef.current.rotation.y += delta * 0.25
@@ -386,7 +386,7 @@ const Sun: React.FC = () => {
 const OrbitalRing: React.FC<{ radius: number; opacity: number }> = ({ radius, opacity }) => {
   const ringRef = useRef<THREE.Mesh>(null)
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (ringRef.current) {
       // Frame-rate independent rotation
       ringRef.current.rotation.z += delta * 0.08

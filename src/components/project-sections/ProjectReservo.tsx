@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react'
-import { FaRobot, FaMobileAlt, FaCalendarCheck, FaBell, FaFingerprint, FaComments } from 'react-icons/fa'
-import ReactFlow, { Node, Edge, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge, Connection, Handle } from 'reactflow'
+import { FaRobot, FaCalendarCheck, FaBell, FaFingerprint } from 'react-icons/fa'
+import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
 
 // Custom hook for scroll-triggered animations
@@ -136,7 +136,7 @@ const UserFlowDiagram: React.FC = () => {
     { id: 'e6-16', source: '6', target: '16', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
   ]
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [nodes, , onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   // Prevent node dragging by filtering out position changes

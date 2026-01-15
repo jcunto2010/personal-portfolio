@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { FaGithub, FaLinkedin, FaWhatsapp, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa'
+import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa'
 
 // Custom hook for scroll-triggered animations
 const useScrollAnimation = () => {

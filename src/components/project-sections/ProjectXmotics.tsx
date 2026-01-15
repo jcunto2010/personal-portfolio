@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FaCogs, FaChartBar, FaExternalLinkAlt, FaRocket } from 'react-icons/fa'
+import { FaExternalLinkAlt, FaRocket } from 'react-icons/fa'
 import { SiReact, SiTypescript, SiNodedotjs, SiDocker, SiMongodb } from 'react-icons/si'
 
 // Custom hook for scroll-triggered animations
