@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react'
-import { FaMobile, FaDesktop } from 'react-icons/fa'
+import React, { useEffect, useRef, useState } from 'react'
+import { FaDesktop } from 'react-icons/fa'
 import { SiReact, SiTypescript, SiFlutter, SiPostgresql, SiSupabase, SiTailwindcss } from 'react-icons/si'
 
 // Custom hook for scroll-triggered animations
@@ -30,15 +30,78 @@ const useScrollAnimation = () => {
   return ref
 }
 
+// Generate random stars
+const generateStars = (count: number) => {
+  const stars = []
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: Math.random() * 2 + 1,
+      delay: Math.random() * 3,
+      duration: Math.random() * 2 + 2,
+    })
+  }
+  return stars
+}
+
+const stars = generateStars(80)
+
+// Starry background component to reuse across sections
+const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars = true }) => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    {stars.map((star) => (
+      <div
+        key={star.id}
+        className="absolute rounded-full bg-white animate-twinkle"
+        style={{
+          left: star.left,
+          top: star.top,
+          width: `${star.size}px`,
+          height: `${star.size}px`,
+          animationDelay: `${star.delay}s`,
+          animationDuration: `${star.duration}s`,
+          opacity: Math.random() * 0.5 + 0.3,
+        }}
+      />
+    ))}
+    {shootingStars && (
+      <>
+        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '0s' }} />
+        <div className="absolute top-1/3 left-2/3 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-1/2 left-1/3 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '8s' }} />
+      </>
+    )}
+  </div>
+)
+
+// Actor connections - which actors connect to which
+const actorConnections: Record<string, string[]> = {
+  startups: ['investors', 'incubators', 'mentors'],
+  investors: ['startups', 'incubators'],
+  incubators: ['startups', 'mentors', 'investors'],
+  mentors: ['startups', 'incubators'],
+}
+
 const ProjectEmprendIA: React.FC = () => {
   const sectionRef = useScrollAnimation()
+  const [hoveredActor, setHoveredActor] = useState<string | null>(null)
+  
+  const isConnected = (actor: string) => {
+    if (!hoveredActor) return false
+    return actorConnections[hoveredActor]?.includes(actor) || false
+  }
 
   return (
     <section id="project-emprendia" className="relative overflow-hidden" ref={sectionRef}>
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center py-24">
         {/* Premium gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#1a0f0a] to-[#0f0a0a]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0a0a1a] to-[#0f0a0a]" />
+        
+        {/* Starry background */}
+        <StarryBackground />
         
         {/* Subtle warm gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-orange-900/10 via-transparent to-amber-900/5" />
@@ -89,14 +152,11 @@ const ProjectEmprendIA: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                      {/* Screenshot placeholder */}
-                      <div className="aspect-[16/9] bg-gradient-to-br from-slate-900 via-orange-950/20 to-slate-900 flex items-center justify-center">
-                        <div className="text-center p-8">
-                          <FaDesktop className="text-6xl text-orange-500/30 mx-auto mb-4" />
-                          <p className="text-orange-300/50 text-lg font-medium">Dashboard Preview</p>
-                          <p className="text-orange-400/30 text-sm mt-2">Screenshot Coming Soon</p>
-                        </div>
-                      </div>
+                      <img 
+                        src="/assets/projects/emprendia/home webpage.png" 
+                        alt="EmprendIA Home Webpage"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                   </div>
                   {/* Laptop base */}
@@ -112,12 +172,30 @@ const ProjectEmprendIA: React.FC = () => {
 
       {/* Project Overview - Editorial Style */}
       <div className="relative py-32 bg-gradient-to-b from-[#0f0a0a] to-[#0a0a0f]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`overview-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             
             {/* Main Description */}
             <div className="mb-20">
-              <p className="animate-on-scroll text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
+              <p className="text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
                 EmprendIA is a <span className="text-orange-400 font-medium">multi-platform ecosystem</span> that bridges 
                 the gap between emerging startups and the resources they need to grow. Built with 
                 <span className="text-amber-400 font-medium"> modern technologies</span>, it provides role-based experiences 
@@ -126,7 +204,7 @@ const ProjectEmprendIA: React.FC = () => {
             </div>
 
             {/* Tech Stack Line */}
-            <div className="animate-on-scroll stagger-1 mb-20">
+            <div className="mb-20">
               <p className="text-gray-500 text-sm tracking-wide">
                 React · TypeScript · Flutter · Supabase · PostgreSQL · Tailwind CSS
               </p>
@@ -136,15 +214,26 @@ const ProjectEmprendIA: React.FC = () => {
             </div>
 
             {/* Divider */}
-            <div className="animate-on-scroll stagger-2 w-full h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent mb-20" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent mb-20" />
 
             {/* Role Description */}
-            <div className="animate-on-scroll stagger-3 mb-16">
+            <div className="mb-8">
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">My Role</p>
+              <h4 className="text-orange-400 text-lg font-semibold mb-3">Director of Frontend Development & Co-Founder</h4>
               <p className="text-gray-300 text-lg leading-relaxed font-body max-w-2xl mx-auto">
-                Full-stack development spanning web and mobile platforms. Implemented the 10-step progressive 
-                registration flow, real-time data synchronization, and role-based access control system.
+                Co-founded and lead frontend architecture for multi-platform ecosystem connecting startups with investors. 
+                Built web dashboard with React and cross-platform mobile app with Flutter, including 10-step progressive registration flow.
               </p>
+            </div>
+
+            {/* NDA Notice */}
+            <div className="flex justify-center mb-16">
+              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-orange-500/5 border border-orange-500/20 text-orange-400/70 text-sm">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Codebase protected under NDA</span>
+              </div>
             </div>
 
           </div>
@@ -153,67 +242,180 @@ const ProjectEmprendIA: React.FC = () => {
 
       {/* The Ecosystem - Editorial Layout */}
       <div className="relative py-32 bg-[#0a0a0f]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`eco-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 0.5}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-5xl mx-auto">
             
             {/* Section Title - Left aligned, editorial */}
             <div className="mb-20">
-              <p className="animate-on-scroll text-orange-400 text-xs uppercase tracking-[0.3em] mb-4">The Ecosystem</p>
-              <h3 className="animate-on-scroll stagger-1 text-4xl md:text-5xl lg:text-6xl font-bold text-white font-heading leading-tight">
+              <p className="text-orange-400 text-xs uppercase tracking-[0.3em] mb-4">The Ecosystem</p>
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-heading leading-tight">
                 Four actors,<br />
                 <span className="text-gray-500">one platform.</span>
               </h3>
             </div>
 
-            {/* Actors - Staggered editorial layout */}
-            <div className="space-y-16 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-20 md:gap-y-16">
+            {/* Actors - Hover to highlight connections */}
+            <div 
+              className="space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-12"
+              onMouseLeave={() => setHoveredActor(null)}
+            >
               
               {/* Startups */}
-              <div className="animate-on-scroll stagger-2 group">
-                <div className="flex items-baseline gap-4 mb-3">
-                  <span className="text-6xl md:text-7xl font-bold text-orange-500/20 font-heading">01</span>
-                  <h4 className="text-2xl md:text-3xl font-bold text-white font-heading">Startups</h4>
+              <div 
+                onMouseEnter={() => setHoveredActor('startups')}
+                className={`p-8 rounded-2xl transition-all duration-150 ${
+                  hoveredActor === 'startups' 
+                    ? 'bg-orange-500/10 scale-[1.02]' 
+                    : hoveredActor && !isConnected('startups') 
+                      ? 'opacity-40' 
+                      : isConnected('startups')
+                        ? 'bg-orange-500/5'
+                        : ''
+                }`}
+              >
+                <div className="flex items-baseline gap-6 mb-4">
+                  <span className={`text-7xl md:text-8xl lg:text-9xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'startups' ? 'text-orange-500/60' : 'text-orange-500/20'
+                  }`}>01</span>
+                  <h4 className={`text-3xl md:text-4xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'startups' ? 'text-orange-400' : 'text-white'
+                  }`}>Startups</h4>
                 </div>
-                <p className="text-gray-400 font-body leading-relaxed pl-0 md:pl-20">
+                <p className={`text-lg font-body leading-relaxed pl-0 md:pl-24 transition-colors duration-150 ${
+                  hoveredActor === 'startups' ? 'text-gray-300' : 'text-gray-400'
+                }`}>
                   Early-stage ventures seeking funding, mentorship, and growth opportunities. 
                   Complete profiles, track milestones, and connect with the right partners.
                 </p>
+                {/* Connection hint */}
+                <div className={`overflow-hidden transition-all duration-150 ${hoveredActor === 'startups' ? 'max-h-20 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-orange-400/80 text-sm font-body pl-0 md:pl-24">
+                    Connects with Investors, Incubators & Mentors
+                  </p>
+                </div>
               </div>
 
               {/* Investors */}
-              <div className="animate-on-scroll stagger-3 group md:mt-12">
-                <div className="flex items-baseline gap-4 mb-3">
-                  <span className="text-6xl md:text-7xl font-bold text-amber-500/20 font-heading">02</span>
-                  <h4 className="text-2xl md:text-3xl font-bold text-white font-heading">Investors</h4>
+              <div 
+                onMouseEnter={() => setHoveredActor('investors')}
+                className={`p-8 rounded-2xl transition-all duration-150 md:mt-16 ${
+                  hoveredActor === 'investors' 
+                    ? 'bg-amber-500/10 scale-[1.02]' 
+                    : hoveredActor && !isConnected('investors') 
+                      ? 'opacity-40' 
+                      : isConnected('investors')
+                        ? 'bg-amber-500/5'
+                        : ''
+                }`}
+              >
+                <div className="flex items-baseline gap-6 mb-4">
+                  <span className={`text-7xl md:text-8xl lg:text-9xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'investors' ? 'text-amber-500/60' : 'text-amber-500/20'
+                  }`}>02</span>
+                  <h4 className={`text-3xl md:text-4xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'investors' ? 'text-amber-400' : 'text-white'
+                  }`}>Investors</h4>
                 </div>
-                <p className="text-gray-400 font-body leading-relaxed pl-0 md:pl-20">
+                <p className={`text-lg font-body leading-relaxed pl-0 md:pl-24 transition-colors duration-150 ${
+                  hoveredActor === 'investors' ? 'text-gray-300' : 'text-gray-400'
+                }`}>
                   Capital providers looking for promising opportunities. Browse curated startups, 
                   review metrics, and make informed investment decisions.
                 </p>
+                {/* Connection hint */}
+                <div className={`overflow-hidden transition-all duration-150 ${hoveredActor === 'investors' ? 'max-h-20 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-amber-400/80 text-sm font-body pl-0 md:pl-24">
+                    Connects with Startups & Incubators
+                  </p>
+                </div>
               </div>
 
               {/* Incubators */}
-              <div className="animate-on-scroll stagger-4 group">
-                <div className="flex items-baseline gap-4 mb-3">
-                  <span className="text-6xl md:text-7xl font-bold text-emerald-500/20 font-heading">03</span>
-                  <h4 className="text-2xl md:text-3xl font-bold text-white font-heading">Incubators</h4>
+              <div 
+                onMouseEnter={() => setHoveredActor('incubators')}
+                className={`p-8 rounded-2xl transition-all duration-150 ${
+                  hoveredActor === 'incubators' 
+                    ? 'bg-emerald-500/10 scale-[1.02]' 
+                    : hoveredActor && !isConnected('incubators') 
+                      ? 'opacity-40' 
+                      : isConnected('incubators')
+                        ? 'bg-emerald-500/5'
+                        : ''
+                }`}
+              >
+                <div className="flex items-baseline gap-6 mb-4">
+                  <span className={`text-7xl md:text-8xl lg:text-9xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'incubators' ? 'text-emerald-500/60' : 'text-emerald-500/20'
+                  }`}>03</span>
+                  <h4 className={`text-3xl md:text-4xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'incubators' ? 'text-emerald-400' : 'text-white'
+                  }`}>Incubators</h4>
                 </div>
-                <p className="text-gray-400 font-body leading-relaxed pl-0 md:pl-20">
+                <p className={`text-lg font-body leading-relaxed pl-0 md:pl-24 transition-colors duration-150 ${
+                  hoveredActor === 'incubators' ? 'text-gray-300' : 'text-gray-400'
+                }`}>
                   Growth accelerators nurturing the next generation. Manage cohorts, 
                   track progress, and provide structured support programs.
                 </p>
+                {/* Connection hint */}
+                <div className={`overflow-hidden transition-all duration-150 ${hoveredActor === 'incubators' ? 'max-h-20 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-emerald-400/80 text-sm font-body pl-0 md:pl-24">
+                    Connects with Startups, Mentors & Investors
+                  </p>
+                </div>
               </div>
 
               {/* Mentors */}
-              <div className="animate-on-scroll stagger-5 group md:mt-12">
-                <div className="flex items-baseline gap-4 mb-3">
-                  <span className="text-6xl md:text-7xl font-bold text-blue-500/20 font-heading">04</span>
-                  <h4 className="text-2xl md:text-3xl font-bold text-white font-heading">Mentors</h4>
+              <div 
+                onMouseEnter={() => setHoveredActor('mentors')}
+                className={`p-8 rounded-2xl transition-all duration-150 md:mt-16 ${
+                  hoveredActor === 'mentors' 
+                    ? 'bg-blue-500/10 scale-[1.02]' 
+                    : hoveredActor && !isConnected('mentors') 
+                      ? 'opacity-40' 
+                      : isConnected('mentors')
+                        ? 'bg-blue-500/5'
+                        : ''
+                }`}
+              >
+                <div className="flex items-baseline gap-6 mb-4">
+                  <span className={`text-7xl md:text-8xl lg:text-9xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'mentors' ? 'text-blue-500/60' : 'text-blue-500/20'
+                  }`}>04</span>
+                  <h4 className={`text-3xl md:text-4xl font-bold font-heading transition-colors duration-150 ${
+                    hoveredActor === 'mentors' ? 'text-blue-400' : 'text-white'
+                  }`}>Mentors</h4>
                 </div>
-                <p className="text-gray-400 font-body leading-relaxed pl-0 md:pl-20">
+                <p className={`text-lg font-body leading-relaxed pl-0 md:pl-24 transition-colors duration-150 ${
+                  hoveredActor === 'mentors' ? 'text-gray-300' : 'text-gray-400'
+                }`}>
                   Industry experts sharing knowledge and experience. Guide startups through 
                   challenges, offer insights, and help shape success stories.
                 </p>
+                {/* Connection hint */}
+                <div className={`overflow-hidden transition-all duration-150 ${hoveredActor === 'mentors' ? 'max-h-20 mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <p className="text-blue-400/80 text-sm font-body pl-0 md:pl-24">
+                    Connects with Startups & Incubators
+                  </p>
+                </div>
               </div>
 
             </div>
@@ -224,11 +426,29 @@ const ProjectEmprendIA: React.FC = () => {
 
       {/* Screenshots Showcase - Infinite Scroll Gallery */}
       <div className="relative py-24 bg-[#0a0a0f] overflow-hidden">
-        <div className="mb-16 text-center">
-          <h3 className="animate-on-scroll text-3xl md:text-4xl font-bold text-white font-heading mb-4">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`screens-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 1}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="mb-16 text-center relative z-10">
+          <h3 className="text-3xl md:text-4xl font-bold text-white font-heading mb-4">
             Platform Interfaces
           </h3>
-          <p className="animate-on-scroll stagger-1 text-gray-500 font-body">
+          <p className="text-gray-500 font-body">
             A glimpse into the user experience across web and mobile
           </p>
         </div>
@@ -238,25 +458,31 @@ const ProjectEmprendIA: React.FC = () => {
           <div className="animate-scroll-infinite-smooth flex gap-6">
             {/* First set */}
             {[
-              { type: 'desktop', label: 'Dashboard Overview', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Mobile Home', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Startup Registration', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Profile View', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Investor Portal', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Notifications', aspect: 'aspect-[9/16]' },
+              { type: 'desktop', label: 'Home Webpage', image: 'home webpage.png' },
+              { type: 'desktop', label: 'Fintech Webpage', image: 'emprendIA fintech webpage.png' },
+              { type: 'desktop', label: 'AI Agents', image: 'ai agents webpage.png' },
+              { type: 'desktop', label: 'Subscription', image: 'subscription webpage.png' },
             ].map((screen, index) => (
               <div 
                 key={index} 
-                className={`flex-shrink-0 ${screen.type === 'desktop' ? 'w-[500px]' : 'w-[200px]'}`}
+                className="flex-shrink-0 w-[500px]"
               >
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950/20 to-slate-900">
+                <div className="aspect-[16/10] rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden">
+                  <img 
+                    src={`/assets/projects/emprendia/${screen.image}`}
+                    alt={`EmprendIA ${screen.label}`}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      // Fallback to placeholder if image doesn't exist
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const placeholder = target.nextElementSibling as HTMLElement
+                      if (placeholder) placeholder.style.display = 'flex'
+                    }}
+                  />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950/20 to-slate-900" style={{ display: 'none' }}>
                     <div className="text-center p-4">
-                      {screen.type === 'desktop' ? (
-                        <FaDesktop className="text-3xl text-orange-500/30 mx-auto mb-2" />
-                      ) : (
-                        <FaMobile className="text-2xl text-orange-500/30 mx-auto mb-2" />
-                      )}
+                      <FaDesktop className="text-3xl text-orange-500/30 mx-auto mb-2" />
                       <p className="text-orange-300/40 text-xs">{screen.label}</p>
                     </div>
                   </div>
@@ -265,25 +491,30 @@ const ProjectEmprendIA: React.FC = () => {
             ))}
             {/* Duplicate for seamless loop */}
             {[
-              { type: 'desktop', label: 'Dashboard Overview', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Mobile Home', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Startup Registration', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Profile View', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Investor Portal', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Notifications', aspect: 'aspect-[9/16]' },
+              { type: 'desktop', label: 'Home Webpage', image: 'home webpage.png' },
+              { type: 'desktop', label: 'Fintech Webpage', image: 'emprendIA fintech webpage.png' },
+              { type: 'desktop', label: 'AI Agents', image: 'ai agents webpage.png' },
+              { type: 'desktop', label: 'Subscription', image: 'subscription webpage.png' },
             ].map((screen, index) => (
               <div 
                 key={`dup-${index}`} 
-                className={`flex-shrink-0 ${screen.type === 'desktop' ? 'w-[500px]' : 'w-[200px]'}`}
+                className="flex-shrink-0 w-[500px]"
               >
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950/20 to-slate-900">
+                <div className="aspect-[16/10] rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden">
+                  <img 
+                    src={`/assets/projects/emprendia/${screen.image}`}
+                    alt={`EmprendIA ${screen.label}`}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const placeholder = target.nextElementSibling as HTMLElement
+                      if (placeholder) placeholder.style.display = 'flex'
+                    }}
+                  />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950/20 to-slate-900" style={{ display: 'none' }}>
                     <div className="text-center p-4">
-                      {screen.type === 'desktop' ? (
-                        <FaDesktop className="text-3xl text-orange-500/30 mx-auto mb-2" />
-                      ) : (
-                        <FaMobile className="text-2xl text-orange-500/30 mx-auto mb-2" />
-                      )}
+                      <FaDesktop className="text-3xl text-orange-500/30 mx-auto mb-2" />
                       <p className="text-orange-300/40 text-xs">{screen.label}</p>
                     </div>
                   </div>
@@ -294,29 +525,34 @@ const ProjectEmprendIA: React.FC = () => {
         </div>
 
         {/* Row 2 - Scrolling Right (reverse) */}
-        <div className="overflow-hidden">
+        <div className="overflow-hidden relative z-10">
           <div className="animate-scroll-infinite-smooth-reverse flex gap-6">
             {/* First set */}
             {[
-              { type: 'desktop', label: 'Analytics Dashboard', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Search Startups', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Mentor Matching', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Chat Interface', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Progress Tracking', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Settings', aspect: 'aspect-[9/16]' },
+              { type: 'desktop', label: 'Subscription', image: 'subscription webpage.png' },
+              { type: 'desktop', label: 'AI Agents', image: 'ai agents webpage.png' },
+              { type: 'desktop', label: 'Fintech Webpage', image: 'emprendIA fintech webpage.png' },
+              { type: 'desktop', label: 'Home Webpage', image: 'home webpage.png' },
             ].map((screen, index) => (
               <div 
                 key={index} 
-                className={`flex-shrink-0 ${screen.type === 'desktop' ? 'w-[500px]' : 'w-[200px]'}`}
+                className="flex-shrink-0 w-[500px]"
               >
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-950/20 to-slate-900">
+                <div className="aspect-[16/10] rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden">
+                  <img 
+                    src={`/assets/projects/emprendia/${screen.image}`}
+                    alt={`EmprendIA ${screen.label}`}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const placeholder = target.nextElementSibling as HTMLElement
+                      if (placeholder) placeholder.style.display = 'flex'
+                    }}
+                  />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-950/20 to-slate-900" style={{ display: 'none' }}>
                     <div className="text-center p-4">
-                      {screen.type === 'desktop' ? (
-                        <FaDesktop className="text-3xl text-amber-500/30 mx-auto mb-2" />
-                      ) : (
-                        <FaMobile className="text-2xl text-amber-500/30 mx-auto mb-2" />
-                      )}
+                      <FaDesktop className="text-3xl text-amber-500/30 mx-auto mb-2" />
                       <p className="text-amber-300/40 text-xs">{screen.label}</p>
                     </div>
                   </div>
@@ -325,25 +561,30 @@ const ProjectEmprendIA: React.FC = () => {
             ))}
             {/* Duplicate for seamless loop */}
             {[
-              { type: 'desktop', label: 'Analytics Dashboard', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Search Startups', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Mentor Matching', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Chat Interface', aspect: 'aspect-[9/16]' },
-              { type: 'desktop', label: 'Progress Tracking', aspect: 'aspect-[16/10]' },
-              { type: 'mobile', label: 'Settings', aspect: 'aspect-[9/16]' },
+              { type: 'desktop', label: 'Subscription', image: 'subscription webpage.png' },
+              { type: 'desktop', label: 'AI Agents', image: 'ai agents webpage.png' },
+              { type: 'desktop', label: 'Fintech Webpage', image: 'emprendIA fintech webpage.png' },
+              { type: 'desktop', label: 'Home Webpage', image: 'home webpage.png' },
             ].map((screen, index) => (
               <div 
                 key={`dup-${index}`} 
-                className={`flex-shrink-0 ${screen.type === 'desktop' ? 'w-[500px]' : 'w-[200px]'}`}
+                className="flex-shrink-0 w-[500px]"
               >
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-950/20 to-slate-900">
+                <div className="aspect-[16/10] rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 overflow-hidden">
+                  <img 
+                    src={`/assets/projects/emprendia/${screen.image}`}
+                    alt={`EmprendIA ${screen.label}`}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const placeholder = target.nextElementSibling as HTMLElement
+                      if (placeholder) placeholder.style.display = 'flex'
+                    }}
+                  />
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-950/20 to-slate-900" style={{ display: 'none' }}>
                     <div className="text-center p-4">
-                      {screen.type === 'desktop' ? (
-                        <FaDesktop className="text-3xl text-amber-500/30 mx-auto mb-2" />
-                      ) : (
-                        <FaMobile className="text-2xl text-amber-500/30 mx-auto mb-2" />
-                      )}
+                      <FaDesktop className="text-3xl text-amber-500/30 mx-auto mb-2" />
                       <p className="text-amber-300/40 text-xs">{screen.label}</p>
                     </div>
                   </div>
@@ -356,10 +597,28 @@ const ProjectEmprendIA: React.FC = () => {
 
       {/* Tech Stack Footer */}
       <div className="relative py-20 bg-gradient-to-b from-[#0a0a0f] to-[#0f0a0a]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`tech-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 1.5}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="animate-on-scroll text-xs uppercase tracking-[0.2em] text-gray-500 mb-6">Built With</p>
-            <div className="animate-on-scroll stagger-1 flex flex-wrap justify-center gap-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-6">Built With</p>
+            <div className="flex flex-wrap justify-center gap-4">
               {[
                 { icon: SiReact, name: 'React' },
                 { icon: SiTypescript, name: 'TypeScript' },

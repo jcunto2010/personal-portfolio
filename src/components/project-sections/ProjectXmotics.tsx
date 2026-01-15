@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FaCogs, FaChartBar } from 'react-icons/fa'
+import { FaCogs, FaChartBar, FaExternalLinkAlt, FaRocket } from 'react-icons/fa'
 import { SiReact, SiTypescript, SiNodedotjs, SiDocker, SiMongodb } from 'react-icons/si'
 
 // Custom hook for scroll-triggered animations
@@ -38,6 +38,52 @@ interface CountUpProps {
   duration?: number
   decimals?: number
 }
+
+// Generate random stars
+const generateStars = (count: number) => {
+  const stars = []
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: Math.random() * 2 + 1,
+      delay: Math.random() * 3,
+      duration: Math.random() * 2 + 2,
+    })
+  }
+  return stars
+}
+
+const stars = generateStars(80)
+
+// Starry background component to reuse across sections
+const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars = true }) => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    {stars.map((star) => (
+      <div
+        key={star.id}
+        className="absolute rounded-full bg-white animate-twinkle"
+        style={{
+          left: star.left,
+          top: star.top,
+          width: `${star.size}px`,
+          height: `${star.size}px`,
+          animationDelay: `${star.delay}s`,
+          animationDuration: `${star.duration}s`,
+          opacity: Math.random() * 0.5 + 0.3,
+        }}
+      />
+    ))}
+    {shootingStars && (
+      <>
+        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '0s' }} />
+        <div className="absolute top-1/3 left-2/3 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-1/2 left-1/3 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '8s' }} />
+      </>
+    )}
+  </div>
+)
 
 const CountUp: React.FC<CountUpProps> = ({ end, suffix = '', prefix = '', duration = 2000, decimals = 0 }) => {
   const [count, setCount] = useState(0)
@@ -98,7 +144,10 @@ const ProjectXmotics: React.FC = () => {
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center py-24">
         {/* Premium dark gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0f0f] via-[#0a1a1a] to-[#0a0f0f]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0a0a1a] to-[#0a0f0f]" />
+        
+        {/* Starry background */}
+        <StarryBackground />
         
         {/* Subtle cyan gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/10 via-transparent to-teal-900/5" />
@@ -123,7 +172,11 @@ const ProjectXmotics: React.FC = () => {
           <div className="max-w-6xl mx-auto">
             {/* Project Title */}
             <div className="text-center mb-20">
-              <p className="animate-fade-in-up text-cyan-400 text-sm uppercase tracking-[0.3em] mb-4 font-medium" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+              <div className="animate-fade-in-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+                <FaRocket className="text-cyan-400 text-sm" />
+                <span className="text-cyan-400 text-sm font-medium">Coming Soon</span>
+              </div>
+              <p className="animate-fade-in-up text-cyan-400 text-sm uppercase tracking-[0.3em] mb-4 font-medium" style={{ animationDelay: '0.15s', animationFillMode: 'both' }}>
                 Industrial Automation
               </p>
               <h2 className="animate-fade-in-up text-6xl md:text-8xl lg:text-9xl font-bold font-heading tracking-tight mb-6" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
@@ -136,33 +189,55 @@ const ProjectXmotics: React.FC = () => {
               </p>
             </div>
 
-            {/* Hero Mockup - Dashboard Preview */}
+            {/* Hero Mockup - Website Preview */}
             <div className="animate-fade-in-up relative flex justify-center" style={{ animationDelay: '0.7s', animationFillMode: 'both' }}>
               <div className="relative w-full max-w-5xl">
                 {/* Monitor frame */}
-                <div className="relative">
+                <div className="relative group">
                   <div className="absolute -inset-4 bg-gradient-to-br from-cyan-500/20 via-teal-500/20 to-emerald-500/20 rounded-3xl blur-2xl" />
                   <div className="relative bg-slate-900 rounded-2xl p-4 border border-white/10 shadow-2xl shadow-cyan-500/10">
                     {/* Screen */}
                     <div className="bg-[#0a0f0f] rounded-xl overflow-hidden">
-                      {/* Status bar */}
-                      <div className="flex items-center justify-between px-6 py-3 bg-slate-900/80 border-b border-cyan-500/10">
-                        <div className="flex items-center gap-3">
-                          <FaCogs className="text-cyan-400" />
-                          <span className="text-white text-sm font-medium">Xmotics Control Center</span>
+                      {/* Browser bar */}
+                      <div className="flex items-center gap-2 px-4 py-3 bg-slate-800/80 border-b border-cyan-500/10">
+                        <div className="flex gap-1.5">
+                          <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="text-emerald-400 text-xs">All Systems Online</span>
+                        <div className="flex-1 mx-8">
+                          <div className="bg-slate-900/80 rounded-lg px-4 py-1.5 text-xs text-cyan-400/70 text-center flex items-center justify-center gap-2">
+                            <span>xmotics.com</span>
+                            <FaExternalLinkAlt className="text-[10px]" />
+                          </div>
                         </div>
                       </div>
-                      {/* Dashboard placeholder */}
-                      <div className="aspect-[16/9] bg-gradient-to-br from-slate-900 via-cyan-950/20 to-slate-900 flex items-center justify-center">
-                        <div className="text-center p-8">
-                          <FaChartBar className="text-6xl text-cyan-500/30 mx-auto mb-4" />
-                          <p className="text-cyan-300/50 text-lg font-medium">Control Dashboard</p>
-                          <p className="text-cyan-400/30 text-sm mt-2">Screenshot Coming Soon</p>
-                        </div>
+                      {/* Video Player */}
+                      <div className="relative aspect-[16/9] bg-gradient-to-br from-slate-900 via-cyan-950/20 to-slate-900 overflow-hidden group">
+                        <video
+                          className="w-full h-full object-contain"
+                          controls
+                          playsInline
+                          preload="metadata"
+                          loop
+                          autoPlay
+                          muted
+                        >
+                          <source src="/assets/projects/xmotics/Xmotics - Screencastify - January 15, 2026 1_40 PM.mp4" type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                        {/* Website link overlay on hover */}
+                        <a 
+                          href="https://xmotics.com" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 hover:opacity-100 group-hover:opacity-100"
+                        >
+                          <div className="absolute bottom-4 right-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/90 hover:bg-cyan-500 border border-cyan-400/50 text-white text-sm font-medium transition-all shadow-lg">
+                            <span>Visit xmotics.com</span>
+                            <FaExternalLinkAlt className="text-xs" />
+                          </div>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -182,20 +257,46 @@ const ProjectXmotics: React.FC = () => {
 
       {/* Project Overview - Editorial Style */}
       <div className="relative py-32 bg-gradient-to-b from-[#0a0f0f] to-[#0a0a0f]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`overview-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             
             {/* Main Description */}
             <div className="mb-20">
-              <p className="animate-on-scroll text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
-                Xmotics delivers <span className="text-cyan-400 font-medium">real-time industrial monitoring</span> with 
-                seamless PLC integration. The platform processes <span className="text-teal-400 font-medium">thousands of data points</span> per 
+              <p className="text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
+                Xmotics will deliver <span className="text-cyan-400 font-medium">real-time industrial monitoring</span> with 
+                seamless PLC integration. The platform will process <span className="text-teal-400 font-medium">thousands of data points</span> per 
                 second, enabling predictive maintenance and operational insights for manufacturing facilities.
               </p>
             </div>
 
+            {/* Status Badge */}
+            <div className="mb-12 flex justify-center">
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-cyan-500/5 border border-cyan-500/20">
+                <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-cyan-400/80 text-sm">Project in Planning Phase</span>
+              </div>
+            </div>
+
             {/* Tech Stack Line */}
-            <div className="animate-on-scroll stagger-1 mb-20">
+            <div className="mb-20">
               <p className="text-gray-500 text-sm tracking-wide">
                 React · TypeScript · Node.js · MongoDB · Docker · MQTT · WebSocket
               </p>
@@ -205,15 +306,26 @@ const ProjectXmotics: React.FC = () => {
             </div>
 
             {/* Divider */}
-            <div className="animate-on-scroll stagger-2 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent mb-20" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent mb-20" />
 
             {/* Role Description */}
-            <div className="animate-on-scroll stagger-3 mb-16">
+            <div className="mb-8">
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">My Role</p>
+              <h4 className="text-cyan-400 text-lg font-semibold mb-3">CTO</h4>
               <p className="text-gray-300 text-lg leading-relaxed font-body max-w-2xl mx-auto">
-                Frontend architecture and real-time data visualization. Implemented WebSocket-based 
-                live updates, interactive dashboards, and responsive monitoring interfaces for industrial equipment.
+                Leading technical strategy and architecture for industrial automation platform. Currently defining 
+                the technical roadmap for real-time monitoring dashboards and WebSocket-based live data visualization systems.
               </p>
+            </div>
+
+            {/* Work in Progress Notice */}
+            <div className="flex justify-center mb-16">
+              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-cyan-500/5 border border-cyan-500/20 text-cyan-400/70 text-sm">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Work in progress - More details coming soon</span>
+              </div>
             </div>
 
           </div>
@@ -222,13 +334,31 @@ const ProjectXmotics: React.FC = () => {
 
       {/* Data Pipeline - Editorial Layout */}
       <div className="relative py-32 bg-[#0a0a0f] overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`pipeline-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 0.5}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-6xl mx-auto">
             
             {/* Section Title - Left aligned, editorial */}
             <div className="mb-20">
-              <p className="animate-on-scroll text-cyan-400 text-xs uppercase tracking-[0.3em] mb-4">Data Pipeline</p>
-              <h3 className="animate-on-scroll stagger-1 text-4xl md:text-5xl lg:text-6xl font-bold text-white font-heading leading-tight">
+              <p className="text-cyan-400 text-xs uppercase tracking-[0.3em] mb-4">Planned Architecture</p>
+              <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-heading leading-tight">
                 From sensor<br />
                 <span className="text-gray-500">to insight.</span>
               </h3>
@@ -241,7 +371,7 @@ const ProjectXmotics: React.FC = () => {
               <div className="space-y-10">
                 
                 {/* Step 1: PLCs & Sensors */}
-                <div className="animate-on-scroll stagger-2 group">
+                <div className="group">
                   <div className="flex items-baseline gap-4 mb-2">
                     <span className="text-5xl font-bold text-cyan-500/20 font-heading">01</span>
                     <h4 className="text-xl md:text-2xl font-bold text-white font-heading">PLCs & Sensors</h4>
@@ -253,7 +383,7 @@ const ProjectXmotics: React.FC = () => {
                 </div>
 
                 {/* Step 2: Edge Gateway */}
-                <div className="animate-on-scroll stagger-3 group">
+                <div className="group">
                   <div className="flex items-baseline gap-4 mb-2">
                     <span className="text-5xl font-bold text-teal-500/20 font-heading">02</span>
                     <h4 className="text-xl md:text-2xl font-bold text-white font-heading">Edge Processing</h4>
@@ -265,7 +395,7 @@ const ProjectXmotics: React.FC = () => {
                 </div>
 
                 {/* Step 3: Backend */}
-                <div className="animate-on-scroll stagger-4 group">
+                <div className="group">
                   <div className="flex items-baseline gap-4 mb-2">
                     <span className="text-5xl font-bold text-emerald-500/20 font-heading">03</span>
                     <h4 className="text-xl md:text-2xl font-bold text-white font-heading">Real-time Backend</h4>
@@ -277,7 +407,7 @@ const ProjectXmotics: React.FC = () => {
                 </div>
 
                 {/* Step 4: Database */}
-                <div className="animate-on-scroll stagger-5 group">
+                <div className="group">
                   <div className="flex items-baseline gap-4 mb-2">
                     <span className="text-5xl font-bold text-blue-500/20 font-heading">04</span>
                     <h4 className="text-xl md:text-2xl font-bold text-white font-heading">Time-Series Storage</h4>
@@ -289,7 +419,7 @@ const ProjectXmotics: React.FC = () => {
                 </div>
 
                 {/* Step 5: Dashboard */}
-                <div className="animate-on-scroll stagger-6 group">
+                <div className="group">
                   <div className="flex items-baseline gap-4 mb-2">
                     <span className="text-5xl font-bold text-violet-500/20 font-heading">05</span>
                     <h4 className="text-xl md:text-2xl font-bold text-white font-heading">Live Dashboard</h4>
@@ -440,13 +570,31 @@ const ProjectXmotics: React.FC = () => {
 
       {/* Metrics Section */}
       <div className="relative py-24 bg-gradient-to-b from-[#0a0a0f] to-[#0a0f0f]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`metrics-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 1}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-5xl mx-auto">
 
             {/* Metrics Cards with Count-Up Animation */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {/* Data Points */}
-              <div className="animate-on-scroll stagger-3 text-center p-6">
+              <div className="text-center p-6">
                 <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent font-heading">
                   <CountUp end={10} suffix="K+" duration={2000} />
                 </p>
@@ -455,7 +603,7 @@ const ProjectXmotics: React.FC = () => {
               </div>
 
               {/* Latency */}
-              <div className="animate-on-scroll stagger-4 text-center p-6">
+              <div className="text-center p-6">
                 <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent font-heading">
                   <CountUp end={50} prefix="<" suffix="ms" duration={1800} />
                 </p>
@@ -464,7 +612,7 @@ const ProjectXmotics: React.FC = () => {
               </div>
 
               {/* Uptime */}
-              <div className="animate-on-scroll stagger-5 text-center p-6">
+              <div className="text-center p-6">
                 <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent font-heading">
                   <CountUp end={99.9} suffix="%" duration={2200} decimals={1} />
                 </p>
@@ -473,7 +621,7 @@ const ProjectXmotics: React.FC = () => {
               </div>
 
               {/* Devices */}
-              <div className="animate-on-scroll stagger-6 text-center p-6">
+              <div className="text-center p-6">
                 <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent font-heading">
                   <CountUp end={100} suffix="+" duration={2000} />
                 </p>
@@ -486,112 +634,71 @@ const ProjectXmotics: React.FC = () => {
         </div>
       </div>
 
-      {/* Screenshots Showcase - Infinite Scroll Gallery */}
-      <div className="relative py-24 bg-[#0a0a0f] overflow-hidden">
-        <div className="mb-16 text-center">
-          <h3 className="animate-on-scroll text-3xl md:text-4xl font-bold text-white font-heading mb-4">
-            Dashboard Interfaces
-          </h3>
-          <p className="animate-on-scroll stagger-1 text-gray-500 font-body">
-            Industrial monitoring and control interfaces
-          </p>
+      {/* Website CTA Section */}
+      <div className="relative py-24 bg-[#0a0a0f]">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`cta-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 1.5}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
         </div>
-
-        {/* Row 1 - Scrolling Left */}
-        <div className="mb-6 overflow-hidden">
-          <div className="animate-scroll-infinite-smooth flex gap-6">
-            {/* First set */}
-            {[
-              { label: 'Main Dashboard', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'Device Status Panel', aspect: 'aspect-[4/3]', width: 'w-[350px]' },
-              { label: 'Real-time Monitoring', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'Alert Management', aspect: 'aspect-[4/3]', width: 'w-[350px]' },
-              { label: 'Historical Analytics', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-            ].map((screen, index) => (
-              <div key={index} className={`flex-shrink-0 ${screen.width}`}>
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-cyan-500/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-950/20 to-slate-900">
-                    <div className="text-center p-4">
-                      <FaChartBar className="text-3xl text-cyan-500/30 mx-auto mb-2" />
-                      <p className="text-cyan-300/40 text-xs">{screen.label}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Duplicate for seamless loop */}
-            {[
-              { label: 'Main Dashboard', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'Device Status Panel', aspect: 'aspect-[4/3]', width: 'w-[350px]' },
-              { label: 'Real-time Monitoring', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'Alert Management', aspect: 'aspect-[4/3]', width: 'w-[350px]' },
-              { label: 'Historical Analytics', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-            ].map((screen, index) => (
-              <div key={`dup-${index}`} className={`flex-shrink-0 ${screen.width}`}>
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-cyan-500/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-950/20 to-slate-900">
-                    <div className="text-center p-4">
-                      <FaChartBar className="text-3xl text-cyan-500/30 mx-auto mb-2" />
-                      <p className="text-cyan-300/40 text-xs">{screen.label}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Row 2 - Scrolling Right (reverse) */}
-        <div className="overflow-hidden">
-          <div className="animate-scroll-infinite-smooth-reverse flex gap-6">
-            {/* First set */}
-            {[
-              { label: 'PLC Configuration', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'Sensor Network Map', aspect: 'aspect-[4/3]', width: 'w-[400px]' },
-              { label: 'Performance Metrics', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'System Logs', aspect: 'aspect-[4/3]', width: 'w-[350px]' },
-              { label: 'User Management', aspect: 'aspect-[16/10]', width: 'w-[500px]' },
-            ].map((screen, index) => (
-              <div key={index} className={`flex-shrink-0 ${screen.width}`}>
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-teal-500/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-teal-950/20 to-slate-900">
-                    <div className="text-center p-4">
-                      <FaCogs className="text-3xl text-teal-500/30 mx-auto mb-2" />
-                      <p className="text-teal-300/40 text-xs">{screen.label}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {/* Duplicate for seamless loop */}
-            {[
-              { label: 'PLC Configuration', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'Sensor Network Map', aspect: 'aspect-[4/3]', width: 'w-[400px]' },
-              { label: 'Performance Metrics', aspect: 'aspect-[16/10]', width: 'w-[550px]' },
-              { label: 'System Logs', aspect: 'aspect-[4/3]', width: 'w-[350px]' },
-              { label: 'User Management', aspect: 'aspect-[16/10]', width: 'w-[500px]' },
-            ].map((screen, index) => (
-              <div key={`dup-${index}`} className={`flex-shrink-0 ${screen.width}`}>
-                <div className={`${screen.aspect} rounded-2xl bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-teal-500/10 overflow-hidden`}>
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-teal-950/20 to-slate-900">
-                    <div className="text-center p-4">
-                      <FaCogs className="text-3xl text-teal-500/30 mx-auto mb-2" />
-                      <p className="text-teal-300/40 text-xs">{screen.label}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h3 className="text-3xl md:text-4xl font-bold text-white font-heading mb-4">
+              Visit the Website
+            </h3>
+            <p className="text-gray-400 font-body mb-8 max-w-xl mx-auto">
+              Learn more about Xmotics and stay updated on our progress as we build the next generation of industrial automation tools.
+            </p>
+            <a 
+              href="https://xmotics.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-semibold hover:from-cyan-400 hover:to-teal-400 transition-all shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40"
+            >
+              <span>Visit xmotics.com</span>
+              <FaExternalLinkAlt className="text-sm" />
+            </a>
           </div>
         </div>
       </div>
 
       {/* Tech Stack Footer */}
       <div className="relative py-20 bg-gradient-to-b from-[#0a0a0f] to-[#0a0f0f]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`tech-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 2}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="animate-on-scroll text-xs uppercase tracking-[0.2em] text-gray-500 mb-6">Built With</p>
-            <div className="animate-on-scroll stagger-1 flex flex-wrap justify-center gap-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-6">Built With</p>
+            <div className="flex flex-wrap justify-center gap-4">
               {[
                 { icon: SiReact, name: 'React' },
                 { icon: SiTypescript, name: 'TypeScript' },
@@ -608,7 +715,7 @@ const ProjectXmotics: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="animate-on-scroll stagger-2 flex flex-wrap justify-center gap-3 mt-4">
+            <div className="flex flex-wrap justify-center gap-3 mt-4">
               {['MQTT', 'WebSocket', 'OPC-UA', 'Redis'].map((tech, index) => (
                 <span 
                   key={index}

@@ -150,9 +150,73 @@
     display: flex;
     width: fit-content;
     will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .animate-scroll-infinite-smooth:hover {
+    animation-play-state: paused;
+  }
+
+  /* Orbit animation for skill icons */
+  @keyframes orbit {
+    0% {
+      transform: translateX(0) translateY(0);
+    }
+    25% {
+      transform: translateX(4px) translateY(-4px);
+    }
+    50% {
+      transform: translateX(0) translateY(-6px);
+    }
+    75% {
+      transform: translateX(-4px) translateY(-4px);
+    }
+    100% {
+      transform: translateX(0) translateY(0);
+    }
+  }
+
+  .animate-orbit {
+    animation: orbit 8s ease-in-out infinite;
+  }
+
+  .group:hover .animate-orbit,
+  .pause-animation {
+    animation-play-state: paused;
+  }
+
+  /* Slow clockwise spin for orbital container */
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spinSlow 40s linear infinite;
+  }
+
+  /* Counter-rotation to keep icons upright - must match spinSlow duration */
+  @keyframes spinReverse {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+  .animate-spin-reverse {
+    animation: spinReverse 40s linear infinite;
+  }
+
+  /* Pause all orbital animations on hover */
+  .animate-spin-slow:hover,
+  .animate-spin-slow:hover .animate-spin-reverse {
     animation-play-state: paused;
   }
 
@@ -502,12 +566,18 @@
     @apply transition-colors duration-300;
   }
 
-  /* Focus states for accessibility */
-  button:focus,
-  a:focus,
-  input:focus,
-  textarea:focus {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  /* Focus states for accessibility - only show on keyboard navigation */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-transparent;
+  }
+  
+  /* Remove focus ring on mouse click */
+  button:focus:not(:focus-visible),
+  a:focus:not(:focus-visible) {
+    @apply outline-none ring-0;
   }
 
   /* ===== SCROLL REVEAL ANIMATIONS ===== */
@@ -682,4 +752,104 @@
     transform: translateY(-5px);
     box-shadow: 0 20px 40px -15px rgba(139, 92, 246, 0.3);
   }
+
+  /* Twinkling star animation */
+  @keyframes twinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  .animate-twinkle {
+    animation: twinkle 3s ease-in-out infinite;
+  }
+
+  /* Shooting star animation */
+  @keyframes shootingStar {
+    0% {
+      transform: translateX(0) translateY(0) rotate(-45deg);
+      opacity: 1;
+      width: 4px;
+      height: 4px;
+    }
+    30% {
+      opacity: 1;
+      width: 100px;
+      height: 2px;
+    }
+    100% {
+      transform: translateX(300px) translateY(300px) rotate(-45deg);
+      opacity: 0;
+      width: 150px;
+      height: 1px;
+    }
+  }
+
+  .animate-shooting-star {
+    animation: shootingStar 3s ease-out infinite;
+    background: linear-gradient(90deg, white, transparent);
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* React Flow Custom Styles */
+.react-flow__controls {
+  display: none !important;
+}
+
+.react-flow__minimap {
+  display: none !important;
+}
+
+.react-flow__node {
+  cursor: default !important;
+}
+
+.react-flow__handle {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: rgba(139, 92, 246, 0.5) !important;
+  border: 2px solid rgba(139, 92, 246, 0.8) !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2px !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: rgba(139, 92, 246, 0.8) !important;
+}
+
+.react-flow__connection-line {
+  stroke: rgba(139, 92, 246, 0.5) !important;
+  stroke-width: 2px !important;
+}
+
+.react-flow__node-custom {
+  background: transparent !important;
+  border: none !important;
+}
+
+.react-flow__node-custom .react-flow__handle {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.react-flow__edge {
+  pointer-events: none !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 2px !important;
+  stroke-dasharray: none !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: rgba(139, 92, 246, 0.8) !important;
 }

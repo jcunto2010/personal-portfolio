@@ -1,5 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { FaRobot, FaMobileAlt, FaCalendarCheck, FaBell, FaFingerprint, FaComments } from 'react-icons/fa'
+import ReactFlow, { Node, Edge, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge, Connection, Handle } from 'reactflow'
+import 'reactflow/dist/style.css'
 
 // Custom hook for scroll-triggered animations
 const useScrollAnimation = () => {
@@ -29,6 +31,193 @@ const useScrollAnimation = () => {
   return ref
 }
 
+// Generate random stars
+const generateStars = (count: number) => {
+  const stars = []
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: Math.random() * 2 + 1,
+      delay: Math.random() * 3,
+      duration: Math.random() * 2 + 2,
+    })
+  }
+  return stars
+}
+
+const stars = generateStars(80)
+
+// Custom Node Component for React Flow - Rounded Rectangle Style
+const CustomNode = ({ data }: { data: { label: string; isPrimary?: boolean } }) => {
+  const isPrimary = data.isPrimary || false
+  return (
+    <div className={`px-6 py-4 rounded-xl shadow-lg transition-all hover:scale-105 relative min-w-[120px] ${
+      isPrimary 
+        ? 'bg-blue-400/20 border-2 border-blue-400' 
+        : 'bg-gray-800/80 border border-gray-600/50'
+    }`}>
+      <div className={`text-base font-medium text-center whitespace-nowrap ${
+        isPrimary ? 'text-white' : 'text-white'
+      }`}>
+        {data.label}
+      </div>
+      {/* Handles for connections */}
+      <Handle type="source" position="right" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="target" position="left" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+    </div>
+  )
+}
+
+const nodeTypes = {
+  custom: CustomNode,
+}
+
+// User Flow Diagram Component - Clean Horizontal Layout
+const UserFlowDiagram: React.FC = () => {
+  const initialNodes: Node[] = [
+    // Column 1: Authentication Flow (Left - X: 0)
+    { id: '1', type: 'custom', position: { x: 0, y: 0 }, data: { label: 'Splash Screen', isPrimary: true }, draggable: false },
+    { id: '2', type: 'custom', position: { x: 0, y: 120 }, data: { label: 'SignUp', isPrimary: true }, draggable: false },
+    { id: '3', type: 'custom', position: { x: 0, y: 240 }, data: { label: 'Login', isPrimary: false }, draggable: false },
+    { id: '4', type: 'custom', position: { x: 0, y: 360 }, data: { label: 'Main Nav', isPrimary: true }, draggable: false },
+    
+    // Column 2: Main Navigation Column (Center - X: 500) - All in same column
+    { id: '5', type: 'custom', position: { x: 500, y: 0 }, data: { label: 'Home', isPrimary: false }, draggable: false },
+    { id: '6', type: 'custom', position: { x: 500, y: 120 }, data: { label: 'Calendar\n(View/Delete Appointments)', isPrimary: false }, draggable: false },
+    { id: '7', type: 'custom', position: { x: 500, y: 240 }, data: { label: 'Chat\n(Talk with Shops/AI)', isPrimary: false }, draggable: false },
+    { id: '8', type: 'custom', position: { x: 500, y: 360 }, data: { label: 'AI Assistant\n(Book, Suggest Appointments/Shops)', isPrimary: true }, draggable: false },
+    { id: '9', type: 'custom', position: { x: 500, y: 480 }, data: { label: 'Profile\n(Change Password)', isPrimary: false }, draggable: false },
+    { id: '10', type: 'custom', position: { x: 500, y: 600 }, data: { label: 'Settings', isPrimary: false }, draggable: false },
+    
+    // Column 3: Booking Flow (Right - X: 1000+) - Horizontal flow
+    { id: '11', type: 'custom', position: { x: 1000, y: 0 }, data: { label: 'Search', isPrimary: false }, draggable: false },
+    { id: '12', type: 'custom', position: { x: 1200, y: 0 }, data: { label: 'Select Service', isPrimary: false }, draggable: false },
+    { id: '13', type: 'custom', position: { x: 1400, y: 0 }, data: { label: 'Select Time', isPrimary: false }, draggable: false },
+    { id: '14', type: 'custom', position: { x: 1600, y: 0 }, data: { label: 'Review', isPrimary: false }, draggable: false },
+    { id: '15', type: 'custom', position: { x: 1800, y: 0 }, data: { label: 'Confirm', isPrimary: true }, draggable: false },
+    { id: '16', type: 'custom', position: { x: 2000, y: 0 }, data: { label: 'Booking Details', isPrimary: true }, draggable: false },
+  ]
+
+  const initialEdges: Edge[] = [
+    // Authentication Flow
+    { id: 'e1-2', source: '1', target: '2', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e1-3', source: '1', target: '3', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e2-4', source: '2', target: '4', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e3-4', source: '3', target: '4', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // Main Nav to Home
+    { id: 'e4-5', source: '4', target: '5', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // Home to Core Features (all in same column)
+    { id: 'e5-6', source: '5', target: '6', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e5-7', source: '5', target: '7', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e5-8', source: '5', target: '8', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e5-9', source: '5', target: '9', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // Profile to Settings
+    { id: 'e9-10', source: '9', target: '10', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // Home to Booking Flow (Schedule Appointment)
+    { id: 'e5-11', source: '5', target: '11', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // AI Assistant can initiate booking
+    { id: 'e8-11', source: '8', target: '11', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // Booking Flow (horizontal)
+    { id: 'e11-12', source: '11', target: '12', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e12-13', source: '12', target: '13', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e13-14', source: '13', target: '14', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e14-15', source: '14', target: '15', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    { id: 'e15-16', source: '15', target: '16', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+    
+    // Calendar can view Booking Details
+    { id: 'e6-16', source: '6', target: '16', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
+  ]
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
+
+  // Prevent node dragging by filtering out position changes
+  const handleNodesChange = useCallback((changes: any) => {
+    const filteredChanges = changes.filter((change: any) => change.type !== 'position')
+    onNodesChange(filteredChanges)
+  }, [onNodesChange])
+
+  const onConnect = useCallback(
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  )
+
+  const reactFlowInstance = useRef<any>(null)
+
+  useEffect(() => {
+    if (reactFlowInstance.current) {
+      setTimeout(() => {
+        reactFlowInstance.current.fitView({ padding: 0.1, duration: 400 })
+      }, 100)
+    }
+  }, [nodes, edges])
+
+  return (
+    <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: 'transparent' }}>
+      <ReactFlow
+        ref={reactFlowInstance}
+        nodes={nodes.map(node => ({ ...node, draggable: false }))}
+        edges={edges}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        fitView
+        fitViewOptions={{ padding: 0.3, duration: 400 }}
+        minZoom={0.15}
+        maxZoom={2}
+        defaultViewport={{ x: 0, y: 0, zoom: 0.4 }}
+        style={{ background: 'transparent' }}
+        proOptions={{ hideAttribution: true }}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={false}
+        panOnDrag={true}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+      >
+        <Background color="transparent" />
+      </ReactFlow>
+    </div>
+  )
+}
+
+// Starry background component to reuse across sections
+const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars = true }) => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    {stars.map((star) => (
+      <div
+        key={star.id}
+        className="absolute rounded-full bg-white animate-twinkle"
+        style={{
+          left: star.left,
+          top: star.top,
+          width: `${star.size}px`,
+          height: `${star.size}px`,
+          animationDelay: `${star.delay}s`,
+          animationDuration: `${star.duration}s`,
+          opacity: Math.random() * 0.5 + 0.3,
+        }}
+      />
+    ))}
+    {shootingStars && (
+      <>
+        <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '0s' }} />
+        <div className="absolute top-1/3 left-2/3 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '4s' }} />
+        <div className="absolute top-1/2 left-1/3 w-1 h-1 bg-white rounded-full animate-shooting-star" style={{ animationDelay: '8s' }} />
+      </>
+    )}
+  </div>
+)
+
 const ProjectReservo: React.FC = () => {
   const sectionRef = useScrollAnimation()
 
@@ -37,7 +226,10 @@ const ProjectReservo: React.FC = () => {
       {/* Hero Section with gradient background */}
       <div className="relative min-h-screen flex items-center justify-center py-24">
         {/* Premium gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a] via-[#1a1a3a] to-[#0f0f2a]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0a0a1a] to-[#0f0f2a]" />
+        
+        {/* Starry background */}
+        <StarryBackground />
         
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-violet-900/20 via-transparent to-fuchsia-900/10" />
@@ -127,13 +319,11 @@ const ProjectReservo: React.FC = () => {
                   <div className="absolute -inset-2 bg-gradient-to-br from-violet-500/30 to-fuchsia-500/30 rounded-[2rem] blur-xl opacity-60" />
                   <div className="relative bg-black rounded-[2rem] p-2 border border-white/10 shadow-2xl">
                     <div className="bg-[#111] rounded-[1.75rem] overflow-hidden aspect-[9/19.5]">
-                      {/* Screenshot placeholder */}
-                      <div className="w-full h-full bg-gradient-to-br from-violet-950/50 to-slate-950 flex items-center justify-center">
-                        <div className="text-center p-3">
-                          <FaCalendarCheck className="text-3xl md:text-4xl text-violet-500/40 mx-auto mb-2" />
-                          <p className="text-violet-400/40 text-xs">Calendar View</p>
-                        </div>
-                      </div>
+                      <img 
+                        src="/assets/projects/reservo/calendar.png" 
+                        alt="Reservo.AI Calendar View"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
@@ -147,14 +337,11 @@ const ProjectReservo: React.FC = () => {
                     {/* Notch */}
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20" />
                     <div className="bg-[#111] rounded-[2.5rem] overflow-hidden aspect-[9/19.5]">
-                      {/* Screenshot placeholder */}
-                      <div className="w-full h-full bg-gradient-to-br from-violet-950/30 to-slate-950 flex items-center justify-center">
-                        <div className="text-center p-4">
-                          <FaMobileAlt className="text-5xl md:text-6xl text-violet-500/50 mx-auto mb-4" />
-                          <p className="text-violet-300/60 text-sm font-medium">Main Screen</p>
-                          <p className="text-violet-400/30 text-xs mt-1">Screenshot Coming Soon</p>
-                        </div>
-                      </div>
+                      <img 
+                        src="/assets/projects/reservo/main screen.png" 
+                        alt="Reservo.AI Main Screen"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
@@ -169,13 +356,11 @@ const ProjectReservo: React.FC = () => {
                   <div className="absolute -inset-2 bg-gradient-to-br from-fuchsia-500/30 to-violet-500/30 rounded-[2rem] blur-xl opacity-60" />
                   <div className="relative bg-black rounded-[2rem] p-2 border border-white/10 shadow-2xl">
                     <div className="bg-[#111] rounded-[1.75rem] overflow-hidden aspect-[9/19.5]">
-                      {/* Screenshot placeholder */}
-                      <div className="w-full h-full bg-gradient-to-br from-fuchsia-950/50 to-slate-950 flex items-center justify-center">
-                        <div className="text-center p-3">
-                          <FaComments className="text-3xl md:text-4xl text-fuchsia-500/40 mx-auto mb-2" />
-                          <p className="text-fuchsia-400/40 text-xs">AI Chat</p>
-                        </div>
-                      </div>
+                      <img 
+                        src="/assets/projects/reservo/shop.png" 
+                        alt="Reservo.AI Shop Selection"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
@@ -206,12 +391,30 @@ const ProjectReservo: React.FC = () => {
 
       {/* Details Section - Editorial Style */}
       <div className="relative py-24 bg-gradient-to-b from-[#0f0f2a] to-[#0a0a1a]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background - behind content */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`details-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             
             {/* Main Description */}
             <div className="mb-16">
-              <p className="animate-on-scroll text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
+              <p className="text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
                 Reservo.AI is a multiplatform <span className="text-violet-400 font-medium">Flutter application</span> designed 
                 to revolutionize appointment booking. Powered by <span className="text-fuchsia-400 font-medium">Google Gemini</span>, 
                 it enables conversational booking, intelligent suggestions, and personalized reminders.
@@ -219,7 +422,7 @@ const ProjectReservo: React.FC = () => {
             </div>
 
             {/* Tech Stack - Clean centered line */}
-            <div className="animate-on-scroll stagger-1 mb-16">
+            <div className="mb-16">
               <p className="text-gray-500 text-sm mb-4">
                 Flutter · Firebase · Gemini AI · Riverpod · Rive
               </p>
@@ -229,19 +432,20 @@ const ProjectReservo: React.FC = () => {
             </div>
 
             {/* Divider */}
-            <div className="animate-on-scroll stagger-2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-16" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-16" />
 
             {/* Role Description */}
-            <div className="animate-on-scroll stagger-3 mb-16">
+            <div className="mb-16">
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">My Role</p>
+              <h4 className="text-violet-400 text-lg font-semibold mb-3">Mobile Development Manager & Founder</h4>
               <p className="text-gray-300 text-lg leading-relaxed font-body max-w-2xl mx-auto">
-                Full-stack development including UI/UX implementation, AI integration with Google Gemini, 
-                real-time data synchronization with Firebase, and state management with Riverpod.
+                Founded and lead mobile development for AI-powered appointment booking app. Integrated Google Gemini 
+                for conversational interface and implemented biometric authentication with Rive animations.
               </p>
             </div>
 
             {/* Key Capabilities - Centered */}
-            <div className="animate-on-scroll stagger-4">
+            <div className="mb-8">
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">Key Capabilities</p>
               <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-gray-400">
                 {[
@@ -260,45 +464,126 @@ const ProjectReservo: React.FC = () => {
               </div>
             </div>
 
+            {/* GitHub Link */}
+            <div className="flex justify-center">
+              <a 
+                href="https://github.com/jcunto2010/reservo_ai" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-400 hover:text-violet-300 transition-all font-medium"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+                <span>View on GitHub</span>
+              </a>
+            </div>
+
           </div>
         </div>
       </div>
 
       {/* Additional Screenshots Section */}
       <div className="relative py-24 bg-[#0a0a1a]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Starry background - behind content */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`screens-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 1}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.4,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h3 className="animate-on-scroll text-2xl md:text-3xl font-bold text-white font-heading mb-2">
+              <h3 className="text-2xl md:text-3xl font-bold text-white font-heading mb-2">
                 App Screens
               </h3>
-              <p className="animate-on-scroll stagger-1 text-gray-500 font-body">Key interfaces and user flows</p>
+              <p className="text-gray-500 font-body">Key interfaces and user flows</p>
             </div>
 
             {/* Screenshots Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {['Home', 'AI Chat', 'Bookings', 'Profile'].map((screen, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              {[
+                { name: 'Home', image: 'home.png' },
+                { name: 'Shop Selection', image: 'shop.png' },
+                { name: 'Calendar', image: 'calendar.png' },
+                { name: 'Booking Summary', image: 'book summary.png' }
+              ].map((screen, index) => (
                 <div 
                   key={index} 
-                  className={`animate-on-scroll stagger-${index + 2} group`}
+                  className="group"
                 >
                   <div className="relative">
                     <div className="absolute -inset-1 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-3xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="relative bg-black rounded-3xl p-2 border border-white/10 group-hover:border-violet-500/30 transition-colors hover-lift">
-                      <div className="bg-[#111] rounded-[1.25rem] overflow-hidden aspect-[9/16]">
-                        <div className="w-full h-full bg-gradient-to-br from-slate-900 to-slate-950 flex items-center justify-center">
-                          <div className="text-center">
-                            <FaMobileAlt className="text-2xl text-violet-500/30 mx-auto mb-2" />
-                            <p className="text-violet-400/40 text-xs font-medium">{screen}</p>
-                          </div>
-                        </div>
+                    <div className="relative bg-black rounded-3xl p-3 md:p-4 border border-white/10 group-hover:border-violet-500/30 transition-colors hover-lift">
+                      <div className="bg-[#111] rounded-[1.5rem] overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center justify-center">
+                        <img 
+                          src={`/assets/projects/reservo/${screen.image}`}
+                          alt={`Reservo.AI ${screen.name}`}
+                          className="w-full h-full object-contain"
+                        />
                       </div>
                     </div>
                   </div>
-                  <p className="text-center text-gray-500 text-sm mt-3 font-body">{screen}</p>
+                  <p className="text-center text-gray-500 text-sm mt-4 font-body">{screen.name}</p>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* User Flow Section */}
+      <div className="relative py-32 bg-gradient-to-b from-[#0a0a1a] to-[#0a0a0f]">
+        {/* Starry background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {stars.map((star) => (
+            <div
+              key={`flow-${star.id}`}
+              className="absolute rounded-full bg-white animate-twinkle"
+              style={{
+                left: star.left,
+                top: star.top,
+                width: `${star.size}px`,
+                height: `${star.size}px`,
+                animationDelay: `${star.delay + 1.5}s`,
+                animationDuration: `${star.duration}s`,
+                opacity: 0.3,
+              }}
+            />
+          ))}
+        </div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-6xl mx-auto">
+            
+            {/* Header */}
+            <div className="mb-8">
+              <p className="text-violet-400 text-xs uppercase tracking-[0.3em] mb-3">User Experience</p>
+              <h3 className="text-4xl md:text-5xl font-bold text-white font-heading mb-4">
+                Reservo.AI <span className="text-violet-400">UserFlow</span>
+              </h3>
+              <p className="text-gray-400 text-base max-w-3xl font-body leading-relaxed">
+                A user flow outlines the steps a user takes to complete a task on a website or app, from entry to goal completion. 
+                Analyzing these flows helps designers create intuitive and efficient user experiences.
+              </p>
+            </div>
+
+            {/* User Flow Diagram */}
+            <div className="relative py-16" style={{ height: '800px' }}>
+              <UserFlowDiagram />
+            </div>
+
           </div>
         </div>
       </div>

@@ -39,6 +39,17 @@ const Experience: React.FC = () => {
     }
   }
 
+  const getCompanyGradient = (company: string) => {
+    if (company.toLowerCase().includes('reservo')) {
+      return 'bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent'
+    } else if (company.toLowerCase().includes('emprendia')) {
+      return 'bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400 bg-clip-text text-transparent'
+    } else if (company.toLowerCase().includes('xmotics')) {
+      return 'bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent'
+    }
+    return 'text-white'
+  }
+
   return (
     <section id="experience" className="relative py-32 overflow-hidden" ref={sectionRef}>
       {/* Background */}
@@ -69,26 +80,23 @@ const Experience: React.FC = () => {
                 key={exp.id} 
                 className={`animate-on-scroll stagger-${index + 2}`}
               >
-                {/* Year/Period - Large, faded */}
-                <div className="mb-6 flex items-baseline gap-6">
-                  <span className="text-6xl md:text-8xl font-bold text-white/[0.07] font-heading leading-none">
-                    {exp.period.split(' ')[0]}
-                  </span>
-                  <span className="text-sm text-white/30 uppercase tracking-wider">
-                    {exp.period}
-                  </span>
-                </div>
-
                 {/* Main Content */}
                 <div className="grid md:grid-cols-12 gap-8 md:gap-12">
                   
-                  {/* Left: Role & Company */}
+                  {/* Left: Company & Role - Company More Prominent */}
                   <div className="md:col-span-5">
-                    <h3 className="text-3xl md:text-4xl font-bold text-white font-heading mb-3">
-                      {exp.role}
-                    </h3>
-                    <p className="text-xl text-white/60 font-body mb-6">
+                    {/* Timeframe - Smaller, less prominent */}
+                    <div className="mb-4">
+                      <span className="text-xs text-white/20 uppercase tracking-wider">
+                        {exp.period}
+                      </span>
+                    </div>
+                    
+                    <h3 className={`text-5xl md:text-6xl lg:text-7xl font-bold font-heading mb-3 leading-tight ${getCompanyGradient(exp.company)}`}>
                       {exp.company}
+                    </h3>
+                    <p className="text-xl md:text-2xl text-white/60 font-body mb-6">
+                      {exp.role}
                     </p>
                     
                     {/* Link to project */}
