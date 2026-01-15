@@ -2,9 +2,9 @@ import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
-import { FaUsers, FaRocket, FaComments, FaHandshake, FaMobileAlt, FaUserFriends, FaChartLine } from 'react-icons/fa'
+import { FaUsers, FaRocket, FaComments, FaHandshake } from 'react-icons/fa'
 import { SiReact, SiTypescript, SiSpringboot, SiPostgresql, SiTailwindcss } from 'react-icons/si'
-import ReactFlow, { Node, Edge, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge, Connection, Handle } from 'reactflow'
+import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
 
 // Custom hook for scroll-triggered animations
@@ -67,8 +67,8 @@ const CustomNodeBlue = ({ data }: { data: { label: string; isPrimary?: boolean }
         {data.label}
       </div>
       {/* Handles for connections */}
-      <Handle type="source" position="right" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
-      <Handle type="target" position="left" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="source" position={Position.Right} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="target" position={Position.Left} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
     </div>
   )
 }
@@ -335,7 +335,7 @@ const Sun: React.FC = () => {
   const coreRef = useRef<THREE.Mesh>(null)
   const pulseTime = useRef(0)
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (sunRef.current) {
       // Frame-rate independent rotation
       sunRef.current.rotation.z += delta * 0.1

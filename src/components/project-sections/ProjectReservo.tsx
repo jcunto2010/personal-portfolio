@@ -65,8 +65,8 @@ const CustomNode = ({ data }: { data: { label: string; isPrimary?: boolean } }) 
         {data.label}
       </div>
       {/* Handles for connections */}
-      <Handle type="source" position="right" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
-      <Handle type="target" position="left" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="source" position={Position.Right} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="target" position={Position.Left} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
     </div>
   )
 }

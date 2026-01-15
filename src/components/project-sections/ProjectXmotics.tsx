@@ -50,15 +50,14 @@ const generateStars = (count: number) => {
       size: Math.random() * 2 + 1,
       delay: Math.random() * 3,
       duration: Math.random() * 2 + 2,
+      opacity: Math.random() * 0.5 + 0.3,
     })
   }
   return stars
 }
 
-const stars = generateStars(80)
-
 // Starry background component to reuse across sections
-const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars = true }) => (
+const StarryBackground: React.FC<{ shootingStars?: boolean; stars: Array<{ id: number; left: string; top: string; size: number; delay: number; duration: number; opacity: number }> }> = ({ shootingStars = true, stars }) => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
     {stars.map((star) => (
       <div
@@ -71,7 +70,7 @@ const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars
           height: `${star.size}px`,
           animationDelay: `${star.delay}s`,
           animationDuration: `${star.duration}s`,
-          opacity: Math.random() * 0.5 + 0.3,
+          opacity: star.opacity,
         }}
       />
     ))}
@@ -138,6 +137,7 @@ const CountUp: React.FC<CountUpProps> = ({ end, suffix = '', prefix = '', durati
 
 const ProjectXmotics: React.FC = () => {
   const sectionRef = useScrollAnimation()
+  const [stars] = React.useState(() => generateStars(80))
 
   return (
     <section id="project-xmotics" className="relative overflow-hidden" ref={sectionRef}>
@@ -147,7 +147,7 @@ const ProjectXmotics: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0a0a1a] to-[#0a0f0f]" />
         
         {/* Starry background */}
-        <StarryBackground />
+        <StarryBackground stars={stars} />
         
         {/* Subtle cyan gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/10 via-transparent to-teal-900/5" />
