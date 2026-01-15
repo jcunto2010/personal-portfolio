@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { FaRobot, FaCalendarCheck, FaBell, FaFingerprint } from 'react-icons/fa'
 import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -42,6 +42,7 @@ const generateStars = (count: number) => {
       size: Math.random() * 2 + 1,
       delay: Math.random() * 3,
       duration: Math.random() * 2 + 2,
+      opacity: Math.random() * 0.5 + 0.3,
     })
   }
   return stars
@@ -150,20 +151,20 @@ const UserFlowDiagram: React.FC = () => {
     [setEdges]
   )
 
-  const reactFlowInstance = useRef<any>(null)
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
 
   useEffect(() => {
-    if (reactFlowInstance.current) {
+    if (reactFlowInstance) {
       setTimeout(() => {
-        reactFlowInstance.current.fitView({ padding: 0.1, duration: 400 })
+        reactFlowInstance.fitView({ padding: 0.1, duration: 400 })
       }, 100)
     }
-  }, [nodes, edges])
+  }, [nodes, edges, reactFlowInstance])
 
   return (
     <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: 'transparent' }}>
       <ReactFlow
-        ref={reactFlowInstance}
+        onInit={setReactFlowInstance}
         nodes={nodes.map(node => ({ ...node, draggable: false }))}
         edges={edges}
         onNodesChange={handleNodesChange}
@@ -204,7 +205,7 @@ const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars
           height: `${star.size}px`,
           animationDelay: `${star.delay}s`,
           animationDuration: `${star.duration}s`,
-          opacity: Math.random() * 0.5 + 0.3,
+          opacity: star.opacity,
         }}
       />
     ))}

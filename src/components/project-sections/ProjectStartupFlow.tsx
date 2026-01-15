@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, Suspense, useCallback } from 'react'
+import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
@@ -46,12 +46,11 @@ const generateStars = (count: number) => {
       size: Math.random() * 2 + 1,
       delay: Math.random() * 3,
       duration: Math.random() * 2 + 2,
+      opacity: Math.random() * 0.5 + 0.3,
     })
   }
   return stars
 }
-
-const stars = generateStars(80)
 
 // Custom Node Component for React Flow - Rounded Rectangle Style (Blue theme for StartupConnect)
 const CustomNodeBlue = ({ data }: { data: { label: string; isPrimary?: boolean } }) => {
@@ -68,8 +67,8 @@ const CustomNodeBlue = ({ data }: { data: { label: string; isPrimary?: boolean }
         {data.label}
       </div>
       {/* Handles for connections */}
-      <Handle type="source" position={Position.Right} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
-      <Handle type="target" position={Position.Left} className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="source" position="right" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
+      <Handle type="target" position="left" className="!bg-gray-400/50 !border-gray-400 !w-2 !h-2" />
     </div>
   )
 }
@@ -162,20 +161,20 @@ const UserFlowDiagramStartup: React.FC = () => {
     [setEdges]
   )
 
-  const reactFlowInstance = useRef<any>(null)
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
 
   useEffect(() => {
-    if (reactFlowInstance.current) {
+    if (reactFlowInstance) {
       setTimeout(() => {
-        reactFlowInstance.current.fitView({ padding: 0.15, duration: 400 })
+        reactFlowInstance.fitView({ padding: 0.15, duration: 400 })
       }, 100)
     }
-  }, [nodes, edges])
+  }, [nodes, edges, reactFlowInstance])
 
   return (
     <div className="w-full h-full rounded-lg overflow-hidden" style={{ background: 'transparent' }}>
       <ReactFlow
-        ref={reactFlowInstance}
+        onInit={setReactFlowInstance}
         nodes={nodes.map(node => ({ ...node, draggable: false }))}
         edges={edges}
         onNodesChange={handleNodesChange}
@@ -203,7 +202,7 @@ const UserFlowDiagramStartup: React.FC = () => {
 }
 
 // Starry background component
-const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars = true }) => (
+const StarryBackground: React.FC<{ shootingStars?: boolean; stars: Array<{ id: number; left: string; top: string; size: number; delay: number; duration: number; opacity: number }> }> = ({ shootingStars = true, stars }) => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
     {stars.map((star) => (
       <div
@@ -216,7 +215,7 @@ const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars
           height: `${star.size}px`,
           animationDelay: `${star.delay}s`,
           animationDuration: `${star.duration}s`,
-          opacity: Math.random() * 0.5 + 0.3,
+          opacity: star.opacity,
         }}
       />
     ))}
@@ -450,12 +449,13 @@ const MatchingScene3D: React.FC<MatchingScene3DProps> = ({ selectedCriteria, set
 const ProjectStartupFlow: React.FC = () => {
   const sectionRef = useScrollAnimation()
   const [selectedCriteria, setSelectedCriteria] = useState<string | null>(null)
+  const [stars] = useState(() => generateStars(80))
 
   return (
     <div ref={sectionRef} className="relative">
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0f1629] to-[#0a0f1a]">
-        <StarryBackground />
+        <StarryBackground stars={stars} />
         
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
           {/* Project Title */}
@@ -586,21 +586,29 @@ const ProjectStartupFlow: React.FC = () => {
 
             {/* Mobile-only feature badges */}
             <div className="absolute -bottom-16 left-0 right-0 flex justify-center gap-3 sm:hidden">
-              {[
-                { icon: FaHandshake, label: 'Match', color: 'blue' },
-                { icon: FaRocket, label: 'Feed', color: 'indigo' },
-                { icon: FaUsers, label: 'Rooms', color: 'purple' },
-                { icon: FaComments, label: 'Chat', color: 'cyan' },
-              ].map((item, index) => (
-                <div 
-                  key={index}
-                  className="animate-fade-in-up flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15]"
-                  style={{ animationDelay: `${0.9 + index * 0.1}s`, animationFillMode: 'both' }}
-                >
-                  <item.icon className={`text-xs text-${item.color}-400`} />
-                  <span className="text-white text-xs font-medium">{item.label}</span>
-                </div>
-              ))}
+              {(() => {
+                const colorClassMap: Record<string, string> = {
+                  blue: 'text-blue-400',
+                  indigo: 'text-indigo-400',
+                  purple: 'text-purple-400',
+                  cyan: 'text-cyan-400',
+                }
+                return [
+                  { icon: FaHandshake, label: 'Match', color: 'blue' },
+                  { icon: FaRocket, label: 'Feed', color: 'indigo' },
+                  { icon: FaUsers, label: 'Rooms', color: 'purple' },
+                  { icon: FaComments, label: 'Chat', color: 'cyan' },
+                ].map((item, index) => (
+                  <div 
+                    key={index}
+                    className="animate-fade-in-up flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15]"
+                    style={{ animationDelay: `${0.9 + index * 0.1}s`, animationFillMode: 'both' }}
+                  >
+                    <item.icon className={`text-xs ${colorClassMap[item.color]}`} />
+                    <span className="text-white text-xs font-medium">{item.label}</span>
+                  </div>
+                ))
+              })()}
             </div>
           </div>
         </div>

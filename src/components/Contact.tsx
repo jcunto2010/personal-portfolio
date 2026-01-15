@@ -21,20 +21,36 @@ const useScrollAnimation = () => {
     )
 
     // Use setTimeout to ensure DOM is ready
-    setTimeout(() => {
-      const elements = ref.current?.querySelectorAll('.animate-on-scroll')
-      elements?.forEach((el) => {
-        // Check if element is already in viewport
-        const rect = el.getBoundingClientRect()
-        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0
-        if (isInViewport) {
-          el.classList.add('is-visible')
+    const timeoutId = window.setTimeout(() => {
+      if (ref.current) {
+        // Check if the ref element itself has the animate-on-scroll class
+        if (ref.current.classList.contains('animate-on-scroll')) {
+          const rect = ref.current.getBoundingClientRect()
+          const isInViewport = rect.top < window.innerHeight && rect.bottom > 0
+          if (isInViewport) {
+            ref.current.classList.add('is-visible')
+          }
+          observer.observe(ref.current)
         }
-        observer.observe(el)
-      })
+        
+        // Also observe all descendant elements with animate-on-scroll
+        const elements = ref.current.querySelectorAll('.animate-on-scroll')
+        elements.forEach((el) => {
+          // Check if element is already in viewport
+          const rect = el.getBoundingClientRect()
+          const isInViewport = rect.top < window.innerHeight && rect.bottom > 0
+          if (isInViewport) {
+            el.classList.add('is-visible')
+          }
+          observer.observe(el)
+        })
+      }
     }, 100)
 
-    return () => observer.disconnect()
+    return () => {
+      clearTimeout(timeoutId)
+      observer.disconnect()
+    }
   }, [])
 
   return ref
@@ -44,7 +60,7 @@ const Contact: React.FC = () => {
   const sectionRef = useScrollAnimation()
 
   return (
-    <section id="contact" className="relative py-32 overflow-hidden" ref={sectionRef}>
+    <section id="contact" className="relative py-32 overflow-hidden animate-on-scroll" ref={sectionRef}>
       {/* Background with visible gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0d0a14] to-[#0f0a18] z-0" />
       
@@ -55,7 +71,7 @@ const Contact: React.FC = () => {
       {/* Gradient orbs - more visible */}
       <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-3xl animate-pulse z-0" style={{ animationDuration: '8s' }} />
       <div className="absolute bottom-1/4 -left-64 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl animate-pulse z-0" style={{ animationDuration: '10s', animationDelay: '2s' }} />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/8 rounded-full blur-3xl z-0" />
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-3xl z-0" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="max-w-6xl mx-auto">
