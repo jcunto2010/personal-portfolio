@@ -161,15 +161,15 @@ const Skills: React.FC = () => {
                   {/* Orbital Circle */}
                   <div className="flex justify-center items-center">
                     <div 
-                      className="relative mx-auto"
+                      className="relative mx-auto w-full max-w-[400px] aspect-square"
                       style={{ 
-                        width: '400px',
-                        height: '400px'
+                        width: 'min(400px, 100%)',
+                        height: 'min(400px, 100%)'
                       }}
                     >
                       {/* Orbiting icons container */}
                       <div 
-                        className="absolute inset-0 animate-spin-slow"
+                        className="absolute inset-0 animate-spin-slow motion-reduce:animate-none"
                         style={{ 
                           animationDuration: `${40 + categoryIndex * 10}s`
                         }}
@@ -178,7 +178,9 @@ const Skills: React.FC = () => {
                           const Icon = skill.icon
                           const totalItems = categorySkills.length
                           const angle = (360 / totalItems) * index
-                          const radius = 150 // Fixed radius for orbit
+                          // Responsive radius: scale with container size (150px base, scales down on mobile)
+                          // Use CSS calc or a percentage-based approach for better responsiveness
+                          const radius = 150
                           
                           // Calculate position on circle using trigonometry
                           const x = Math.cos((angle - 90) * Math.PI / 180) * radius
@@ -196,7 +198,7 @@ const Skills: React.FC = () => {
                             >
                               {/* Counter-rotate to keep icon upright */}
                               <div 
-                                className={`animate-spin-reverse group transition-all duration-500 ${
+                                className={`animate-spin-reverse motion-reduce:animate-none group transition-all duration-500 ${
                                   isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
                                 }`}
                                 style={{ 

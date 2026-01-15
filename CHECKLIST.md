@@ -1,5 +1,3 @@
-# Portfolio Checklist
-
 ## Completed
 - [x] Hero section with 3D interactive gradient
 - [x] Skills section
@@ -8,8 +6,9 @@
 - [x] Experience section linked to projects
 - [x] Contact section with form
 - [x] Footer with social links
-- [x] GitHub Pages deployment
-- [x] Custom domain (www.jonathancuntodiaz.com)
+- In @src/components/project-sections/ProjectStartupFlow.tsx at line 1, The import statement in ProjectStartupFlow.tsx is missing useRef although the component uses it in multiple places (e.g., refs referenced around lines 12, 256, 303, 334-336, 386); update the React import at the top of the file (the line that currently imports useEffect, useState, Suspense, useCallback) to also include useRef so all references to useRef in the component (including any refs used inside the ProjectStartupFlow component and helper functions) resolve and prevent the runtime error.
+
+# Portfolio Checklist- [x] Custom domain (www.jonathancuntodiaz.com)
 - [x] DNS configuration (Namecheap)
 - [x] Favicon (JC logo)
 - [x] SEO meta tags

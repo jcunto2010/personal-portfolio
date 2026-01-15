@@ -41,6 +41,7 @@ const generateStars = (count: number) => {
       size: Math.random() * 2 + 1,
       delay: Math.random() * 3,
       duration: Math.random() * 2 + 2,
+      opacity: Math.random() * 0.5 + 0.3,
     })
   }
   return stars
@@ -62,7 +63,7 @@ const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars
           height: `${star.size}px`,
           animationDelay: `${star.delay}s`,
           animationDuration: `${star.duration}s`,
-          opacity: Math.random() * 0.5 + 0.3,
+          opacity: star.opacity,
         }}
       />
     ))}

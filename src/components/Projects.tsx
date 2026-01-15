@@ -85,6 +85,15 @@ const Projects: React.FC = () => {
         <div 
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 cursor-pointer group"
           onClick={scrollToFirstProject}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              scrollToFirstProject()
+            }
+          }}
+          tabIndex={0}
+          role="button"
+          aria-label="Explore my work"
         >
           {/* Icon Container with Transition */}
           <div className="animate-bounce relative w-10 h-10 flex items-center justify-center">

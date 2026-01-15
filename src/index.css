@@ -820,6 +820,7 @@
 
 .react-flow__edge-path {
   stroke-width: 2px !important;
+  stroke-dasharray: none !important;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
@@ -843,13 +844,4 @@
 
 .react-flow__edge {
   pointer-events: none !important;
-}
-
-.react-flow__edge-path {
-  stroke-width: 2px !important;
-  stroke-dasharray: none !important;
-}
-
-.react-flow__edge.selected .react-flow__edge-path {
-  stroke: rgba(139, 92, 246, 0.8) !important;
 }

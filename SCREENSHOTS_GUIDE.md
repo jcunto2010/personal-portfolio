@@ -99,7 +99,7 @@ Do the same for the left and right phone mockups (use `reservo-hero-left.png` an
 **Replace with:**
 ```tsx
 <img 
-  src={`/assets/projects/reservo/reservo-${screen.toLowerCase().replace(' ', '-')}.png`}
+  src={`/assets/projects/reservo/reservo-${screen.toLowerCase().replaceAll(' ', '-')}.png`}
   alt={`Reservo.AI ${screen} Screen`}
   className="w-full h-full object-cover"
 />
@@ -118,7 +118,7 @@ const screenImages = {
 Then use:
 ```tsx
 <img 
-  src={screenImages[screen]}
+  src={screenImages[screen] ?? '/assets/projects/reservo/reservo-placeholder.png'}
   alt={`Reservo.AI ${screen} Screen`}
   className="w-full h-full object-cover"
 />
