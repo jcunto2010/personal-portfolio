@@ -32,7 +32,7 @@ const useScrollAnimation = () => {
           }
           observer.observe(ref.current)
         }
-        
+
         // Also observe all descendant elements with animate-on-scroll
         const elements = ref.current.querySelectorAll('.animate-on-scroll')
         elements.forEach((el) => {
@@ -60,138 +60,107 @@ const Contact: React.FC = () => {
   const sectionRef = useScrollAnimation()
 
   return (
-    <section id="contact" className="relative py-32 overflow-hidden animate-on-scroll" ref={sectionRef}>
-      {/* Background with visible gradient */}
+    <section id="contact" className="relative py-[clamp(5rem,15vh,10rem)] overflow-hidden animate-on-scroll" ref={sectionRef}>
+      {/* Background and Atmosphere */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0d0a14] to-[#0f0a18] z-0" />
-      
-      {/* Additional gradient layers for depth */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#0f0a18] via-transparent to-transparent z-0 opacity-60" />
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#0a0a12]/50 to-transparent z-0" />
-      
-      {/* Gradient orbs - more visible */}
+
+      {/* Visual Orbs */}
       <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-violet-500/10 rounded-full blur-3xl animate-pulse z-0" style={{ animationDuration: '8s' }} />
       <div className="absolute bottom-1/4 -left-64 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl animate-pulse z-0" style={{ animationDuration: '10s', animationDelay: '2s' }} />
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-3xl z-0" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-        <div className="max-w-6xl mx-auto">
-          
-          {/* Diagonal Split Layout */}
-          <div className="relative">
-            {/* Diagonal divider line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/10 transform -translate-x-1/2 hidden lg:block" 
-                 style={{ transform: 'translateX(-50%) rotate(15deg)' }} />
-            
-            <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-              
-              {/* Left Side - Contact Info */}
-              <div className="relative">
-                {/* Geometric accent */}
-                <div className="absolute -top-8 -left-8 w-32 h-32 border border-white/5 transform rotate-45 hidden md:block" />
-                
-                <div className="mb-8">
-                  <span className="text-white/20 text-xs uppercase tracking-[0.3em]">01</span>
-                  <h2 className="text-6xl md:text-7xl font-bold font-heading leading-none mt-2 mb-6">
-                    <span className="text-white">Get in</span><br />
-                    <span className="text-white/40">Touch</span>
-                  </h2>
-                </div>
+      <div className="container mx-auto px-6 lg:px-8 relative z-20">
+        <div className="max-w-6xl mx-auto flex flex-col gap-[clamp(4rem,10vh,6rem)]">
 
-                <div className="space-y-8">
-                  <a
-                    href="mailto:cnto.jnthn.97@gmail.com"
-                    className="group block relative pl-8 border-l-2 border-white/10 hover:border-white/30 transition-all duration-300"
-                  >
-                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-white/20 group-hover:w-1 transition-all duration-300" />
-                    <div className="text-white/30 text-xs uppercase tracking-widest mb-2">Email</div>
-                    <div className="text-xl text-white group-hover:translate-x-2 transition-transform duration-300">
-                      cnto.jnthn.97@gmail.com
-                    </div>
-                  </a>
+          {/* Main Content Layout Grid */}
+          <div className="grid lg:grid-cols-2 gap-[clamp(3rem,8vh,6rem)] items-start">
 
-                  <a
-                    href="https://wa.me/584242572739"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group block relative pl-8 border-l-2 border-white/10 hover:border-white/30 transition-all duration-300"
-                  >
-                    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-white/20 group-hover:w-1 transition-all duration-300" />
-                    <div className="text-white/30 text-xs uppercase tracking-widest mb-2">Phone</div>
-                    <div className="text-xl text-white group-hover:translate-x-2 transition-transform duration-300">
-                      +58 424 257 2739
-                    </div>
-                  </a>
+            {/* Modular Block 1: Direct Communication */}
+            <div className="flex flex-col gap-10 relative">
+              {/* Geometric Decoration */}
+              <div className="absolute -top-12 -left-12 w-32 h-32 border border-white/5 transform rotate-45 hidden md:block" />
 
-                  <div className="relative pl-8 border-l-2 border-white/10">
-                    <div className="text-white/30 text-xs uppercase tracking-widest mb-2">Location</div>
-                    <div className="text-xl text-white/70">
-                      Caracas, Venezuela
-                    </div>
+              <div className="flex flex-col gap-3">
+                <span className="text-white/20 text-xs uppercase tracking-[0.4em]">Section 01</span>
+                <h2 className="text-6xl md:text-8xl font-bold font-heading leading-none">
+                  <span className="text-white">Get in</span><br />
+                  <span className="text-white/40">Touch</span>
+                </h2>
+              </div>
+
+              <div className="flex flex-col gap-8">
+                <a
+                  href="mailto:cnto.jnthn.97@gmail.com"
+                  className="group flex flex-col gap-2 pl-8 border-l-2 border-white/5 hover:border-white/20 transition-all duration-500"
+                >
+                  <div className="text-white/30 text-xs uppercase tracking-widest">Email</div>
+                  <div className="text-xl md:text-2xl text-white group-hover:translate-x-3 transition-transform duration-500 font-body">
+                    cnto.jnthn.97@gmail.com
+                  </div>
+                </a>
+
+                <a
+                  href="https://wa.me/584242572739"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col gap-2 pl-8 border-l-2 border-white/5 hover:border-white/20 transition-all duration-500"
+                >
+                  <div className="text-white/30 text-xs uppercase tracking-widest">WhatsApp</div>
+                  <div className="text-xl md:text-2xl text-white group-hover:translate-x-3 transition-transform duration-500 font-body">
+                    +58 424 257 2739
+                  </div>
+                </a>
+
+                <div className="flex flex-col gap-2 pl-8 border-l-2 border-white/5">
+                  <div className="text-white/30 text-xs uppercase tracking-widest">Location</div>
+                  <div className="text-xl md:text-2xl text-white/70 font-body">
+                    Caracas, Venezuela
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Right Side - Social & CTA */}
-              <div className="relative">
-                {/* Geometric accent */}
-                <div className="absolute -bottom-8 -right-8 w-24 h-24 border border-white/5 transform -rotate-45 hidden md:block" />
-                
-                <div className="mb-8">
-                  <span className="text-white/20 text-xs uppercase tracking-[0.3em]">02</span>
-                  <h2 className="text-6xl md:text-7xl font-bold font-heading leading-none mt-2 mb-6">
-                    <span className="text-white/40">Connect</span><br />
-                    <span className="text-white">Online</span>
-                  </h2>
-                </div>
+            {/* Modular Block 2: Professional Presence */}
+            <div className="flex flex-col gap-10 relative">
+              {/* Geometric Decoration */}
+              <div className="absolute -bottom-12 -right-12 w-32 h-32 border border-white/5 transform rotate-12 hidden md:block" />
 
-                <div className="space-y-6">
-                  <a
-                    href="https://github.com/jcunto2010"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-4 text-white/60 hover:text-white transition-all duration-300"
-                  >
-                    <div className="w-12 h-12 border border-white/10 flex items-center justify-center group-hover:border-white/30 group-hover:rotate-[360deg] transition-all duration-500">
-                      <FaGithub size={20} />
-                    </div>
-                    <span className="text-lg">GitHub</span>
-                    <span className="ml-auto text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all">→</span>
-                  </a>
-
-                  <a
-                    href="https://www.linkedin.com/in/jonathan-cuntodiaz-41149a1bb"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-4 text-white/60 hover:text-white transition-all duration-300"
-                  >
-                    <div className="w-12 h-12 border border-white/10 flex items-center justify-center group-hover:border-white/30 group-hover:rotate-[360deg] transition-all duration-500">
-                      <FaLinkedin size={20} />
-                    </div>
-                    <span className="text-lg">LinkedIn</span>
-                    <span className="ml-auto text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all">→</span>
-                  </a>
-
-                  <a
-                    href="https://wa.me/584242572739"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-4 text-white/60 hover:text-white transition-all duration-300"
-                  >
-                    <div className="w-12 h-12 border border-white/10 flex items-center justify-center group-hover:border-white/30 group-hover:rotate-[360deg] transition-all duration-500">
-                      <FaWhatsapp size={20} />
-                    </div>
-                    <span className="text-lg">WhatsApp</span>
-                    <span className="ml-auto text-white/20 group-hover:text-white/40 group-hover:translate-x-1 transition-all">→</span>
-                  </a>
-                </div>
+              <div className="flex flex-col gap-3">
+                <span className="text-white/20 text-xs uppercase tracking-[0.4em]">Section 02</span>
+                <h2 className="text-6xl md:text-8xl font-bold font-heading leading-none">
+                  <span className="text-white/40">Connect</span><br />
+                  <span className="text-white">Online</span>
+                </h2>
               </div>
 
+              <div className="flex flex-col gap-6">
+                {[
+                  { name: 'GitHub', href: 'https://github.com/jcunto2010', icon: FaGithub },
+                  { name: 'LinkedIn', href: 'https://www.linkedin.com/in/jonathan-cuntodiaz-41149a1bb', icon: FaLinkedin },
+                  { name: 'WhatsApp', href: 'https://wa.me/584242572739', icon: FaWhatsapp }
+                ].map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-6 p-1 text-white/50 hover:text-white transition-all duration-500"
+                  >
+                    <div className="w-14 h-14 border border-white/5 flex items-center justify-center group-hover:border-white/20 group-hover:scale-110 group-hover:rotate-[360deg] transition-all duration-700 bg-white/0 hover:bg-white/[0.02]">
+                      <social.icon size={22} />
+                    </div>
+                    <span className="text-xl font-body uppercase tracking-[0.1em]">{social.name}</span>
+                    <span className="ml-auto text-white/10 group-hover:text-white group-hover:translate-x-2 transition-all duration-500 opacity-0 group-hover:opacity-100">
+                      View Profile →
+                    </span>
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
 
+          </div>
         </div>
       </div>
-
     </section>
   )
 }

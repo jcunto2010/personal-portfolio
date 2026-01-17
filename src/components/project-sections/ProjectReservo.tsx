@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react'
-import { FaRobot, FaCalendarCheck, FaBell, FaFingerprint } from 'react-icons/fa'
+import { FaRobot, FaCalendarCheck, FaBell, FaFingerprint, FaProjectDiagram } from 'react-icons/fa'
 import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
+import FlowStepper from '../shared/FlowStepper'
+import PhoneMockup from '../shared/PhoneMockup'
 
 // Custom hook for scroll-triggered animations
 const useScrollAnimation = () => {
@@ -54,14 +56,12 @@ const stars = generateStars(80)
 const CustomNode = ({ data }: { data: { label: string; isPrimary?: boolean } }) => {
   const isPrimary = data.isPrimary || false
   return (
-    <div className={`px-6 py-4 rounded-xl shadow-lg transition-all hover:scale-105 relative min-w-[120px] ${
-      isPrimary 
-        ? 'bg-blue-400/20 border-2 border-blue-400' 
-        : 'bg-gray-800/80 border border-gray-600/50'
-    }`}>
-      <div className={`text-base font-medium text-center whitespace-nowrap ${
-        isPrimary ? 'text-white' : 'text-white'
+    <div className={`px-6 py-4 rounded-xl shadow-lg transition-all hover:scale-105 relative min-w-[120px] ${isPrimary
+      ? 'bg-blue-400/20 border-2 border-blue-400'
+      : 'bg-gray-800/80 border border-gray-600/50'
       }`}>
+      <div className={`text-base font-medium text-center whitespace-nowrap ${isPrimary ? 'text-white' : 'text-white'
+        }`}>
         {data.label}
       </div>
       {/* Handles for connections */}
@@ -83,7 +83,7 @@ const UserFlowDiagram: React.FC = () => {
     { id: '2', type: 'custom', position: { x: 0, y: 120 }, data: { label: 'SignUp', isPrimary: true }, draggable: false },
     { id: '3', type: 'custom', position: { x: 0, y: 240 }, data: { label: 'Login', isPrimary: false }, draggable: false },
     { id: '4', type: 'custom', position: { x: 0, y: 360 }, data: { label: 'Main Nav', isPrimary: true }, draggable: false },
-    
+
     // Column 2: Main Navigation Column (Center - X: 500) - All in same column
     { id: '5', type: 'custom', position: { x: 500, y: 0 }, data: { label: 'Home', isPrimary: false }, draggable: false },
     { id: '6', type: 'custom', position: { x: 500, y: 120 }, data: { label: 'Calendar\n(View/Delete Appointments)', isPrimary: false }, draggable: false },
@@ -91,7 +91,7 @@ const UserFlowDiagram: React.FC = () => {
     { id: '8', type: 'custom', position: { x: 500, y: 360 }, data: { label: 'AI Assistant\n(Book, Suggest Appointments/Shops)', isPrimary: true }, draggable: false },
     { id: '9', type: 'custom', position: { x: 500, y: 480 }, data: { label: 'Profile\n(Change Password)', isPrimary: false }, draggable: false },
     { id: '10', type: 'custom', position: { x: 500, y: 600 }, data: { label: 'Settings', isPrimary: false }, draggable: false },
-    
+
     // Column 3: Booking Flow (Right - X: 1000+) - Horizontal flow
     { id: '11', type: 'custom', position: { x: 1000, y: 0 }, data: { label: 'Search', isPrimary: false }, draggable: false },
     { id: '12', type: 'custom', position: { x: 1200, y: 0 }, data: { label: 'Select Service', isPrimary: false }, draggable: false },
@@ -107,32 +107,32 @@ const UserFlowDiagram: React.FC = () => {
     { id: 'e1-3', source: '1', target: '3', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e2-4', source: '2', target: '4', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e3-4', source: '3', target: '4', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Main Nav to Home
     { id: 'e4-5', source: '4', target: '5', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Home to Core Features (all in same column)
     { id: 'e5-6', source: '5', target: '6', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e5-7', source: '5', target: '7', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e5-8', source: '5', target: '8', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e5-9', source: '5', target: '9', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Profile to Settings
     { id: 'e9-10', source: '9', target: '10', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Home to Booking Flow (Schedule Appointment)
     { id: 'e5-11', source: '5', target: '11', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // AI Assistant can initiate booking
     { id: 'e8-11', source: '8', target: '11', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Booking Flow (horizontal)
     { id: 'e11-12', source: '11', target: '12', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e12-13', source: '12', target: '13', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e13-14', source: '13', target: '14', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e14-15', source: '14', target: '15', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e15-16', source: '15', target: '16', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Calendar can view Booking Details
     { id: 'e6-16', source: '6', target: '16', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
   ]
@@ -221,6 +221,7 @@ const StarryBackground: React.FC<{ shootingStars?: boolean }> = ({ shootingStars
 
 const ProjectReservo: React.FC = () => {
   const sectionRef = useScrollAnimation()
+  const [showFullFlow, setShowFullFlow] = useState(false)
 
   return (
     <section id="project-reservo" className="relative overflow-hidden" ref={sectionRef}>
@@ -228,13 +229,13 @@ const ProjectReservo: React.FC = () => {
       <div className="relative min-h-screen flex items-center justify-center py-24">
         {/* Premium gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#050510] via-[#0a0a1a] to-[#0f0f2a]" />
-        
+
         {/* Starry background */}
         <StarryBackground />
-        
+
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-violet-900/20 via-transparent to-fuchsia-900/10" />
-        
+
         {/* Decorative elements with animation */}
         <div className="absolute top-1/4 -left-32 w-96 h-96 bg-violet-600/20 rounded-full blur-[128px] animate-glow-pulse-subtle" />
         <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-fuchsia-600/20 rounded-full blur-[128px] animate-glow-pulse-subtle" style={{ animationDelay: '2s' }} />
@@ -258,75 +259,72 @@ const ProjectReservo: React.FC = () => {
 
             {/* Phone Mockups - Hero Display with floating feature badges */}
             <div className="relative flex justify-center items-end gap-4 md:gap-8 pb-8">
-              
+
               {/* Floating Badge - Top Left */}
-              <div 
-                className="animate-fade-in-up absolute -left-4 md:left-[5%] lg:left-[10%] top-[10%] z-20 hidden sm:block"
+              <div
+                className="animate-fade-in-up absolute left-2 top-0 md:-left-4 md:top-[10%] lg:left-[10%] z-20 scale-90 md:scale-100"
                 style={{ animationDelay: '0.9s', animationFillMode: 'both' }}
               >
-                <div className="animate-float-slow flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-violet-500/10">
-                  <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
-                    <FaRobot className="text-sm text-violet-400" />
+                <div className="animate-float-slow flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-violet-500/10">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
+                    <FaRobot className="text-xs md:text-sm text-violet-400" />
                   </div>
-                  <span className="text-white text-sm font-medium">AI Assistant</span>
+                  <span className="text-white text-xs md:text-sm font-medium">AI Assistant</span>
                 </div>
               </div>
 
               {/* Floating Badge - Top Right */}
-              <div 
-                className="animate-fade-in-up absolute -right-4 md:right-[5%] lg:right-[10%] top-[15%] z-20 hidden sm:block"
+              <div
+                className="animate-fade-in-up absolute right-2 top-8 md:-right-4 md:top-[15%] lg:right-[10%] z-20 scale-90 md:scale-100"
                 style={{ animationDelay: '1.1s', animationFillMode: 'both' }}
               >
-                <div className="animate-float-delayed flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-fuchsia-500/10">
-                  <div className="w-8 h-8 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
-                    <FaCalendarCheck className="text-sm text-fuchsia-400" />
+                <div className="animate-float-delayed flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-fuchsia-500/10">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+                    <FaCalendarCheck className="text-xs md:text-sm text-fuchsia-400" />
                   </div>
-                  <span className="text-white text-sm font-medium">Smart Booking</span>
+                  <span className="text-white text-xs md:text-sm font-medium">Smart Booking</span>
                 </div>
               </div>
 
               {/* Floating Badge - Bottom Left */}
-              <div 
-                className="animate-fade-in-up absolute -left-4 md:left-[8%] lg:left-[12%] bottom-[25%] z-20 hidden sm:block"
+              <div
+                className="animate-fade-in-up absolute left-2 bottom-20 md:-left-4 md:bottom-[25%] lg:left-[12%] z-20 scale-90 md:scale-100"
                 style={{ animationDelay: '1.3s', animationFillMode: 'both' }}
               >
-                <div className="animate-float flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-cyan-500/10">
-                  <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                    <FaBell className="text-sm text-cyan-400" />
+                <div className="animate-float flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-cyan-500/10">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                    <FaBell className="text-xs md:text-sm text-cyan-400" />
                   </div>
-                  <span className="text-white text-sm font-medium">Notifications</span>
+                  <span className="text-white text-xs md:text-sm font-medium">Notifications</span>
                 </div>
               </div>
 
               {/* Floating Badge - Bottom Right */}
-              <div 
-                className="animate-fade-in-up absolute -right-4 md:right-[8%] lg:right-[12%] bottom-[30%] z-20 hidden sm:block"
+              <div
+                className="animate-fade-in-up absolute right-2 bottom-12 md:-right-4 md:bottom-[30%] lg:right-[12%] z-20 scale-90 md:scale-100"
                 style={{ animationDelay: '1.5s', animationFillMode: 'both' }}
               >
-                <div className="animate-float-delayed flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-emerald-500/10">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <FaFingerprint className="text-sm text-emerald-400" />
+                <div className="animate-float-delayed flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-emerald-500/10">
+                  <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <FaFingerprint className="text-xs md:text-sm text-emerald-400" />
                   </div>
-                  <span className="text-white text-sm font-medium">Biometric</span>
+                  <span className="text-white text-xs md:text-sm font-medium">Biometric</span>
                 </div>
               </div>
 
               {/* Left Phone - Tilted */}
-              <div 
+              <div
                 className="animate-fade-in-up relative w-36 md:w-52 lg:w-64 transform -rotate-6 translate-y-8 hidden sm:block"
                 style={{ animationDelay: '0.6s', animationFillMode: 'both' }}
               >
                 <div className="relative animate-phone-float-delayed">
                   <div className="absolute -inset-2 bg-gradient-to-br from-violet-500/30 to-fuchsia-500/30 rounded-[2rem] blur-xl opacity-60" />
-                  <div className="relative bg-black rounded-[2rem] p-2 border border-white/10 shadow-2xl">
-                    <div className="bg-[#111] rounded-[1.75rem] overflow-hidden aspect-[9/19.5]">
-                      <img 
-                        src="/assets/projects/reservo/calendar.png" 
-                        alt="Reservo.AI Calendar View"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+                  <PhoneMockup
+                    src="/assets/projects/reservo/calendar.png"
+                    alt="Reservo.AI Calendar View"
+                    borderColor="dark"
+                    priority={true}
+                  />
                 </div>
               </div>
 
@@ -334,57 +332,32 @@ const ProjectReservo: React.FC = () => {
               <div className="animate-fade-in-up relative w-52 md:w-72 lg:w-80 z-10" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
                 <div className="relative animate-phone-float">
                   <div className="absolute -inset-4 bg-gradient-to-br from-violet-500/40 via-fuchsia-500/40 to-cyan-500/40 rounded-[3rem] blur-2xl" />
-                  <div className="relative bg-black rounded-[3rem] p-3 border border-white/20 shadow-2xl shadow-violet-500/20">
-                    {/* Notch */}
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20" />
-                    <div className="bg-[#111] rounded-[2.5rem] overflow-hidden aspect-[9/19.5]">
-                      <img 
-                        src="/assets/projects/reservo/main screen.png" 
-                        alt="Reservo.AI Main Screen"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+                  <PhoneMockup
+                    src="/assets/projects/reservo/main screen.png"
+                    alt="Reservo.AI Main Screen"
+                    borderColor="gray"
+                    priority={true}
+                  />
                 </div>
               </div>
 
               {/* Right Phone - Tilted */}
-              <div 
+              <div
                 className="animate-fade-in-up relative w-36 md:w-52 lg:w-64 transform rotate-6 translate-y-8 hidden sm:block"
                 style={{ animationDelay: '0.8s', animationFillMode: 'both' }}
               >
                 <div className="relative animate-phone-float-delayed-2">
                   <div className="absolute -inset-2 bg-gradient-to-br from-fuchsia-500/30 to-violet-500/30 rounded-[2rem] blur-xl opacity-60" />
-                  <div className="relative bg-black rounded-[2rem] p-2 border border-white/10 shadow-2xl">
-                    <div className="bg-[#111] rounded-[1.75rem] overflow-hidden aspect-[9/19.5]">
-                      <img 
-                        src="/assets/projects/reservo/shop.png" 
-                        alt="Reservo.AI Shop Selection"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
+                  <PhoneMockup
+                    src="/assets/projects/reservo/shop.png"
+                    alt="Reservo.AI Shop Selection"
+                    borderColor="dark"
+                    priority={true}
+                  />
                 </div>
               </div>
 
-              {/* Mobile-only feature badges (shown below phones on small screens) */}
-              <div className="absolute -bottom-16 left-0 right-0 flex justify-center gap-3 sm:hidden">
-                {[
-                  { icon: FaRobot, label: 'AI', color: 'violet' },
-                  { icon: FaCalendarCheck, label: 'Booking', color: 'fuchsia' },
-                  { icon: FaBell, label: 'Alerts', color: 'cyan' },
-                  { icon: FaFingerprint, label: 'Secure', color: 'emerald' },
-                ].map((item, index) => (
-                  <div 
-                    key={index}
-                    className="animate-fade-in-up flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15]"
-                    style={{ animationDelay: `${0.9 + index * 0.1}s`, animationFillMode: 'both' }}
-                  >
-                    <item.icon className={`text-xs text-${item.color}-400`} />
-                    <span className="text-white text-xs font-medium">{item.label}</span>
-                  </div>
-                ))}
-              </div>
+
             </div>
           </div>
         </div>
@@ -412,12 +385,12 @@ const ProjectReservo: React.FC = () => {
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            
+
             {/* Main Description */}
             <div className="mb-16">
               <p className="text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
-                Reservo.AI is a multiplatform <span className="text-violet-400 font-medium">Flutter application</span> designed 
-                to revolutionize appointment booking. Powered by <span className="text-fuchsia-400 font-medium">Google Gemini</span>, 
+                Reservo.AI is a multiplatform <span className="text-violet-400 font-medium">Flutter application</span> designed
+                to revolutionize appointment booking. Powered by <span className="text-fuchsia-400 font-medium">Google Gemini</span>,
                 it enables conversational booking, intelligent suggestions, and personalized reminders.
               </p>
             </div>
@@ -440,7 +413,7 @@ const ProjectReservo: React.FC = () => {
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">My Role</p>
               <h4 className="text-violet-400 text-lg font-semibold mb-3">Mobile Development Manager & Founder</h4>
               <p className="text-gray-300 text-lg leading-relaxed font-body max-w-2xl mx-auto">
-                Founded and lead mobile development for AI-powered appointment booking app. Integrated Google Gemini 
+                Founded and lead mobile development for AI-powered appointment booking app. Integrated Google Gemini
                 for conversational interface and implemented biometric authentication with Rive animations.
               </p>
             </div>
@@ -467,9 +440,9 @@ const ProjectReservo: React.FC = () => {
 
             {/* GitHub Link */}
             <div className="flex justify-center">
-              <a 
-                href="https://github.com/jcunto2010/reservo_ai" 
-                target="_blank" 
+              <a
+                href="https://github.com/jcunto2010/reservo_ai"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-400 hover:text-violet-300 transition-all font-medium"
               >
@@ -521,21 +494,17 @@ const ProjectReservo: React.FC = () => {
                 { name: 'Calendar', image: 'calendar.png' },
                 { name: 'Booking Summary', image: 'book summary.png' }
               ].map((screen, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="group"
                 >
-                  <div className="relative">
-                    <div className="absolute -inset-1 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-3xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="relative bg-black rounded-3xl p-3 md:p-4 border border-white/10 group-hover:border-violet-500/30 transition-colors hover-lift">
-                      <div className="bg-[#111] rounded-[1.5rem] overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center justify-center">
-                        <img 
-                          src={`/assets/projects/reservo/${screen.image}`}
-                          alt={`Reservo.AI ${screen.name}`}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    </div>
+                  <div className="relative group-hover:transform group-hover:scale-105 transition-transform duration-500">
+                    <div className="absolute -inset-1 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-[2.5rem] blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <PhoneMockup
+                      src={`/assets/projects/reservo/${screen.image}`}
+                      alt={`Reservo.AI ${screen.name}`}
+                      borderColor="dark"
+                    />
                   </div>
                   <p className="text-center text-gray-500 text-sm mt-4 font-body">{screen.name}</p>
                 </div>
@@ -546,7 +515,7 @@ const ProjectReservo: React.FC = () => {
       </div>
 
       {/* User Flow Section */}
-      <div className="relative py-32 bg-gradient-to-b from-[#0a0a1a] to-[#0a0a0f]">
+      <div className="relative py-24 bg-gradient-to-b from-[#0a0a1a] to-[#0a0a0f]">
         {/* Starry background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {stars.map((star) => (
@@ -565,24 +534,54 @@ const ProjectReservo: React.FC = () => {
             />
           ))}
         </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
           <div className="max-w-6xl mx-auto">
-            
+
             {/* Header */}
-            <div className="mb-8">
-              <p className="text-violet-400 text-xs uppercase tracking-[0.3em] mb-3">User Experience</p>
-              <h3 className="text-4xl md:text-5xl font-bold text-white font-heading mb-4">
-                Reservo.AI <span className="text-violet-400">UserFlow</span>
-              </h3>
+            <div className="mb-12">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                <div>
+                  <p className="text-violet-400 text-xs uppercase tracking-[0.3em] mb-3">User Experience</p>
+                  <h3 className="text-4xl md:text-5xl font-bold text-white font-heading">
+                    Reservo.AI <span className="text-violet-400">UserFlow</span>
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => setShowFullFlow(!showFullFlow)}
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+                >
+                  <FaProjectDiagram className={showFullFlow ? 'text-violet-400' : ''} />
+                  <span>{showFullFlow ? 'Hide Technical Flow' : 'View Detailed Architecture'}</span>
+                </button>
+              </div>
+
               <p className="text-gray-400 text-base max-w-3xl font-body leading-relaxed">
-                A user flow outlines the steps a user takes to complete a task on a website or app, from entry to goal completion. 
-                Analyzing these flows helps designers create intuitive and efficient user experiences.
+                A user flow outlines the steps a user takes to complete a task.
+                Below is the optimized journey for Reservo.AI, showing the linear path from entry to completion.
               </p>
             </div>
 
-            {/* User Flow Diagram */}
-            <div className="relative py-16" style={{ height: '800px' }}>
-              <UserFlowDiagram />
+            {/* Optimized User Flow - Stepper */}
+            <div className={`transition-all duration-700 ${showFullFlow ? 'opacity-30 blur-sm pointer-events-none' : 'opacity-100'}`}>
+              <FlowStepper
+                accentColor="violet"
+                steps={[
+                  { id: '1', label: 'Launch & Auth', description: 'User starts with a splash screen and authenticates via SignUp or Login.', isPrimary: true },
+                  { id: '2', label: 'Main Dashboard', description: 'Central navigation hub for accessing all core application features.', isPrimary: false },
+                  { id: '3', label: 'Core Navigation', description: 'Access Home, Settings, and Profile management.', isPrimary: false },
+                  { id: '4', label: 'AI Assistant', description: 'Engage with Google Gemini for conversational appointment booking.', isPrimary: true },
+                  { id: '5', label: 'Booking Flow', description: 'Search shops, select services, and pick an available time slot.', isPrimary: false },
+                  { id: '6', label: 'Confirmation', description: 'Review details and confirm booking with automated reminders.', isPrimary: true }
+                ]}
+              />
+            </div>
+
+            {/* Technical Flow Diagram - Expandable */}
+            <div className={`overflow-hidden transition-all duration-700 ease-in-out ${showFullFlow ? 'max-h-[800px] mt-8 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="relative py-12 rounded-2xl bg-white/[0.02] border border-white/5" style={{ height: '600px' }}>
+                <UserFlowDiagram />
+              </div>
             </div>
 
           </div>

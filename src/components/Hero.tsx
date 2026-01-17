@@ -13,17 +13,17 @@ const Hero: React.FC = () => {
     const interval = setInterval(() => {
       setShowHand(prev => !prev)
     }, 3000)
-    
+
     return () => clearInterval(interval)
   }, [])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLHeadingElement>) => {
     if (!titleRef.current) return
-    
+
     const rect = titleRef.current.getBoundingClientRect()
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
-    
+
     setGradientPosition({ x, y })
   }
 
@@ -62,103 +62,106 @@ const Hero: React.FC = () => {
         <div className="absolute bottom-20 left-16 animate-float-3d-reverse">
           <Pyramid3D />
         </div>
-        
+
         {/* Large Gradient Sphere */}
         <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-float"></div>
-        
+
         {/* Medium Gradient Sphere */}
         <div className="absolute bottom-32 right-20 w-48 h-48 bg-gradient-to-br from-pink-500/20 to-cyan-500/20 rounded-full blur-2xl animate-float-delayed"></div>
-        
+
         {/* Rotating Cube 1 */}
         <div className="absolute top-40 right-1/4 w-20 h-20 animate-float-rotate">
           <div className="w-full h-full bg-gradient-to-br from-blue-400/10 to-purple-600/10 backdrop-blur-sm border border-white/10 rounded-lg transform rotate-45"></div>
         </div>
-        
+
         {/* Rotating Cube 2 */}
         <div className="absolute bottom-40 left-1/4 w-16 h-16 animate-float-rotate-reverse">
           <div className="w-full h-full bg-gradient-to-br from-pink-400/10 to-cyan-600/10 backdrop-blur-sm border border-white/10 rounded-lg transform rotate-12"></div>
         </div>
-        
+
         {/* Triangle/Diamond Shape */}
         <div className="absolute top-1/2 left-20 w-24 h-24 animate-float-delayed">
           <div className="w-full h-full bg-gradient-to-br from-cyan-400/10 to-blue-600/10 backdrop-blur-sm border border-white/10 transform rotate-45 rounded-sm"></div>
         </div>
-        
+
         {/* Small Floating Dots */}
         <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
         <div className="absolute top-2/3 right-1/3 w-2 h-2 bg-blue-400/40 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
         <div className="absolute bottom-1/4 left-1/2 w-2 h-2 bg-purple-400/40 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-        
+
         {/* Gradient Lines */}
         <div className="absolute top-0 left-1/4 w-px h-40 bg-gradient-to-b from-transparent via-blue-400/20 to-transparent animate-float-slow"></div>
         <div className="absolute bottom-0 right-1/3 w-px h-32 bg-gradient-to-b from-transparent via-purple-400/20 to-transparent animate-float"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Greeting */}
-          <div className="mb-6 animate-fade-in">
-            <span className="text-primary-300 font-semibold text-lg">
-              Hi, my name is
-            </span>
-          </div>
+      <div className="container mx-auto px-6 lg:px-8 relative z-10 pb-32 sm:pb-0">
+        <div className="max-w-4xl mx-auto text-center flex flex-col gap-[clamp(2rem,6vh,4rem)]">
 
-          {/* Name */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-4 font-heading">
-            <span className="text-white inline-block">
-              {'Jonathan Cunto Diaz'.split('').map((char, index) => (
-                <span
-                  key={index}
-                  className="inline-block animate-name-entry"
-                  style={{
-                    animationDelay: `${index * 0.05}s`,
-                    animationFillMode: 'both',
-                  }}
-                >
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
-            </span>
-          </h1>
+          {/* Component Block 1: Hero Text Content */}
+          <div className="flex flex-col items-center">
+            {/* Greeting */}
+            <div className="mb-4 sm:mb-6 animate-fade-in">
+              <span className="text-primary-300 font-semibold text-base sm:text-lg">
+                Hi, my name is
+              </span>
+            </div>
 
-          {/* Title */}
-          <div className="animate-fade-in-up">
-            <h2 
-              ref={titleRef}
-              onMouseMove={handleMouseMove}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
-              className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-8 font-heading cursor-pointer transition-all duration-300 inline-block ${
-                isHovering ? '' : 'animate-gradient-pulse'
-              }`}
-              style={{
-                ...(isHovering
-                  ? {
+            {/* Name */}
+            <h1 className="text-[1.75rem] xs:text-[2rem] leading-tight sm:text-6xl md:text-7xl font-bold mb-4 sm:mb-6 font-heading whitespace-nowrap">
+              <span className="text-white inline-block">
+                {'Jonathan Cunto Diaz'.split('').map((char, index) => (
+                  <span
+                    key={index}
+                    className="inline-block animate-name-entry"
+                    style={{
+                      animationDelay: `${index * 0.05}s`,
+                      animationFillMode: 'both',
+                    }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
+              </span>
+            </h1>
+
+            {/* Title */}
+            <div className="animate-fade-in-up mb-6 sm:mb-8">
+              <h2
+                ref={titleRef}
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                className={`text-2xl sm:text-4xl md:text-5xl font-bold font-heading cursor-pointer transition-all duration-300 inline-block ${isHovering ? '' : 'animate-gradient-pulse'
+                  }`}
+                style={{
+                  ...(isHovering
+                    ? {
                       backgroundImage: `radial-gradient(circle 1000px at ${gradientPosition.x}% ${gradientPosition.y}%, #60a5fa, #a78bfa, #ec4899, #06b6d4, #60a5fa)`,
                     }
-                  : {
+                    : {
                       backgroundImage: 'linear-gradient(90deg, #60a5fa, #a78bfa, #ec4899, #06b6d4, #60a5fa)',
                       backgroundSize: '200% 100%',
                     }),
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                color: 'transparent',
-              } as React.CSSProperties}
-            >
-              Frontend Developer
-            </h2>
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  color: 'transparent',
+                } as React.CSSProperties}
+              >
+                Frontend Developer
+              </h2>
+            </div>
+
+            {/* Description */}
+            <p className="text-base sm:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed animate-fade-in-up font-body px-2 sm:px-0">
+              I create beautiful, responsive, and user-friendly web applications
+              using modern technologies like React, TypeScript, and Tailwind CSS.
+              Passionate about clean code and exceptional user experiences.
+            </p>
           </div>
 
-          {/* Description */}
-          <p className="text-xl text-gray-200 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in-up font-body">
-            I create beautiful, responsive, and user-friendly web applications
-            using modern technologies like React, TypeScript, and Tailwind CSS.
-            Passionate about clean code and exceptional user experiences.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-fade-in-up">
+          {/* Component Block 2: Call-to-Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 animate-fade-in-up">
             <button
               onClick={() => scrollToSection('#projects')}
               className="w-full sm:w-auto px-8 py-4 bg-white text-purple-900 font-semibold rounded-lg hover:bg-primary-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -173,58 +176,62 @@ const Hero: React.FC = () => {
             </button>
           </div>
 
-          {/* Social Links */}
-          <div className="flex items-center justify-center space-x-6 animate-fade-in-up">
+          {/* Component Block 3: Social Media Links */}
+          <div className="flex items-center justify-center gap-6 sm:gap-10 animate-fade-in-up">
             <a
               href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-200 hover:text-white transition-colors duration-300"
+              className="group/social text-gray-200 hover:text-white transition-all duration-300 transform hover:scale-110"
               aria-label="GitHub"
             >
-              <FaGithub size={28} />
+              <div className="relative">
+                <FaGithub size={32} className="sm:size-[36px] relative z-10" />
+                <div className="absolute inset-0 bg-blue-400/20 blur-md rounded-full opacity-0 group-hover/social:opacity-100 transition-opacity"></div>
+              </div>
             </a>
             <a
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-200 hover:text-white transition-colors duration-300"
+              className="group/social text-gray-200 hover:text-white transition-all duration-300 transform hover:scale-110"
               aria-label="LinkedIn"
             >
-              <FaLinkedin size={28} />
+              <div className="relative">
+                <FaLinkedin size={32} className="sm:size-[36px] relative z-10" />
+                <div className="absolute inset-0 bg-purple-400/20 blur-md rounded-full opacity-0 group-hover/social:opacity-100 transition-opacity"></div>
+              </div>
             </a>
           </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
-      <div 
+      <div
         className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 cursor-pointer group"
         onClick={() => scrollToSection('#skills')}
       >
         {/* Icon Container with Transition */}
         <div className="animate-bounce relative w-10 h-10 flex items-center justify-center">
           {/* Mouse Icon */}
-          <div 
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
-              showHand ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
-            }`}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${showHand ? 'opacity-0 scale-75' : 'opacity-100 scale-100'
+              }`}
           >
             <div className="w-6 h-10 border-2 border-white/70 group-hover:border-white rounded-full flex items-start justify-center p-2 transition-colors duration-300">
               <div className="w-1 h-3 bg-white/70 group-hover:bg-white rounded-full animate-scroll transition-colors duration-300"></div>
             </div>
           </div>
-          
+
           {/* Hand Icon */}
-          <div 
-            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${
-              showHand ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-            }`}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${showHand ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+              }`}
           >
             <FaHandPointDown className="text-4xl text-white/70 group-hover:text-white transition-colors duration-300" />
           </div>
         </div>
-        
+
         {/* Text */}
         <p className="text-sm text-white/70 group-hover:text-white transition-colors duration-300 font-body">
           Scroll to discover more

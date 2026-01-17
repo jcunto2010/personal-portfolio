@@ -2,10 +2,13 @@ import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Text, Billboard } from '@react-three/drei'
 import * as THREE from 'three'
-import { FaUsers, FaRocket, FaComments, FaHandshake } from 'react-icons/fa'
+import { FaUsers, FaRocket, FaComments, FaHandshake, FaProjectDiagram } from 'react-icons/fa'
 import { SiReact, SiTypescript, SiSpringboot, SiPostgresql, SiTailwindcss } from 'react-icons/si'
+// import ReactFlow from 'reactflow' // Only if strictly needed, otherwise remove unused imports
 import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
+import FlowStepper from '../shared/FlowStepper'
+import PhoneMockup from '../shared/PhoneMockup'
 
 // Custom hook for scroll-triggered animations
 const useScrollAnimation = () => {
@@ -56,14 +59,12 @@ const generateStars = (count: number) => {
 const CustomNodeBlue = ({ data }: { data: { label: string; isPrimary?: boolean } }) => {
   const isPrimary = data.isPrimary || false
   return (
-    <div className={`px-6 py-4 rounded-xl shadow-lg transition-all hover:scale-105 relative min-w-[120px] ${
-      isPrimary 
-        ? 'bg-blue-400/20 border-2 border-blue-400' 
-        : 'bg-gray-800/80 border border-gray-600/50'
-    }`}>
-      <div className={`text-base font-medium text-center whitespace-nowrap ${
-        isPrimary ? 'text-white' : 'text-white'
+    <div className={`px-6 py-4 rounded-xl shadow-lg transition-all hover:scale-105 relative min-w-[120px] ${isPrimary
+      ? 'bg-blue-400/20 border-2 border-blue-400'
+      : 'bg-gray-800/80 border border-gray-600/50'
       }`}>
+      <div className={`text-base font-medium text-center whitespace-nowrap ${isPrimary ? 'text-white' : 'text-white'
+        }`}>
         {data.label}
       </div>
       {/* Handles for connections */}
@@ -85,24 +86,24 @@ const UserFlowDiagramStartup: React.FC = () => {
     { id: '2', type: 'custom', position: { x: 250, y: 0 }, data: { label: 'SignUp', isPrimary: true } },
     { id: '3', type: 'custom', position: { x: 250, y: 300 }, data: { label: 'Login', isPrimary: false } },
     { id: '4', type: 'custom', position: { x: 500, y: 150 }, data: { label: 'Main Nav', isPrimary: true } },
-    
+
     // Row 2: Discover & Match Flow (Y: 300)
     { id: '5', type: 'custom', position: { x: 750, y: 300 }, data: { label: 'Discover', isPrimary: false } },
     { id: '6', type: 'custom', position: { x: 1000, y: 300 }, data: { label: 'Swipe', isPrimary: false } },
     { id: '7', type: 'custom', position: { x: 1250, y: 300 }, data: { label: 'View Profile', isPrimary: false } },
     { id: '8', type: 'custom', position: { x: 1500, y: 300 }, data: { label: 'Match', isPrimary: true } },
-    
+
     // Row 3: Feed Flow (Y: 600)
     { id: '9', type: 'custom', position: { x: 750, y: 600 }, data: { label: 'Feed', isPrimary: false } },
     { id: '10', type: 'custom', position: { x: 1000, y: 600 }, data: { label: 'View Post', isPrimary: false } },
     { id: '11', type: 'custom', position: { x: 1250, y: 600 }, data: { label: 'Create Post', isPrimary: false } },
     { id: '12', type: 'custom', position: { x: 1500, y: 600 }, data: { label: 'Like/Comment', isPrimary: false } },
-    
+
     // Row 4: Chat Flow (Y: 900)
     { id: '13', type: 'custom', position: { x: 750, y: 900 }, data: { label: 'Chat List', isPrimary: false } },
     { id: '14', type: 'custom', position: { x: 1000, y: 900 }, data: { label: 'Individual Chat', isPrimary: true } },
     { id: '15', type: 'custom', position: { x: 1250, y: 900 }, data: { label: 'Group Chat', isPrimary: false } },
-    
+
     // Row 5: Profile & Settings (Y: 1200)
     { id: '16', type: 'custom', position: { x: 750, y: 1200 }, data: { label: 'Profile', isPrimary: false } },
     { id: '17', type: 'custom', position: { x: 1000, y: 1200 }, data: { label: 'Edit Profile', isPrimary: false } },
@@ -116,31 +117,31 @@ const UserFlowDiagramStartup: React.FC = () => {
     { id: 'e1-3', source: '1', target: '3', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e2-4', source: '2', target: '4', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e3-4', source: '3', target: '4', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Main Nav to all sections
     { id: 'e4-5', source: '4', target: '5', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e4-9', source: '4', target: '9', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e4-13', source: '4', target: '13', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e4-16', source: '4', target: '16', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Discover & Match Flow (Row 2)
     { id: 'e5-6', source: '5', target: '6', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e6-7', source: '6', target: '7', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e7-8', source: '7', target: '8', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Feed Flow (Row 3)
     { id: 'e9-10', source: '9', target: '10', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e9-11', source: '9', target: '11', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e10-12', source: '10', target: '12', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e11-12', source: '11', target: '12', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Match to Chat
     { id: 'e8-13', source: '8', target: '13', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Chat Flow (Row 4)
     { id: 'e13-14', source: '13', target: '14', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e13-15', source: '13', target: '15', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
-    
+
     // Profile Flow (Row 5)
     { id: 'e16-17', source: '16', target: '17', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
     { id: 'e16-18', source: '16', target: '18', type: 'smoothstep', style: { stroke: 'rgba(200, 200, 200, 0.4)', strokeWidth: 1.5 } },
@@ -254,7 +255,7 @@ interface OrbitingNodeProps {
 
 const OrbitingNode: React.FC<OrbitingNodeProps> = ({ angle, radius, label, onClick, isSelected }) => {
   const meshRef = useRef<THREE.Mesh>(null)
-  
+
   // Direct scale - no lerp for instant response
   useFrame(() => {
     if (meshRef.current) {
@@ -270,8 +271,8 @@ const OrbitingNode: React.FC<OrbitingNodeProps> = ({ angle, radius, label, onCli
     <group position={[x, 0, z]}>
       <mesh ref={meshRef} onClick={onClick}>
         <sphereGeometry args={[0.35, 32, 32]} />
-        <meshStandardMaterial 
-          color={ELEMENT_COLOR} 
+        <meshStandardMaterial
+          color={ELEMENT_COLOR}
           emissive={ELEMENT_COLOR}
           emissiveIntensity={isSelected ? 0.8 : 0.4}
           roughness={0.2}
@@ -302,7 +303,7 @@ interface OrbitContainerProps {
 const OrbitContainer: React.FC<OrbitContainerProps> = ({ selectedCriteria, setSelectedCriteria }) => {
   const orbitRef = useRef<THREE.Group>(null)
   const radius = 2.5
-  
+
   useFrame((_state, delta) => {
     if (orbitRef.current) {
       // Direct delta-based rotation for smooth, consistent motion
@@ -334,7 +335,7 @@ const Sun: React.FC = () => {
   const sunRef = useRef<THREE.Group>(null)
   const coreRef = useRef<THREE.Mesh>(null)
   const pulseTime = useRef(0)
-  
+
   useFrame((_state, delta) => {
     if (sunRef.current) {
       // Frame-rate independent rotation
@@ -356,8 +357,8 @@ const Sun: React.FC = () => {
         return (
           <mesh key={i} rotation={[0, 0, angle]} position={[0, 0, 0]}>
             <boxGeometry args={[0.15, 1.2, 0.15]} />
-            <meshStandardMaterial 
-              color={SUN_COLOR} 
+            <meshStandardMaterial
+              color={SUN_COLOR}
               emissive={SUN_COLOR}
               emissiveIntensity={0.8}
             />
@@ -384,7 +385,7 @@ const Sun: React.FC = () => {
 // Orbital ring component - optimized
 const OrbitalRing: React.FC<{ radius: number; opacity: number }> = ({ radius, opacity }) => {
   const ringRef = useRef<THREE.Mesh>(null)
-  
+
   useFrame((_state, delta) => {
     if (ringRef.current) {
       // Frame-rate independent rotation
@@ -395,12 +396,12 @@ const OrbitalRing: React.FC<{ radius: number; opacity: number }> = ({ radius, op
   return (
     <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
       <torusGeometry args={[radius, 0.02, 6, 32]} />
-      <meshStandardMaterial 
-        color={ELEMENT_COLOR} 
-        transparent 
-        opacity={opacity} 
-        emissive={ELEMENT_COLOR} 
-        emissiveIntensity={0.5} 
+      <meshStandardMaterial
+        color={ELEMENT_COLOR}
+        transparent
+        opacity={opacity}
+        emissive={ELEMENT_COLOR}
+        emissiveIntensity={0.5}
       />
     </mesh>
   )
@@ -417,23 +418,23 @@ const MatchingScene3D: React.FC<MatchingScene3DProps> = ({ selectedCriteria, set
     <>
       <ambientLight intensity={0.4} />
       <directionalLight position={[5, 5, 5]} intensity={0.5} />
-      
+
       {/* Central Sun */}
       <Sun />
-      
+
       {/* Orbital rings */}
       <OrbitalRing radius={2.5} opacity={0.3} />
       <OrbitalRing radius={3.2} opacity={0.15} />
-      
+
       {/* Optimized orbit container - single rotation for all nodes */}
-      <OrbitContainer 
+      <OrbitContainer
         selectedCriteria={selectedCriteria}
         setSelectedCriteria={setSelectedCriteria}
       />
-      
+
       {/* Camera controls - optimized for smooth rotation */}
-      <OrbitControls 
-        enableZoom={false} 
+      <OrbitControls
+        enableZoom={false}
         enablePan={false}
         minPolarAngle={Math.PI / 3}
         maxPolarAngle={Math.PI / 2}
@@ -450,13 +451,14 @@ const ProjectStartupFlow: React.FC = () => {
   const sectionRef = useScrollAnimation()
   const [selectedCriteria, setSelectedCriteria] = useState<string | null>(null)
   const [stars] = useState(() => generateStars(80))
+  const [showFullFlow, setShowFullFlow] = useState(false)
 
   return (
     <div ref={sectionRef} className="relative">
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0f1629] to-[#0a0f1a]">
         <StarryBackground stars={stars} />
-        
+
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
           {/* Project Title */}
           <div className="text-center mb-16">
@@ -475,75 +477,72 @@ const ProjectStartupFlow: React.FC = () => {
 
           {/* Phone Mockups - Similar to Reservo */}
           <div className="relative flex justify-center items-end gap-4 md:gap-8 pb-8">
-            
+
             {/* Floating Badge - Top Left */}
-            <div 
-              className="animate-fade-in-up absolute -left-4 md:left-[5%] lg:left-[10%] top-[10%] z-20 hidden sm:block"
+            <div
+              className="animate-fade-in-up absolute left-2 top-0 md:-left-4 md:top-[10%] lg:left-[10%] z-20 scale-90 md:scale-100"
               style={{ animationDelay: '0.9s', animationFillMode: 'both' }}
             >
-              <div className="animate-float-slow flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-blue-500/10">
-                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <FaHandshake className="text-sm text-blue-400" />
+              <div className="animate-float-slow flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-blue-500/10">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <FaHandshake className="text-xs md:text-sm text-blue-400" />
                 </div>
-                <span className="text-white text-sm font-medium">Smart Match</span>
+                <span className="text-white text-xs md:text-sm font-medium">Smart Match</span>
               </div>
             </div>
 
             {/* Floating Badge - Top Right */}
-            <div 
-              className="animate-fade-in-up absolute -right-4 md:right-[5%] lg:right-[10%] top-[15%] z-20 hidden sm:block"
+            <div
+              className="animate-fade-in-up absolute right-2 top-8 md:-right-4 md:top-[15%] lg:right-[10%] z-20 scale-90 md:scale-100"
               style={{ animationDelay: '1.1s', animationFillMode: 'both' }}
             >
-              <div className="animate-float-delayed flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-indigo-500/10">
-                <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
-                  <FaRocket className="text-sm text-indigo-400" />
+              <div className="animate-float-delayed flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-indigo-500/10">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                  <FaRocket className="text-xs md:text-sm text-indigo-400" />
                 </div>
-                <span className="text-white text-sm font-medium">Social Feed</span>
+                <span className="text-white text-xs md:text-sm font-medium">Social Feed</span>
               </div>
             </div>
 
             {/* Floating Badge - Bottom Left */}
-            <div 
-              className="animate-fade-in-up absolute -left-4 md:left-[8%] lg:left-[12%] bottom-[25%] z-20 hidden sm:block"
+            <div
+              className="animate-fade-in-up absolute left-2 bottom-20 md:-left-4 md:bottom-[25%] lg:left-[12%] z-20 scale-90 md:scale-100"
               style={{ animationDelay: '1.3s', animationFillMode: 'both' }}
             >
-              <div className="animate-float flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-purple-500/10">
-                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <FaUsers className="text-sm text-purple-400" />
+              <div className="animate-float flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-purple-500/10">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <FaUsers className="text-xs md:text-sm text-purple-400" />
                 </div>
-                <span className="text-white text-sm font-medium">Rooms</span>
+                <span className="text-white text-xs md:text-sm font-medium">Rooms</span>
               </div>
             </div>
 
             {/* Floating Badge - Bottom Right */}
-            <div 
-              className="animate-fade-in-up absolute -right-4 md:right-[8%] lg:right-[12%] bottom-[30%] z-20 hidden sm:block"
+            <div
+              className="animate-fade-in-up absolute right-2 bottom-12 md:-right-4 md:bottom-[30%] lg:right-[12%] z-20 scale-90 md:scale-100"
               style={{ animationDelay: '1.5s', animationFillMode: 'both' }}
             >
-              <div className="animate-float-delayed flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-cyan-500/10">
-                <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                  <FaComments className="text-sm text-cyan-400" />
+              <div className="animate-float-delayed flex items-center gap-2 px-3 py-2 md:gap-2.5 md:px-4 md:py-2.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15] shadow-lg shadow-cyan-500/10">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                  <FaComments className="text-xs md:text-sm text-cyan-400" />
                 </div>
-                <span className="text-white text-sm font-medium">Real-time Chat</span>
+                <span className="text-white text-xs md:text-sm font-medium">Real-time Chat</span>
               </div>
             </div>
 
             {/* Left Phone - Tilted */}
-            <div 
+            <div
               className="animate-fade-in-up relative w-44 md:w-64 lg:w-80 transform -rotate-6 translate-y-8 hidden sm:block"
               style={{ animationDelay: '0.6s', animationFillMode: 'both' }}
             >
               <div className="relative animate-phone-float-delayed">
                 <div className="absolute -inset-2 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-[2rem] blur-xl opacity-60" />
-                <div className="relative bg-black rounded-[2rem] p-3 md:p-4 border border-white/10 shadow-2xl">
-                  <div className="bg-[#111] rounded-[1.75rem] overflow-hidden min-h-[500px] md:min-h-[600px] flex items-center justify-center">
-                    <img 
-                      src="/assets/projects/startupconnect/matching.png" 
-                      alt="StartupConnect Match View"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                </div>
+                <PhoneMockup
+                  src="/assets/projects/startupconnect/matching.png"
+                  alt="StartupConnect Match View"
+                  borderColor="dark"
+                  priority={true}
+                />
               </div>
             </div>
 
@@ -551,65 +550,32 @@ const ProjectStartupFlow: React.FC = () => {
             <div className="animate-fade-in-up relative w-64 md:w-80 lg:w-96 z-10" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
               <div className="relative animate-phone-float">
                 <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/40 via-indigo-500/40 to-purple-500/40 rounded-[3rem] blur-2xl" />
-                <div className="relative bg-black rounded-[3rem] p-4 md:p-5 border border-white/20 shadow-2xl shadow-blue-500/20">
-                  {/* Notch */}
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20" />
-                  <div className="bg-[#111] rounded-[2.5rem] overflow-hidden min-h-[600px] md:min-h-[700px] flex items-center justify-center">
-                    <img 
-                      src="/assets/projects/startupconnect/feed.png" 
-                      alt="StartupConnect Home Feed"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                </div>
+                <PhoneMockup
+                  src="/assets/projects/startupconnect/feed.png"
+                  alt="StartupConnect Home Feed"
+                  borderColor="gray"
+                  priority={true}
+                />
               </div>
             </div>
 
             {/* Right Phone - Tilted */}
-            <div 
+            <div
               className="animate-fade-in-up relative w-44 md:w-64 lg:w-80 transform rotate-6 translate-y-8 hidden sm:block"
               style={{ animationDelay: '0.8s', animationFillMode: 'both' }}
             >
               <div className="relative animate-phone-float-delayed-2">
                 <div className="absolute -inset-2 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-[2rem] blur-xl opacity-60" />
-                <div className="relative bg-black rounded-[2rem] p-3 md:p-4 border border-white/10 shadow-2xl">
-                  <div className="bg-[#111] rounded-[1.75rem] overflow-hidden min-h-[500px] md:min-h-[600px] flex items-center justify-center">
-                    <img 
-                      src="/assets/projects/startupconnect/dashboard.png" 
-                      alt="StartupConnect Dashboard"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                </div>
+                <PhoneMockup
+                  src="/assets/projects/startupconnect/dashboard.png"
+                  alt="StartupConnect Dashboard"
+                  borderColor="dark"
+                  priority={true}
+                />
               </div>
             </div>
 
-            {/* Mobile-only feature badges */}
-            <div className="absolute -bottom-16 left-0 right-0 flex justify-center gap-3 sm:hidden">
-              {(() => {
-                const colorClassMap: Record<string, string> = {
-                  blue: 'text-blue-400',
-                  indigo: 'text-indigo-400',
-                  purple: 'text-purple-400',
-                  cyan: 'text-cyan-400',
-                }
-                return [
-                  { icon: FaHandshake, label: 'Match', color: 'blue' },
-                  { icon: FaRocket, label: 'Feed', color: 'indigo' },
-                  { icon: FaUsers, label: 'Rooms', color: 'purple' },
-                  { icon: FaComments, label: 'Chat', color: 'cyan' },
-                ].map((item, index) => (
-                  <div 
-                    key={index}
-                    className="animate-fade-in-up flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.15]"
-                    style={{ animationDelay: `${0.9 + index * 0.1}s`, animationFillMode: 'both' }}
-                  >
-                    <item.icon className={`text-xs ${colorClassMap[item.color]}`} />
-                    <span className="text-white text-xs font-medium">{item.label}</span>
-                  </div>
-                ))
-              })()}
-            </div>
+
           </div>
         </div>
 
@@ -642,12 +608,12 @@ const ProjectStartupFlow: React.FC = () => {
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            
+
             {/* Main Description */}
             <div className="mb-16">
               <p className="text-2xl md:text-3xl lg:text-4xl text-white/90 font-light leading-relaxed font-body">
-                StartupConnect combines <span className="text-blue-400 font-medium">LinkedIn-style professional networking</span> with 
-                <span className="text-indigo-400 font-medium"> Tinder-inspired swipe mechanics</span> to create meaningful 
+                StartupConnect combines <span className="text-blue-400 font-medium">LinkedIn-style professional networking</span> with
+                <span className="text-indigo-400 font-medium"> Tinder-inspired swipe mechanics</span> to create meaningful
                 connections between entrepreneurs, investors, and mentors.
               </p>
             </div>
@@ -670,16 +636,16 @@ const ProjectStartupFlow: React.FC = () => {
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">My Role</p>
               <h4 className="text-blue-400 text-lg font-semibold mb-3">Founder & Front-End Developer</h4>
               <p className="text-gray-300 text-lg leading-relaxed font-body max-w-2xl mx-auto">
-                Led the product vision and built the React frontend with swipe mechanics, 
+                Led the product vision and built the React frontend with swipe mechanics,
                 responsive design, and real-time features for the startup networking platform.
               </p>
             </div>
 
             {/* GitHub Link */}
             <div className="flex justify-center">
-              <a 
-                href="https://github.com/jcunto2010/Entrepeneur_app" 
-                target="_blank" 
+              <a
+                href="https://github.com/jcunto2010/Entrepeneur_app"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:text-blue-300 transition-all font-medium"
               >
@@ -715,7 +681,7 @@ const ProjectStartupFlow: React.FC = () => {
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-5xl mx-auto">
-            
+
             {/* Section Title */}
             <div className="mb-20">
               <p className="text-blue-400 text-xs uppercase tracking-[0.3em] mb-4">Core Features</p>
@@ -734,7 +700,7 @@ const ProjectStartupFlow: React.FC = () => {
                   <p className="text-gray-400 text-lg">Tinder-style cards let you quickly discover and connect with relevant startups, investors, and mentors.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-8">
                 <span className="text-5xl font-bold text-indigo-500/20 font-heading">02</span>
                 <div>
@@ -742,7 +708,7 @@ const ProjectStartupFlow: React.FC = () => {
                   <p className="text-gray-400 text-lg">Share milestones, celebrate wins, and stay updated on the startups you follow — LinkedIn-style.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-8">
                 <span className="text-5xl font-bold text-purple-500/20 font-heading">03</span>
                 <div>
@@ -750,7 +716,7 @@ const ProjectStartupFlow: React.FC = () => {
                   <p className="text-gray-400 text-lg">Public and private spaces for collaboration, Q&A, and networking within your industry vertical.</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-8">
                 <span className="text-5xl font-bold text-cyan-500/20 font-heading">04</span>
                 <div>
@@ -785,7 +751,7 @@ const ProjectStartupFlow: React.FC = () => {
         </div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-5xl mx-auto">
-            
+
             {/* Section Title */}
             <div className="mb-16 text-center">
               <p className="text-indigo-400 text-xs uppercase tracking-[0.3em] mb-4">Smart Matching</p>
@@ -797,26 +763,26 @@ const ProjectStartupFlow: React.FC = () => {
 
             {/* 3D Orbital Layout - Three.js Canvas */}
             <div className="relative h-[400px] md:h-[500px] w-full">
-              <Canvas 
+              <Canvas
                 camera={{ position: [0, 3, 6], fov: 50 }}
                 dpr={[1, 2]}
                 frameloop="always"
-                gl={{ 
-                  antialias: true, 
-                  alpha: true, 
+                gl={{
+                  antialias: true,
+                  alpha: true,
                   powerPreference: "high-performance",
                   stencil: false,
                   depth: true
                 }}
               >
                 <Suspense fallback={null}>
-                  <MatchingScene3D 
-                    selectedCriteria={selectedCriteria} 
-                    setSelectedCriteria={setSelectedCriteria} 
+                  <MatchingScene3D
+                    selectedCriteria={selectedCriteria}
+                    setSelectedCriteria={setSelectedCriteria}
                   />
                 </Suspense>
               </Canvas>
-              
+
               {/* Gradient overlay at bottom for blend */}
               <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0a0f1a] to-transparent pointer-events-none" />
             </div>
@@ -876,21 +842,17 @@ const ProjectStartupFlow: React.FC = () => {
                 { name: 'Chats', image: 'chats.png' },
                 { name: 'Community Rooms', image: 'community rooms.png' }
               ].map((screen, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="group"
                 >
-                  <div className="relative">
-                    <div className="absolute -inset-1 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-3xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="relative bg-black rounded-3xl p-3 md:p-4 border border-white/10 group-hover:border-blue-500/30 transition-colors hover-lift">
-                      <div className="bg-[#111] rounded-[1.5rem] overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center justify-center">
-                        <img 
-                          src={`/assets/projects/startupconnect/${screen.image}`}
-                          alt={`StartupConnect ${screen.name}`}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    </div>
+                  <div className="relative group-hover:transform group-hover:scale-105 transition-transform duration-500">
+                    <div className="absolute -inset-1 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-[2.5rem] blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <PhoneMockup
+                      src={`/assets/projects/startupconnect/${screen.image}`}
+                      alt={`StartupConnect ${screen.name}`}
+                      borderColor="dark"
+                    />
                   </div>
                   <p className="text-center text-gray-500 text-sm mt-4 font-body">{screen.name}</p>
                 </div>
@@ -901,7 +863,7 @@ const ProjectStartupFlow: React.FC = () => {
       </div>
 
       {/* User Flow Section */}
-      <div className="relative py-32 bg-gradient-to-b from-[#0a0f1a] to-[#0a0a0f]">
+      <section className="relative py-24 bg-gradient-to-b from-[#0a0f1a] to-[#0a0a0f]">
         {/* Starry background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {stars.map((star) => (
@@ -920,30 +882,59 @@ const ProjectStartupFlow: React.FC = () => {
             />
           ))}
         </div>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
           <div className="max-w-6xl mx-auto">
-            
+
             {/* Header */}
-            <div className="mb-8">
-              <p className="text-blue-400 text-xs uppercase tracking-[0.3em] mb-3">User Experience</p>
-              <h3 className="text-4xl md:text-5xl font-bold text-white font-heading mb-4">
-                StartupConnect <span className="text-blue-400">UserFlow</span>
-              </h3>
+            <div className="mb-12">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                <div>
+                  <p className="text-blue-400 text-xs uppercase tracking-[0.3em] mb-3">User Experience</p>
+                  <h3 className="text-4xl md:text-5xl font-bold text-white font-heading">
+                    StartupConnect <span className="text-blue-400">UserFlow</span>
+                  </h3>
+                </div>
+
+                <button
+                  onClick={() => setShowFullFlow(!showFullFlow)}
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+                >
+                  <FaProjectDiagram className={showFullFlow ? 'text-blue-400' : ''} />
+                  <span>{showFullFlow ? 'Hide Technical Flow' : 'View Detailed Architecture'}</span>
+                </button>
+              </div>
+
               <p className="text-gray-400 text-base max-w-3xl font-body leading-relaxed">
-                A user flow outlines the steps a user takes to complete a task on a website or app, from entry to goal completion. 
-                Analyzing these flows helps designers create intuitive and efficient user experiences.
+                Navigating the complex startup ecosystem requires a clear path.
+                Below is the streamlined journey for StartupConnect, from discovery to collaboration.
               </p>
             </div>
 
-            {/* User Flow Diagram */}
-            <div className="relative py-16" style={{ height: '1400px' }}>
-              <UserFlowDiagramStartup />
+            {/* Optimized User Flow - Stepper */}
+            <div className={`transition-all duration-700 ${showFullFlow ? 'opacity-30 blur-sm pointer-events-none' : 'opacity-100'}`}>
+              <FlowStepper
+                accentColor="blue"
+                steps={[
+                  { id: '1', label: 'Onboarding', description: 'Launch the platform and complete a multi-step registration flow.', isPrimary: true },
+                  { id: '2', label: 'Discovery Hub', description: 'Access the main navigation to discover startups, mentors, or investors.', isPrimary: false },
+                  { id: '3', label: 'Swipe to Match', description: 'Interactive card-stack to find potential partners based on algorithm.', isPrimary: true },
+                  { id: '4', label: 'Social Engagement', description: 'View the community feed, share updates, and celebrate milestones.', isPrimary: false },
+                  { id: '5', label: 'Real-time Chat', description: 'Connect instantly via private individual messages or group rooms.', isPrimary: true },
+                  { id: '6', label: 'Ecosystem Growth', description: 'Manage connections, update profiles, and grow your network.', isPrimary: false }
+                ]}
+              />
+            </div>
+
+            {/* Technical Flow Diagram - Expandable */}
+            <div className={`overflow-hidden transition-all duration-700 ease-in-out ${showFullFlow ? 'max-h-[1000px] mt-8 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="relative py-12 rounded-2xl bg-white/[0.02] border border-white/5" style={{ height: '800px' }}>
+                <UserFlowDiagramStartup />
+              </div>
             </div>
 
           </div>
         </div>
-      </div>
-
+      </section>
       {/* Tech Stack Footer */}
       <div className="relative py-20 bg-gradient-to-b from-[#0a0f1a] to-[#0a0a1a]">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
