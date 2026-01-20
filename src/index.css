@@ -40,6 +40,10 @@
     font-family: 'PP Neue Machina', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
+    /* Performance optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -64,6 +68,9 @@
     background: linear-gradient(-45deg, #1e3a8a, #4338ca, #5b21b6, #6b21a8);
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
+    will-change: background-position;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   @keyframes gradientShift {
@@ -514,22 +521,42 @@
 
   .animate-float {
     animation: float 8s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .animate-float-delayed {
     animation: floatDelayed 10s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .animate-float-slow {
     animation: floatSlow 12s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .animate-float-rotate {
     animation: floatRotate 15s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .animate-float-rotate-reverse {
     animation: floatRotateReverse 20s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   /* Real 3D Cube */
@@ -539,6 +566,10 @@
     position: relative;
     transform-style: preserve-3d;
     animation: rotate3d 20s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .cube-face {
@@ -594,6 +625,10 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     animation: rotate3dSphere 15s linear infinite;
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   @keyframes rotate3dSphere {
@@ -645,14 +680,26 @@
 
   .animate-float-3d {
     animation: float 15s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .animate-float-3d-reverse {
     animation: floatDelayed 18s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   .animate-float-3d-slow {
     animation: floatSlow 20s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
   }
 
   /* Smooth transitions for links */
@@ -682,6 +729,9 @@
     transform: translateY(30px);
     transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
       transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .animate-on-scroll.is-visible {

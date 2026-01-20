@@ -74,7 +74,8 @@ const Pyramid3D: React.FC = () => {
     <Canvas
       camera={{ position: [0, 0, 4], fov: 50 }}
       style={{ width: '234px', height: '234px', background: 'transparent' }}
-      gl={{ alpha: true, antialias: true }}
+      gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
+      frameloop="always"
     >
       <ambientLight intensity={0.6} />
       <pointLight position={[5, 5, 5]} intensity={0.8} />
@@ -84,8 +85,9 @@ const Pyramid3D: React.FC = () => {
         enableZoom={false}
         enablePan={false}
         autoRotate
-        autoRotateSpeed={1.5}
-        enableDamping={false}
+        autoRotateSpeed={0.8}
+        enableDamping={true}
+        dampingFactor={0.05}
       />
     </Canvas>
   )
