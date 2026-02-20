@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { HiMenu, HiX } from 'react-icons/hi'
+import { useDeveloperMode } from '../features/case-studies/context/DeveloperModeContext'
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { developerMode, setDeveloperMode } = useDeveloperMode()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,6 +53,16 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
+            <button
+              type="button"
+              onClick={() => setDeveloperMode(!developerMode)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${developerMode ? 'bg-primary-500/30 text-primary-200 border border-primary-400/50' : 'bg-white/5 text-gray-400 border border-white/10 hover:text-white hover:border-white/20'}`}
+              aria-label="Toggle developer mode"
+              title="Developer mode: show architecture & wireframes"
+            >
+              <span className="w-2 h-2 rounded-full bg-current" />
+              Dev
+            </button>
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -79,6 +91,13 @@ const Header: React.FC = () => {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 animate-fade-in">
+            <button
+              type="button"
+              onClick={() => { setDeveloperMode(!developerMode); setIsMobileMenuOpen(false); }}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium mb-2 w-full ${developerMode ? 'bg-primary-500/30 text-primary-200' : 'bg-white/5 text-gray-400'}`}
+            >
+              <span className="w-2 h-2 rounded-full bg-current" /> Developer mode {developerMode ? 'ON' : 'OFF'}
+            </button>
             <div className="flex flex-col space-y-4">
               {navLinks.map((link) => (
                 <a

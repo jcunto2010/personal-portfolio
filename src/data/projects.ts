@@ -21,16 +21,6 @@ export const projects: Project[] = [
     featured: true
   },
   {
-    id: '2',
-    title: 'EmprendIA - Startup Registration Platform',
-    description: 'A comprehensive multi-actor platform for startup registration and management. Features a progressive 10-tab registration form, React web app with shadcn/ui components, Flutter mobile app, and PostgreSQL database integration. Designed to connect startups with investors, incubators, and mentors in the entrepreneurial ecosystem.',
-    image: '/assets/projects/emprendia.jpg',
-    technologies: ['React', 'TypeScript', 'Flutter', 'Dart', 'PostgreSQL', 'Supabase', 'Tailwind CSS', 'shadcn/ui', 'TanStack Query'],
-    demoUrl: '#',
-    githubUrl: '#',
-    featured: true
-  },
-  {
     id: '3',
     title: 'Animated Flutter App with Rive',
     description: 'A beautiful Flutter application showcasing advanced animations using Rive. Features animated backgrounds with shapes and blur effects, animated buttons with loading states, success animations with confetti, and animated bottom navigation icons. Demonstrates expertise in Flutter animations and Rive integration.',

@@ -34,5 +34,9 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addVariant }) {
+      addVariant('developer', 'html[data-developer-mode="true"] &')
+    },
+  ],
 }

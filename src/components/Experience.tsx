@@ -42,10 +42,6 @@ const Experience: React.FC = () => {
   const getCompanyGradient = (company: string) => {
     if (company.toLowerCase().includes('reservo')) {
       return 'bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent'
-    } else if (company.toLowerCase().includes('emprendia')) {
-      return 'bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400 bg-clip-text text-transparent'
-    } else if (company.toLowerCase().includes('xmotics')) {
-      return 'bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent'
     }
     return 'text-white'
   }
