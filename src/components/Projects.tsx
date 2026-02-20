@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { FaHandPointDown } from 'react-icons/fa'
-import { ProjectStartupFlow } from './project-sections'
-import { ReservoCaseStudy } from '../features/case-studies'
+import { ProjectReservo, ProjectStartupFlow } from './project-sections'
 
 const Projects: React.FC = () => {
   const [showHand, setShowHand] = useState(false)
@@ -16,7 +15,7 @@ const Projects: React.FC = () => {
   }, [])
 
   const scrollToFirstProject = () => {
-    const element = document.querySelector('#case-studies')
+    const element = document.querySelector('#project-reservo')
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' })
     }
@@ -77,13 +76,9 @@ const Projects: React.FC = () => {
         </div>
       </section>
 
-      {/* Case Studies – Technical deep-dives with tabs */}
-      <div id="case-studies" className="relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ReservoCaseStudy />
-        </div>
+      <div id="project-reservo">
+        <ProjectReservo />
       </div>
-
       <ProjectStartupFlow />
     </div>
   )
