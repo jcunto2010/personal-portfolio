@@ -3,7 +3,7 @@ import {
   SiJavascript, 
   SiTypescript, 
   SiHtml5, 
-  SiCss3, 
+  SiCss, 
   SiTailwindcss,
   SiNextdotjs,
   SiVite,
@@ -31,7 +31,7 @@ export const skills: Skill[] = [
   { name: 'TypeScript', icon: SiTypescript, category: 'language' },
   { name: 'Dart', icon: SiDart, category: 'language' },
   { name: 'HTML5', icon: SiHtml5, category: 'language' },
-  { name: 'CSS3', icon: SiCss3, category: 'language' },
+  { name: 'CSS3', icon: SiCss, category: 'language' },
   
   // Frameworks & Libraries
   { name: 'React', icon: SiReact, category: 'framework' },
