@@ -10,7 +10,7 @@ import { DeveloperModeProvider } from './features/case-studies/context/Developer
 function App() {
   return (
     <DeveloperModeProvider>
-    <div className="min-h-screen">
+    <div className="min-h-screen" data-testid="app-root">
       <Header />
       <main>
         <Hero />
