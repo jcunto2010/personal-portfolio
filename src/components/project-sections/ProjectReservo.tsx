@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { FaRobot, FaCalendarCheck, FaBell, FaFingerprint, FaProjectDiagram } from 'react-icons/fa'
-import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
+import type { Node, Edge, Connection} from 'reactflow';
+import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
 import FlowStepper from '../shared/FlowStepper'
 import PhoneMockup from '../shared/PhoneMockup'
