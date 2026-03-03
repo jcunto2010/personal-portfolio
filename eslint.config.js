@@ -4,13 +4,10 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default tseslint.config(
-  // Ignore build output and deps
   { ignores: ['dist', 'node_modules'] },
 
-  // Base JS recommended
   js.configs.recommended,
 
-  // TypeScript recommended (type-checked rules applied to .ts/.tsx)
   ...tseslint.configs.recommended,
 
   {
@@ -20,23 +17,18 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      // React Hooks
       ...reactHooks.configs.recommended.rules,
 
-      // React Refresh (fast-refresh boundaries)
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
 
-      // Security: block eval and equivalent
       'no-eval': 'error',
       'no-new-func': 'error',
 
-      // Console: warn on console.log/warn/info, allow console.error
       'no-console': ['warn', { allow: ['error'] }],
 
-      // TypeScript strictness
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -50,7 +42,6 @@ export default tseslint.config(
     },
   },
 
-  // Relax some rules for config files at the root (JS, not TS)
   {
     files: ['*.config.{js,ts}', 'postcss.config.js'],
     rules: {
