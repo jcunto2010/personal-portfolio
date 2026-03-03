@@ -1,11 +1,12 @@
 ﻿import React, { useEffect, useState, Suspense, useCallback, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Text, Billboard } from '@react-three/drei'
-import * as THREE from 'three'
+import type * as THREE from 'three'
 import { FaUsers, FaRocket, FaComments, FaHandshake, FaProjectDiagram } from 'react-icons/fa'
 import { SiReact, SiTypescript, SiSpringboot, SiPostgresql, SiTailwindcss } from 'react-icons/si'
 // import ReactFlow from 'reactflow' // Only if strictly needed, otherwise remove unused imports
-import ReactFlow, { Node, Edge, Background, useNodesState, useEdgesState, addEdge, Connection, Handle, Position } from 'reactflow'
+import type { Node, Edge, Connection} from 'reactflow';
+import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
 import FlowStepper from '../shared/FlowStepper'
 import PhoneMockup from '../shared/PhoneMockup'
