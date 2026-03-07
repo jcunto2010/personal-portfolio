@@ -24,6 +24,13 @@
   top: 1rem;
 }
 
+/* ── Main landmark ───────────────────────────────────── */
+
+.mainContent {
+  /* Transparent wrapper — no visual change, satisfies landmark-one-main. */
+  display: contents;
+}
+
 /* ── Page ────────────────────────────────────────────── */
 
 .page {

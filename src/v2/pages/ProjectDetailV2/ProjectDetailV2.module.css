@@ -53,7 +53,9 @@
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--v2-color-violet);
+  /* violet (#7C3AED) has 3.43:1 contrast on base-bg — below WCAG AA (4.5:1).
+     cyan (#06B6D4) has ~8.5:1 contrast — passes. */
+  color: var(--v2-color-cyan);
   margin-bottom: 0.5rem;
 }
 

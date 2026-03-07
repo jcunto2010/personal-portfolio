@@ -13,6 +13,8 @@
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:v2": "playwright test --project=v2-chromium-desktop --project=v2-mobile-chrome",
+    "test:e2e:v1": "playwright test --project=v1-chromium-desktop --project=v1-mobile-chrome",
     "bundle:check": "node scripts/bundle-check.cjs",
     "lhci": "lhci autorun",
     "ci:v2": "npm run build && npm run bundle:check"
@@ -30,6 +32,7 @@
     }
   ],
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
     "@eslint/js": "^9.39.3",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.58.2",

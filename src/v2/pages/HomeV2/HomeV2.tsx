@@ -107,7 +107,9 @@ export default function HomeV2() {
 
       <TableOfContents />
 
-      {/* All page sections are wrapped in a semantic landmark */}
+      {/* landmark-one-main: <main> wraps all chapter sections so the page
+          has exactly one main landmark, satisfying WCAG 2.1 SC 1.3.6. */}
+      <main id="main-content" className={styles.mainContent}>
 
       {/* ─── Chapter: Intro ─────────────────────────────────── */}
       <section
@@ -389,6 +391,8 @@ export default function HomeV2() {
           </address>
         </div>
       </section>
+
+      </main>{/* end #main-content */}
 
       <footer className={styles.footer} role="contentinfo">
         <div className={styles.footerInner}>

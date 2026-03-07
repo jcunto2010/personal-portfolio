@@ -8,6 +8,9 @@
  *  Override at runtime via the URL:
  *    ?webgl=1   → forces WebGL on
  *    ?webgl=0   → forces WebGL off
+ *
+ *  T-008: Para activar GA4 o Sentry, consultar docs/t008-observability-activation.md
+ *  antes de cambiar enableGA4 o enableSentry a true.
  */
 
 function queryFlag(key: string, fallback: boolean): boolean {
