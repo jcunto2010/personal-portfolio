@@ -1,0 +1,661 @@
+/* HomeV2 styles — Cosmic Editorial
+   All values use V2 custom properties from tokens.css.          */
+
+/* ── Skip link ──────────────────────────────────────── */
+
+.skipLink {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--v2-color-deep-blue);
+  color: var(--v2-color-base-text);
+  border: none;
+  border-radius: var(--v2-radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.skipLink:focus {
+  top: 1rem;
+}
+
+/* ── Page ────────────────────────────────────────────── */
+
+.page {
+  /* WebGLLayer is fixed at z-index: 0; the DOM content lives above it. */
+  position: relative;
+  z-index: 1;
+  /* Keep the base bg — chapters that need a solid bg still set their own.
+     The intro chapter is transparent so the WebGL canvas shows through. */
+  background-color: transparent;
+  color: var(--v2-color-base-text);
+  font-family: var(--v2-font-body);
+  font-weight: var(--v2-font-weight-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Shared chapter layout ──────────────────────────── */
+
+.chapter {
+  position: relative;
+  padding-top: var(--v2-chapter-padding-y);
+  padding-bottom: var(--v2-chapter-padding-y);
+  padding-left: clamp(1.5rem, 5vw, 4rem);
+  padding-right: clamp(1.5rem, 5vw, 4rem);
+}
+
+.chapterInner {
+  max-width: var(--v2-chapter-max-width);
+  margin: 0 auto;
+}
+
+.chapterIndex {
+  font-family: var(--v2-font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+  margin-bottom: 0.75rem;
+}
+
+.chapterHeading {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  color: var(--v2-color-base-text);
+}
+
+.chapterLead {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--v2-color-muted-text);
+  max-width: 60ch;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+}
+
+/* ── Chapter: Intro ─────────────────────────────────── */
+
+.chapterIntro {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v2-color-cyan);
+  margin-bottom: 1.5rem;
+}
+
+.heroSubtitle {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  color: var(--v2-color-violet);
+  margin-bottom: 1.5rem;
+  margin-top: -0.5rem;
+}
+
+.socialRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--v2-color-muted-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.socialLink:hover,
+.socialLink:focus-visible {
+  color: var(--v2-color-base-text);
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.displayHeading {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+  max-width: 18ch;
+}
+
+.gradientText {
+  background: linear-gradient(
+    135deg,
+    var(--v2-color-deep-blue) 0%,
+    var(--v2-color-violet) 45%,
+    var(--v2-color-cyan) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lead {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--v2-color-muted-text);
+  max-width: 55ch;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, var(--v2-color-deep-blue), var(--v2-color-violet));
+  color: var(--v2-color-base-text);
+  border: none;
+  border-radius: var(--v2-radius-sm);
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ctaPrimary:hover,
+.ctaPrimary:focus-visible {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 3px;
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.875rem 2rem;
+  background: transparent;
+  border: 1px solid var(--v2-color-border-soft);
+  color: var(--v2-color-muted-text);
+  border-radius: var(--v2-radius-sm);
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.ctaSecondary:hover,
+.ctaSecondary:focus-visible {
+  border-color: var(--v2-color-cyan);
+  color: var(--v2-color-base-text);
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 3px;
+}
+
+.webglPlaceholder {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Chapter: About ─────────────────────────────────── */
+
+.chapterAbout {
+  background-color: var(--v2-color-surface-bg);
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+.aboutBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 65ch;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--v2-color-muted-text);
+  margin-bottom: 3rem;
+}
+
+.aboutBody strong {
+  color: var(--v2-color-base-text);
+  font-weight: 500;
+}
+
+/* ── Skills ─────────────────────────────────────────── */
+
+.skillsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.skillsGroup {}
+
+.skillsGroupLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+  margin-bottom: 0.75rem;
+}
+
+.skillsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skillPill {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: 999px;
+  color: var(--v2-color-base-text);
+  background: var(--v2-color-navy);
+  letter-spacing: 0.03em;
+  transition: border-color 0.2s ease;
+}
+
+.skillPill:hover {
+  border-color: var(--v2-color-violet);
+}
+
+/* ── Chapter: Experience ────────────────────────────── */
+
+.chapterExperience {
+  background-color: var(--v2-color-surface-bg);
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+.experienceList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.experienceItem {
+  display: grid;
+  grid-template-columns: clamp(120px, 20%, 200px) 1fr;
+  gap: 2rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+.experienceItem:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 600px) {
+  .experienceItem {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+.expPeriod {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--v2-color-muted-text);
+  padding-top: 0.2rem;
+}
+
+.expBody {}
+
+.expRole {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: 1.15rem;
+  color: var(--v2-color-base-text);
+  margin-bottom: 0.25rem;
+}
+
+.expCompany {
+  font-size: 0.9rem;
+  color: var(--v2-color-cyan);
+  margin-bottom: 0.75rem;
+}
+
+.expDescription {
+  font-size: 0.95rem;
+  color: var(--v2-color-muted-text);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  max-width: 65ch;
+}
+
+.expTechList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.expTechPill {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: 999px;
+  color: var(--v2-color-muted-text);
+}
+
+.expProjectLink {
+  font-size: 0.875rem;
+  color: var(--v2-color-cyan);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.expProjectLink:hover,
+.expProjectLink:focus-visible {
+  opacity: 0.75;
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Chapter: Work ──────────────────────────────────── */
+
+.chapterWork {
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+.projectGrid {
+  list-style: none;
+  margin: 0 0 3rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+  gap: 2rem;
+}
+
+.projectCard {
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: var(--v2-radius-md);
+  overflow: hidden;
+  background: var(--v2-color-surface-bg);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.projectCard:hover {
+  border-color: var(--v2-color-violet);
+  transform: translateY(-2px);
+}
+
+.projectCoverPlaceholder {
+  height: 220px;
+  background: linear-gradient(135deg, var(--v2-color-navy) 0%, var(--v2-color-surface-bg) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--v2-font-display);
+  font-size: 4rem;
+  font-weight: 700;
+  color: var(--v2-color-border-soft);
+}
+
+.projectMeta {
+  padding: 1.5rem;
+}
+
+.projectYear {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+  margin-bottom: 0.5rem;
+}
+
+.projectTitle {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: 1.4rem;
+  color: var(--v2-color-base-text);
+  margin-bottom: 0.5rem;
+}
+
+.projectTagline {
+  font-size: 0.95rem;
+  color: var(--v2-color-muted-text);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.techList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.techPill {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: 999px;
+  color: var(--v2-color-muted-text);
+  letter-spacing: 0.04em;
+}
+
+.projectLink {
+  font-size: 0.875rem;
+  color: var(--v2-color-cyan);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.projectLink:hover,
+.projectLink:focus-visible {
+  opacity: 0.75;
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.projectActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.projectGithubLink {
+  font-size: 0.875rem;
+  color: var(--v2-color-muted-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.projectGithubLink:hover,
+.projectGithubLink:focus-visible {
+  color: var(--v2-color-base-text);
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.allProjectsLink {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--v2-color-cyan);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.allProjectsLink:hover,
+.allProjectsLink:focus-visible {
+  opacity: 0.75;
+}
+
+/* ── Chapter: Notes ─────────────────────────────────── */
+
+.chapterNotes {
+  background-color: var(--v2-color-surface-bg);
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+/* ── Chapter: Contact ───────────────────────────────── */
+
+.chapterContact {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contactGrid {
+  font-style: normal;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 2rem;
+}
+
+.contactGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contactLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+}
+
+.contactLink {
+  font-size: 1rem;
+  color: var(--v2-color-base-text);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contactLink:hover,
+.contactLink:focus-visible {
+  color: var(--v2-color-cyan);
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.contactValue {
+  font-size: 1rem;
+  color: var(--v2-color-muted-text);
+}
+
+/* ── Footer ─────────────────────────────────────────── */
+
+.footer {
+  padding: 2rem clamp(1.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--v2-color-border-soft);
+}
+
+.footerInner {
+  max-width: var(--v2-chapter-max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.footerText {
+  font-size: 0.8rem;
+  color: var(--v2-color-muted-text);
+  letter-spacing: 0.04em;
+}
+
+.footerSocials {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footerSocialLink {
+  font-size: 0.8rem;
+  color: var(--v2-color-muted-text);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color 0.2s ease;
+}
+
+.footerSocialLink:hover,
+.footerSocialLink:focus-visible {
+  color: var(--v2-color-base-text);
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Stub placeholder (dev only) ────────────────────── */
+
+.stubNote {
+  padding: 1rem 1.5rem;
+  border: 1px dashed var(--v2-color-border-soft);
+  border-radius: var(--v2-radius-sm);
+  font-size: 0.8rem;
+  color: var(--v2-color-muted-text);
+  font-family: monospace;
+  letter-spacing: 0.04em;
+  margin-top: 2rem;
+}
+
+/* ── Reduced motion overrides ───────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ctaPrimary,
+  .ctaSecondary,
+  .socialLink,
+  .skillPill,
+  .projectCard,
+  .projectLink,
+  .projectGithubLink,
+  .allProjectsLink,
+  .contactLink,
+  .expProjectLink,
+  .footerSocialLink {
+    transition: none !important;
+    transform: none !important;
+  }
+}

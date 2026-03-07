@@ -1,0 +1,51 @@
+/* WebGLLayer — fixed full-viewport canvas behind all content.
+   pointer-events: none ensures no clicks, keyboard focus, or
+   touch events reach the canvas instead of the DOM content.     */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* The canvas must never steal focus from DOM content */
+  user-select: none;
+  /* Isolation so stacking context is contained */
+  isolation: isolate;
+}
+
+.canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* ── Fallback 2D ─────────────────────────────────────── */
+
+.fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+.fallbackGradient {
+  position: absolute;
+  inset: 0;
+  /* Radial blobs that mimic the WebGL nebula palette */
+  background:
+    radial-gradient(ellipse 70% 45% at 15% 25%,  rgba(124, 58, 237, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 40% at 85% 70%,  rgba(6, 182, 212,  0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 35% at 60% 10%,  rgba(29,  78, 216, 0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 30% 85%,  rgba(192, 38, 211, 0.08) 0%, transparent 70%);
+}
+
+/* ── Reduced-motion: hide everything animated ─────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .canvas {
+    display: none;
+  }
+}

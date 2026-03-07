@@ -48,4 +48,27 @@ export default tseslint.config(
       '@typescript-eslint/no-require-imports': 'off',
     },
   },
+
+  // Node.js CJS scripts — scripts/ and *.cjs files run in Node, not the browser.
+  // Enable Node globals and relax browser-only rules.
+  {
+    files: ['scripts/**/*.cjs', '*.cjs'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-undef': 'off',
+      'no-console': 'off',
+    },
+  },
 )

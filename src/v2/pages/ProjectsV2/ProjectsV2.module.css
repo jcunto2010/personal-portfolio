@@ -1,0 +1,210 @@
+.page {
+  background-color: var(--v2-color-base-bg);
+  color: var(--v2-color-base-text);
+  font-family: var(--v2-font-body);
+  font-weight: var(--v2-font-weight-body);
+  min-height: 100vh;
+}
+
+.header {
+  padding: 3rem clamp(1.5rem, 5vw, 4rem) 4rem;
+  border-bottom: 1px solid var(--v2-color-border-soft);
+  max-width: var(--v2-chapter-max-width);
+  margin: 0 auto;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--v2-color-muted-text);
+  text-decoration: none;
+  margin-bottom: 3rem;
+  transition: color 0.2s ease;
+}
+
+.backLink:hover,
+.backLink:focus-visible {
+  color: var(--v2-color-base-text);
+}
+
+.headerContent {
+  max-width: 60ch;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v2-color-cyan);
+  margin-bottom: 1rem;
+}
+
+.heading {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+.lead {
+  font-size: 1.1rem;
+  color: var(--v2-color-muted-text);
+  line-height: 1.6;
+}
+
+.main {
+  max-width: var(--v2-chapter-max-width);
+  margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+}
+
+.projectList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.projectItem {
+  border-bottom: 1px solid var(--v2-color-border-soft);
+}
+
+.projectRow {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  gap: 2rem;
+  align-items: start;
+  padding: 3rem 0;
+  transition: background-color 0.2s ease;
+}
+
+.projectRow:hover {
+  /* subtle surface lift on hover */
+  background-color: var(--v2-color-surface-bg);
+  margin: 0 -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: var(--v2-radius-sm);
+}
+
+@media (max-width: 640px) {
+  .projectRow {
+    grid-template-columns: 2.5rem 1fr;
+    grid-template-rows: auto auto;
+  }
+  .projectActions {
+    grid-column: 2;
+  }
+}
+
+.projectNumber {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--v2-color-muted-text);
+  padding-top: 0.3rem;
+  font-family: monospace;
+}
+
+.projectInfo {
+  flex: 1;
+}
+
+.projectYear {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+  margin-bottom: 0.4rem;
+}
+
+.projectTitle {
+  font-family: var(--v2-font-display);
+  font-weight: var(--v2-font-weight-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  margin-bottom: 0.5rem;
+  color: var(--v2-color-base-text);
+}
+
+.projectTagline {
+  font-size: 0.95rem;
+  color: var(--v2-color-muted-text);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  max-width: 55ch;
+}
+
+.techList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.techPill {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: 999px;
+  color: var(--v2-color-muted-text);
+  letter-spacing: 0.04em;
+}
+
+.projectActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+  padding-top: 0.25rem;
+}
+
+.caseStudyLink {
+  font-size: 0.875rem;
+  color: var(--v2-color-cyan);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.caseStudyLink:hover,
+.caseStudyLink:focus-visible {
+  opacity: 0.75;
+}
+
+.externalLink {
+  font-size: 0.8rem;
+  color: var(--v2-color-muted-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.externalLink:hover,
+.externalLink:focus-visible {
+  color: var(--v2-color-base-text);
+}
+
+.footer {
+  padding: 2rem clamp(1.5rem, 5vw, 4rem);
+  border-top: 1px solid var(--v2-color-border-soft);
+  max-width: var(--v2-chapter-max-width);
+  margin: 0 auto;
+}
+
+.footerText {
+  font-size: 0.8rem;
+  color: var(--v2-color-muted-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backLink,
+  .projectRow,
+  .caseStudyLink,
+  .externalLink {
+    transition: none !important;
+  }
+}

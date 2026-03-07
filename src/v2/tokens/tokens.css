@@ -1,0 +1,64 @@
+/* V2 Design Tokens — Cosmic Editorial
+   These custom properties are scoped to .v2-root to avoid
+   colliding with any V1 Tailwind variables.                */
+
+.v2-root {
+  /* Colors */
+  --v2-color-base-bg:      #070B1A;
+  --v2-color-surface-bg:   #0D1326;
+  --v2-color-base-text:    #F5F7FF;
+  --v2-color-muted-text:   #B8C0D9;
+  --v2-color-navy:         #0B1F3A;
+  --v2-color-deep-blue:    #1D4ED8;
+  --v2-color-violet:       #7C3AED;
+  --v2-color-purple:       #9333EA;
+  --v2-color-magenta:      #C026D3;
+  --v2-color-cyan:         #06B6D4;
+  --v2-color-border-soft:  rgba(255, 255, 255, 0.12);
+
+  /* Typography */
+  --v2-font-display: 'Proxima Nova', 'Inter', 'Arial', sans-serif;
+  --v2-font-body:    'Proxima Nova', 'Inter', 'Arial', sans-serif;
+  --v2-font-weight-display: 600;
+  --v2-font-weight-body:    300;
+
+  /* Radius */
+  --v2-radius-sm: 8px;
+  --v2-radius-md: 16px;
+  --v2-radius-lg: 24px;
+
+  /* Spacing scale */
+  --v2-space-1:   4px;
+  --v2-space-2:   8px;
+  --v2-space-3:  12px;
+  --v2-space-4:  16px;
+  --v2-space-6:  24px;
+  --v2-space-8:  32px;
+  --v2-space-12: 48px;
+  --v2-space-16: 64px;
+  --v2-space-24: 96px;
+  --v2-space-32: 128px;
+
+  /* Chapter spacing */
+  --v2-chapter-padding-y: clamp(80px, 12vw, 160px);
+  --v2-chapter-max-width: 1200px;
+}
+
+/* Reduced-motion: disable transitions at root level */
+@media (prefers-reduced-motion: reduce) {
+  .v2-root *,
+  .v2-root *::before,
+  .v2-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* V2 global base — applied only in index.v2.html context.
+   Sets body background so no white flash occurs before React hydrates. */
+body {
+  margin: 0;
+  background-color: #070B1A;
+}
