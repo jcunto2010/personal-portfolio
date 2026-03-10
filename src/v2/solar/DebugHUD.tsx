@@ -12,6 +12,9 @@
 import type { AudioDiagnostics } from '../lib/useAudioShell'
 import type { LoadingGroup } from './planetRegistry'
 import { PLANET_REGISTRY } from './planetRegistry'
+import type { ShotId } from './shotConfig'
+import type { ShotPhaseId } from './CameraRig'
+import type { DiscreteShotId, TransitionDirection } from './useDiscreteShotNavigation'
 
 export interface DebugHUDProps {
   mode: string
@@ -26,6 +29,17 @@ export interface DebugHUDProps {
   audioEnabled: boolean
   audioDiagnostics: AudioDiagnostics
   isSafeMode: boolean
+  // Legacy shot navigation
+  currentShotId?: ShotId
+  nextShotId?: ShotId
+  shotProgress?: number
+  shotPhase?: ShotPhaseId
+  // Discrete Sun ↔ Mercury navigation
+  discreteCurrentShotId?:       DiscreteShotId
+  discreteTargetShotId?:        DiscreteShotId | null
+  discreteIsTransitioning?:      boolean
+  discreteTransitionDirection?:  TransitionDirection | null
+  discreteWheelIntent?:          number
 }
 
 function Row({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
@@ -54,6 +68,15 @@ export function DebugHUD({
   audioEnabled,
   audioDiagnostics: ad,
   isSafeMode,
+  currentShotId,
+  nextShotId,
+  shotProgress,
+  shotPhase,
+  discreteCurrentShotId,
+  discreteTargetShotId,
+  discreteIsTransitioning,
+  discreteTransitionDirection,
+  discreteWheelIntent,
 }: DebugHUDProps) {
   const totalPlanets = PLANET_REGISTRY.length
   const placeholderCount = totalPlanets - glbLoaded - glbFailed
@@ -106,6 +129,49 @@ export function DebugHUD({
             value={`x=${cameraPos.x.toFixed(1)} y=${cameraPos.y.toFixed(1)} z=${cameraPos.z.toFixed(1)}`}
           />
           <Row label="scrollProgress" value={scrollProgress.toFixed(3)} />
+
+          {/* Divider */}
+          <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+          </td></tr>
+
+          {/* Legacy scroll-based shot navigation */}
+          <Row label="currentShot"  value={currentShotId ?? '—'} />
+          <Row label="nextShot"     value={nextShotId    ?? '—'} />
+          <Row
+            label="shotPhase"
+            value={shotPhase ?? '—'}
+            warn={shotPhase === 'mercury-hold'}
+          />
+          <Row label="shotProgress" value={shotProgress != null ? shotProgress.toFixed(3) : '—'} />
+
+          {/* Divider */}
+          <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+          </td></tr>
+
+          {/* Discrete Sun ↔ Mercury navigation */}
+          <Row
+            label="d.currentShot"
+            value={discreteCurrentShotId ?? '—'}
+          />
+          <Row
+            label="d.targetShot"
+            value={discreteTargetShotId != null ? discreteTargetShotId : 'idle'}
+          />
+          <Row
+            label="d.transitioning"
+            value={discreteIsTransitioning != null ? String(discreteIsTransitioning) : '—'}
+            warn={discreteIsTransitioning}
+          />
+          <Row
+            label="d.direction"
+            value={discreteTransitionDirection ?? 'none'}
+          />
+          <Row
+            label="d.wheelIntent"
+            value={discreteWheelIntent != null ? discreteWheelIntent.toFixed(0) : '—'}
+          />
 
           {/* Divider */}
           <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>

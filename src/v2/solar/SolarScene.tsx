@@ -27,8 +27,10 @@ import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
 import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
 import { CameraRig } from './CameraRig'
-import type { CameraPhaseId } from './CameraRig'
+import type { CameraPhaseId, ShotPhaseId } from './CameraRig'
 import { useScrollProgress } from '../lib/useScrollProgress'
+import { useShotNavigation } from './useShotNavigation'
+import { useDiscreteShotNavigation } from './useDiscreteShotNavigation'
 import { DebugHUD } from './DebugHUD'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
 import styles from './SolarScene.module.css'
@@ -307,6 +309,20 @@ export function SolarScene({
   const activeGroups = useProgressiveLoader(scrollProgress, IS_SAFE)
   const activeJourneyPlanetRef = useRef<PlanetId>('sun')
 
+  // Legacy scroll-based shot navigation (kept for debug display only)
+  const { currentShot, nextShot, shotProgress } = useShotNavigation(scrollProgress)
+
+  // Discrete Sun ↔ Mercury navigation (replaces scroll scrub between these two shots)
+  const {
+    currentShotId:       discreteCurrentShotId,
+    targetShotId:        discreteTargetShotId,
+    isTransitioning:     discreteIsTransitioning,
+    transitionDirection: discreteTransitionDir,
+    wheelIntent:         discreteWheelIntent,
+    transitionTRef:      discreteTransitionTRef,
+    onTransitionComplete: onDiscreteTransitionComplete,
+  } = useDiscreteShotNavigation(scrollContainerRef)
+
   const [activePlanet, setActivePlanet] = useState<PlanetConfig | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
   const [isFinaleActive, setIsFinaleActive] = useState(false)
@@ -321,6 +337,7 @@ export function SolarScene({
   const [glbFailed, setGlbFailed]         = useState(0)
   const [glbLoaded, setGlbLoaded]         = useState(0)
   const [cameraPhase, setCameraPhase]     = useState<CameraPhaseId>('intro')
+  const [shotPhase, setShotPhase]         = useState<ShotPhaseId>('sun')
   // Gate: how many GLBs in the 'initial' group need to load before we start the journey.
   // The Sun is 50 MB so we wait for it specifically before the CameraRig moves.
   const initialGroupSize = PLANET_REGISTRY.filter((p) => p.loadingGroup === 'initial').length
@@ -413,6 +430,15 @@ export function SolarScene({
                   progress={journeyReady ? scrollProgress : 0}
                   activePlanetId={activeJourneyPlanetId}
                   onPhaseChange={IS_DEBUG ? setCameraPhase : undefined}
+                  onShotPhaseChange={IS_DEBUG ? setShotPhase : undefined}
+                  currentShotId={currentShot.id}
+                  nextShotId={nextShot?.id}
+                  shotProgress={shotProgress}
+                  discreteCurrentShotId={discreteCurrentShotId}
+                  discreteTargetShotId={discreteTargetShotId}
+                  discreteIsTransitioning={discreteIsTransitioning}
+                  discreteTransitionTRef={discreteTransitionTRef}
+                  onDiscreteTransitionComplete={onDiscreteTransitionComplete}
                 />
               )}
 
@@ -548,6 +574,15 @@ export function SolarScene({
           <div>activePlanetId={activeJourneyPlanet.id} [{activeJourneyPlanet.focusStart.toFixed(2)}–{activeJourneyPlanet.focusEnd.toFixed(2)}]</div>
           <div>currentPhase={cameraPhase}</div>
           <div>next={nextJourneyPlanet?.id ?? 'none'} | scroll={scrollProgress.toFixed(3)}</div>
+          <div style={{ borderTop: '1px solid rgba(147,197,253,0.2)', marginTop: '0.3rem', paddingTop: '0.3rem' }}>
+            currentShot={currentShot.id} | nextShot={nextShot?.id ?? 'none'}
+          </div>
+          <div>shotPhase={shotPhase}</div>
+          <div>shotProgress={shotProgress.toFixed(3)}</div>
+          <div style={{ borderTop: '1px solid rgba(147,197,253,0.2)', marginTop: '0.3rem', paddingTop: '0.3rem' }}>
+            discrete: {discreteCurrentShotId} → {discreteTargetShotId ?? 'idle'} | transitioning={String(discreteIsTransitioning)}
+          </div>
+          <div>dir={discreteTransitionDir ?? 'none'} | intent={discreteWheelIntent.toFixed(0)}</div>
         </div>
       )}
 
@@ -565,6 +600,15 @@ export function SolarScene({
           audioEnabled={audioEnabled}
           audioDiagnostics={audioDiagnostics}
           isSafeMode={IS_SAFE}
+          currentShotId={currentShot.id}
+          nextShotId={nextShot?.id}
+          shotProgress={shotProgress}
+          shotPhase={shotPhase}
+          discreteCurrentShotId={discreteCurrentShotId}
+          discreteTargetShotId={discreteTargetShotId}
+          discreteIsTransitioning={discreteIsTransitioning}
+          discreteTransitionDirection={discreteTransitionDir}
+          discreteWheelIntent={discreteWheelIntent}
         />
       )}
     </div>

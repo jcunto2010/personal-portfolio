@@ -1,21 +1,33 @@
 /**
- * CameraRig — scroll-driven camera for the solar journey.
+ * CameraRig — solar journey camera.
  *
- * Architecture
- * ────────────
- * Every planet in PLANET_REGISTRY has a focus window [focusStart, focusEnd]
- * and three sub-phases:
- *   APPROACH  (approachStart → settleStart)  : camera drifts laterally toward planet
- *   HOLD      (settleStart  → departStart)   : camera settles, slow damp ("pause beat")
- *   DEPART    (departStart  → focusEnd)      : camera starts blending toward next planet
+ * Architecture (microfase 3 — discrete Sun ↔ Mercury)
+ * ────────────────────────────────────────────────────
+ * Sun ↔ Mercury navigation is now DISCRETE: the transition runs automatically
+ * once triggered, driven by transitionT advancing in useFrame at a fixed speed.
+ * It no longer depends on scroll scrub position.
  *
- * For the HOLD phase a lower damp coefficient is used so the camera decelerates
- * noticeably — this is the "focus hold" that tells the user they've arrived.
+ * Shot routing:
+ *   DISCRETE path (this file):
+ *     'sun'     → intro sweep + Sun hold pose (VERBATIM, untouched)
+ *     'mercury' → discrete transition from Sun pose to Mercury pose
  *
- * No setState per frame. All interpolation done via THREE.MathUtils.damp().
- * desiredPos / desiredLat are mutated refs; lookAtSmoothed is the smoothed target.
+ *   LEGACY path (scroll-driven, unchanged for future planets):
+ *     Everything else → planet-registry approach/hold/depart logic
  *
- * Exported type: CameraPhaseId  (used by SolarScene debug badge)
+ * Discrete transition behaviour:
+ *   - transitionTRef is a mutable ref owned by useDiscreteShotNavigation.
+ *   - Each frame: transitionTRef.current += delta * TRANSITION_SPEED.
+ *   - When transitionTRef.current >= 1 → call onTransitionComplete().
+ *   - Easing: easeInOutCubic applied to the raw t.
+ *   - Camera position and lookAt are lerped between Sun hold pose and Mercury hold pose.
+ *
+ * Sun intro: 100% preserved verbatim. DO NOT MODIFY.
+ *
+ * Exported types:
+ *   CameraPhaseId        — debug HUD (unchanged)
+ *   ShotPhaseId          — debug HUD (unchanged)
+ *   CameraRigShotProps   — discrete props
  */
 
 import { useRef } from 'react'
@@ -28,26 +40,36 @@ import {
   type PlanetConfig,
   type PlanetId,
 } from './planetRegistry'
+import type { ShotId } from './shotConfig'
+import { getShotById, SHOT_MAP } from './shotConfig'
+import type { RefObject } from 'react'
 
 // ── Damp coefficients ──────────────────────────────────────────────────────────
-// APPROACH: normal travel speed — feels like flying through space.
 const DAMP_APPROACH  = 3.0
-// HOLD: slow settle — camera decelerates, giving the "pause beat" feel.
 const DAMP_HOLD      = 1.6
-// DEPART: slightly faster than approach so the hand-off feels decisive.
 const DAMP_DEPART    = 3.5
-// lookAt always tracks a bit faster than position for a natural feel.
 const DAMP_LOOK_AT   = 4.5
-// During the opening intro animation, override with a crisp damp.
 const DAMP_INTRO     = 2.5
 
 const INTRO_DURATION = 2.0   // seconds
 
-// Intro start position: high up, further right, further back.
-// The Sun focus node (final position) is [4, 0.5, 4.5], lookAt [3.5, 0, 0].
-// Starting higher (+Y) and more to the right (+X) creates a "descend and
-// settle" feel — the camera sweeps down-left into the close-up framing.
+// Intro start position — DO NOT CHANGE (preserves the Sun intro sweep).
 const INTRO_START = new THREE.Vector3(18, 14, 22)
+
+/**
+ * Speed at which transitionT advances per second.
+ * 0.6 → transition completes in ~1.67 s.
+ * Feels cinematic without being sluggish.
+ */
+const TRANSITION_SPEED = 0.6
+
+// ── Easing ────────────────────────────────────────────────────────────────────
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5
+    ? 4 * t * t * t
+    : 1 - Math.pow(-2 * t + 2, 3) / 2
+}
 
 // ── Phase identifier (exported for debug HUD) ─────────────────────────────────
 export type CameraPhaseId =
@@ -57,7 +79,9 @@ export type CameraPhaseId =
   | 'mercury-approach'
   | 'mercury-hold'
   | 'mercury-depart'
-  | 'transit'   // generic label for any other planet phase
+  | 'transit'
+
+export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold'
 
 // ── Focus node ─────────────────────────────────────────────────────────────────
 
@@ -107,28 +131,66 @@ function phaseProgress(p: number, planet: PlanetConfig, phase: 'approach' | 'hol
   return len > 0 ? THREE.MathUtils.clamp((p - planet.departStart) / len, 0, 1) : 1
 }
 
-// ── CameraRig ─────────────────────────────────────────────────────────────────
+// ── CameraRig props ───────────────────────────────────────────────────────────
 
-export interface CameraRigProps {
-  progress?: number
-  activePlanetId?: PlanetId
-  /** Callback so SolarScene can display phase in the debug badge */
-  onPhaseChange?: (phase: CameraPhaseId) => void
+export interface CameraRigShotProps {
+  currentShotId?: ShotId
+  nextShotId?: ShotId
+  shotProgress?: number
 }
 
-export function CameraRig({ progress = 0, activePlanetId, onPhaseChange }: CameraRigProps) {
+export interface CameraRigProps extends CameraRigShotProps {
+  progress?: number
+  activePlanetId?: PlanetId
+  onPhaseChange?: (phase: CameraPhaseId) => void
+  onShotPhaseChange?: (shotPhase: ShotPhaseId) => void
+  // Discrete navigation — provided by useDiscreteShotNavigation
+  discreteCurrentShotId?:   'sun' | 'mercury'
+  discreteTargetShotId?:    'sun' | 'mercury' | null
+  discreteIsTransitioning?:  boolean
+  discreteTransitionTRef?:   RefObject<number>
+  onDiscreteTransitionComplete?: () => void
+}
+
+// ── CameraRig ─────────────────────────────────────────────────────────────────
+
+export function CameraRig({
+  progress = 0,
+  activePlanetId,
+  onPhaseChange,
+  onShotPhaseChange,
+  currentShotId: _legacyShotId,
+  nextShotId: _nextShotId,
+  shotProgress: _shotProgress = 0,
+  // Discrete
+  discreteCurrentShotId   = 'sun',
+  discreteTargetShotId    = null,
+  discreteIsTransitioning  = false,
+  discreteTransitionTRef,
+  onDiscreteTransitionComplete,
+}: CameraRigProps) {
   const sunNode        = createFocusNodeById('sun')
   const desiredPos     = useRef(sunNode.camera.clone())
   const desiredLat     = useRef(sunNode.lookAt.clone())
   const lookAtSmoothed = useRef(sunNode.lookAt.clone())
   const mountTimeRef   = useRef<number | null>(null)
   const lastPhaseRef   = useRef<CameraPhaseId>('intro')
+  const lastShotPhaseRef = useRef<ShotPhaseId>('sun')
+
+  // Cached shot poses (computed once, stable across frames)
+  const sunShot  = SHOT_MAP.get('sun')!
+  const mercShot = SHOT_MAP.get('mercury')!
+  const sunCamPos  = new THREE.Vector3(...sunShot.cameraPosition)
+  const sunLookAt  = new THREE.Vector3(...sunShot.lookAt)
+  const mercCamPos = new THREE.Vector3(...mercShot.cameraPosition)
+  const mercLookAt = new THREE.Vector3(...mercShot.lookAt)
 
   useFrame((state, delta) => {
     const cam = state.camera
     const p   = THREE.MathUtils.clamp(progress, 0, 1)
 
     // ── Intro ─────────────────────────────────────────────────────────────────
+    // PRESERVED VERBATIM. DO NOT MODIFY.
     if (mountTimeRef.current === null) {
       mountTimeRef.current = state.clock.elapsedTime
       cam.position.copy(INTRO_START)
@@ -139,22 +201,127 @@ export function CameraRig({ progress = 0, activePlanetId, onPhaseChange }: Camer
       0, 1,
     )
 
-    // ── Active planet + phase ─────────────────────────────────────────────────
+    // ── Discrete Sun ↔ Mercury path ───────────────────────────────────────────
+    //
+    // This path handles 'sun' and 'mercury' shots with discrete transitions.
+    // The camera pose is determined SOLELY by discreteCurrentShotId,
+    // discreteTargetShotId, and the transitionT value — NOT by scroll position.
+    //
+    // Exceptions: the Sun intro sweep still uses introT (preserved verbatim).
+
+    if (discreteCurrentShotId === 'sun' || discreteCurrentShotId === 'mercury' ||
+        discreteIsTransitioning) {
+
+      let posDamp = DAMP_HOLD
+
+      if (discreteIsTransitioning && discreteTransitionTRef) {
+        // Advance transitionT
+        const raw = discreteTransitionTRef.current
+        const next = Math.min(1, raw + delta * TRANSITION_SPEED)
+        discreteTransitionTRef.current = next
+
+        // Eased t
+        const t = easeInOutCubic(next)
+
+        // Determine direction: going to mercury or back to sun?
+        if (discreteTargetShotId === 'mercury') {
+          // Forward: Sun → Mercury
+          desiredPos.current.lerpVectors(sunCamPos, mercCamPos, t)
+          desiredLat.current.lerpVectors(sunLookAt,  mercLookAt,  t)
+        } else {
+          // Backward: Mercury → Sun
+          desiredPos.current.lerpVectors(mercCamPos, sunCamPos, t)
+          desiredLat.current.lerpVectors(mercLookAt,  sunLookAt,  t)
+        }
+
+        posDamp = DAMP_APPROACH
+
+        // Transition complete
+        if (next >= 1) {
+          onDiscreteTransitionComplete?.()
+        }
+
+        // Debug
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'mercury-approach'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'transition'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
+
+      } else if (discreteCurrentShotId === 'mercury') {
+        // Idle at Mercury hold pose
+        desiredPos.current.copy(mercCamPos)
+        desiredLat.current.copy(mercLookAt)
+        posDamp = DAMP_HOLD
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'mercury-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'mercury-hold'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
+
+      } else {
+        // Idle at Sun hold pose — intro sweep still applies
+        desiredPos.current.copy(sunCamPos)
+        desiredLat.current.copy(sunLookAt)
+        posDamp = introT < 1 ? DAMP_INTRO : DAMP_HOLD
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = introT < 0.99 ? 'intro' : 'sun-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'sun'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
+      }
+
+      // Apply camera position.
+      // For the Sun idle state, blend from INTRO_START using introT (preserves the intro sweep).
+      const applyIntro = discreteCurrentShotId === 'sun' && !discreteIsTransitioning
+
+      const targetPos = applyIntro
+        ? new THREE.Vector3().lerpVectors(INTRO_START, desiredPos.current, introT)
+        : desiredPos.current
+
+      cam.position.x = THREE.MathUtils.damp(cam.position.x, targetPos.x, posDamp, delta)
+      cam.position.y = THREE.MathUtils.damp(cam.position.y, targetPos.y, posDamp, delta)
+      cam.position.z = THREE.MathUtils.damp(cam.position.z, targetPos.z, posDamp, delta)
+
+      lookAtSmoothed.current.x = THREE.MathUtils.damp(lookAtSmoothed.current.x, desiredLat.current.x, DAMP_LOOK_AT, delta)
+      lookAtSmoothed.current.y = THREE.MathUtils.damp(lookAtSmoothed.current.y, desiredLat.current.y, DAMP_LOOK_AT, delta)
+      lookAtSmoothed.current.z = THREE.MathUtils.damp(lookAtSmoothed.current.z, desiredLat.current.z, DAMP_LOOK_AT, delta)
+
+      cam.lookAt(lookAtSmoothed.current)
+      return  // Discrete path handled — skip legacy code
+    }
+
+    // ── LEGACY PATH (future planets not yet wired to discrete system) ──────────
+    // Unchanged. Only reached when discreteCurrentShotId is something other than
+    // 'sun' or 'mercury' — which currently never happens since discrete system
+    // starts at 'sun'. Preserved for future planet migration.
+
+    void getShotById(_legacyShotId ?? 'sun')  // keep import alive
+
     const activePlanet = PLANET_MAP.get(activePlanetId ?? 'sun') ?? PLANET_REGISTRY[0]
     const nextPlanet   = getNextPlanetById(activePlanet.id)
     const phase        = resolvePhase(p, activePlanet)
     const phaseT       = phaseProgress(p, activePlanet, phase)
-
-    // ── Desired camera position ───────────────────────────────────────────────
-    // APPROACH: lerp from previous planet's depart node → active planet's hold node.
-    // HOLD:     lock to active planet's hold node (slow damp does the rest).
-    // DEPART:   lerp from active hold node → next planet's approach node.
-
-    const activeNode = createFocusNode(activePlanet)
+    const activeNode   = createFocusNode(activePlanet)
 
     if (phase === 'approach') {
-      // Interpolate from the previous planet's focus node toward the active planet.
-      // If there's no previous planet (e.g. sun), start from INTRO_START / sunNode.
       const prevPlanetIdx = PLANET_REGISTRY.findIndex((c) => c.id === activePlanet.id) - 1
       const prevNode = prevPlanetIdx >= 0
         ? createFocusNode(PLANET_REGISTRY[prevPlanetIdx])
@@ -166,7 +333,6 @@ export function CameraRig({ progress = 0, activePlanetId, onPhaseChange }: Camer
       desiredPos.current.copy(activeNode.camera)
       desiredLat.current.copy(activeNode.lookAt)
     } else {
-      // DEPART: blend from active toward next.
       if (nextPlanet) {
         const nextNode = createFocusNode(nextPlanet)
         const t = THREE.MathUtils.smootherstep(phaseT, 0, 1)
@@ -178,24 +344,21 @@ export function CameraRig({ progress = 0, activePlanetId, onPhaseChange }: Camer
       }
     }
 
-    // ── Pick damp coefficient based on phase ──────────────────────────────────
-    let posDamp: number
+    let legacyPosDamp: number
     if (introT < 1) {
-      posDamp = DAMP_INTRO
+      legacyPosDamp = DAMP_INTRO
     } else if (phase === 'hold') {
-      posDamp = DAMP_HOLD
+      legacyPosDamp = DAMP_HOLD
     } else if (phase === 'depart') {
-      posDamp = DAMP_DEPART
+      legacyPosDamp = DAMP_DEPART
     } else {
-      posDamp = DAMP_APPROACH
+      legacyPosDamp = DAMP_APPROACH
     }
 
-    // ── Blend intro start → scroll-driven position ────────────────────────────
-    const targetPos = new THREE.Vector3().lerpVectors(INTRO_START, desiredPos.current, introT)
-
-    cam.position.x = THREE.MathUtils.damp(cam.position.x, targetPos.x, posDamp, delta)
-    cam.position.y = THREE.MathUtils.damp(cam.position.y, targetPos.y, posDamp, delta)
-    cam.position.z = THREE.MathUtils.damp(cam.position.z, targetPos.z, posDamp, delta)
+    const legacyTargetPos = new THREE.Vector3().lerpVectors(INTRO_START, desiredPos.current, introT)
+    cam.position.x = THREE.MathUtils.damp(cam.position.x, legacyTargetPos.x, legacyPosDamp, delta)
+    cam.position.y = THREE.MathUtils.damp(cam.position.y, legacyTargetPos.y, legacyPosDamp, delta)
+    cam.position.z = THREE.MathUtils.damp(cam.position.z, legacyTargetPos.z, legacyPosDamp, delta)
 
     lookAtSmoothed.current.x = THREE.MathUtils.damp(lookAtSmoothed.current.x, desiredLat.current.x, DAMP_LOOK_AT, delta)
     lookAtSmoothed.current.y = THREE.MathUtils.damp(lookAtSmoothed.current.y, desiredLat.current.y, DAMP_LOOK_AT, delta)
@@ -203,23 +366,27 @@ export function CameraRig({ progress = 0, activePlanetId, onPhaseChange }: Camer
 
     cam.lookAt(lookAtSmoothed.current)
 
-    // ── Debug phase reporting (DEV only, no setState) ─────────────────────────
-    if (import.meta.env.DEV && onPhaseChange) {
-      let phaseId: CameraPhaseId
-      if (introT < 0.99) {
-        phaseId = 'intro'
-      } else if (activePlanet.id === 'sun') {
-        phaseId = phase === 'hold' ? 'sun-hold' : 'sun-depart'
-      } else if (activePlanet.id === 'mercury') {
-        phaseId = phase === 'approach' ? 'mercury-approach'
-                : phase === 'hold'     ? 'mercury-hold'
-                : 'mercury-depart'
-      } else {
-        phaseId = 'transit'
+    if (import.meta.env.DEV) {
+      if (onPhaseChange) {
+        let phaseId: CameraPhaseId
+        if (introT < 0.99) {
+          phaseId = 'intro'
+        } else if (activePlanet.id === 'sun') {
+          phaseId = phase === 'hold' ? 'sun-hold' : 'sun-depart'
+        } else {
+          phaseId = 'transit'
+        }
+        if (phaseId !== lastPhaseRef.current) {
+          lastPhaseRef.current = phaseId
+          onPhaseChange(phaseId)
+        }
       }
-      if (phaseId !== lastPhaseRef.current) {
-        lastPhaseRef.current = phaseId
-        onPhaseChange(phaseId)
+      if (onShotPhaseChange) {
+        const shotPhase: ShotPhaseId = 'sun'
+        if (shotPhase !== lastShotPhaseRef.current) {
+          lastShotPhaseRef.current = shotPhase
+          onShotPhaseChange(shotPhase)
+        }
       }
     }
   })
