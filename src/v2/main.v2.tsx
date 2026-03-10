@@ -7,6 +7,7 @@ import AppV2 from './AppV2'
  * This mounts into the same #root element but from a separate HTML file
  * (index.v2.html), so the V1 entry point (src/main.tsx) is never touched.
  */
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AppV2 />

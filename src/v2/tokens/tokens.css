@@ -56,8 +56,11 @@
   }
 }
 
-/* V2 global base — applied only in index.v2.html context.
-   Sets body background so no white flash occurs before React hydrates. */
+/* V2 global base — only active when index.v2.html is the entry point.
+   Minimal reset: just kill the default margin.
+   DO NOT set overflow:hidden here — it breaks the immersive scroll container.
+   DO NOT set height:100% here — it can cause 0-height collapses.
+   SolarScene uses position:fixed so it doesn't need body height at all. */
 body {
   margin: 0;
   background-color: #070B1A;

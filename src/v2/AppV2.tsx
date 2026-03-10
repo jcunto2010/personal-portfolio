@@ -1,6 +1,12 @@
 import { HashRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { Suspense } from 'react'
-import { LazyHomeV2, LazyProjectsV2, LazyProjectDetailV2, PageFallback } from './router/routes'
+import {
+  LazyHomeV2,
+  LazyProjectsV2,
+  LazyProjectDetailV2,
+  LazySmokeTest,
+  PageFallback,
+} from './router/routes'
 import './tokens/tokens.css'
 
 /**
@@ -23,7 +29,7 @@ import './tokens/tokens.css'
 
 function V2Layout() {
   return (
-    <div className="v2-root" style={{ isolation: 'isolate' }}>
+    <div className="v2-root">
       <Outlet />
     </div>
   )
@@ -55,6 +61,15 @@ export default function AppV2() {
             element={
               <Suspense fallback={<PageFallback />}>
                 <LazyProjectDetailV2 />
+              </Suspense>
+            }
+          />
+          {/* Fase 0 — smoke test temporal. Eliminar tras validar assets. */}
+          <Route
+            path="smoke-test"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <LazySmokeTest />
               </Suspense>
             }
           />

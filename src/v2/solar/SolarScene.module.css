@@ -1,0 +1,188 @@
+/* SolarScene — Phase 3 */
+
+/* ── Root ──────────────────────────────────────────────────────── */
+
+/*
+ * LAYOUT CONTRACT:
+ *   solarSceneRoot must occupy exactly one viewport.
+ *   - NO contain:strict (it breaks position:absolute children)
+ *   - NO overflow:hidden on html/body (breaks internal scroll)
+ *   - height is set via inline style AND here for redundancy
+ *   - position:fixed anchors it to the viewport regardless of
+ *     ancestor layout — this is the most reliable approach.
+ */
+.solarSceneRoot {
+  position: fixed;
+  inset: 0;
+  background: #030712;
+  overflow: hidden;
+}
+
+/* ── Scroll container ──────────────────────────────────────────── */
+
+/*
+ * Full-height scrollable region that fills solarSceneRoot.
+ * position:absolute + inset:0 fills the fixed parent perfectly.
+ * overflow-y:scroll is the scroll driver; the track inside is 650vh.
+ * Scrollbar hidden — progress bar replaces it.
+ */
+.scrollContainer {
+  position: absolute;
+  inset: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  /* Touch-action: ensure scrolling works on touch devices */
+  touch-action: pan-y;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Scroll track ──────────────────────────────────────────────── */
+
+/*
+ * Tall content that makes the container scrollable.
+ * 650vh gives the camera enough runway to stage each planet as a beat.
+ * The sticky canvas sits at top:0 of this track.
+ */
+.scrollTrack {
+  position: relative;
+  width: 100%;
+  height: 650vh;
+}
+
+/* ── Sticky canvas wrapper ─────────────────────────────────────── */
+
+/*
+ * stickyCanvas is pinned to the top of scrollContainer while
+ * the user scrolls through scrollTrack.
+ * position:sticky + top:0 works because scrollContainer is the
+ * nearest overflow:scroll ancestor.
+ *
+ * Height is set to 100vh (viewport height) — this is reliable
+ * because the parent chain is: fixed → absolute → relative(500vh).
+ * min-height guards against edge cases where vh resolves to 0.
+ */
+.stickyCanvas {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  min-height: 400px;
+}
+
+/*
+ * R3F Canvas renders three nested divs + canvas:
+ *   outer div (position:relative, overflow:hidden)
+ *     inner div
+ *       canvas
+ *
+ * All must fill stickyCanvas so R3F's ResizeObserver
+ * measures a non-zero bounding rect.
+ */
+.stickyCanvas > div,
+.stickyCanvas > div > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.stickyCanvas canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── Mode-switch button ────────────────────────────────────────── */
+
+.switchModeBtn {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 20;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--v2-font-body, system-ui, sans-serif);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.switchModeBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+/* ── Progress bar ──────────────────────────────────────────────── */
+
+.progressBar {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.progressBar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--progress, 0) * 100%);
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  transition: height 0.05s linear;
+}
+
+/* ── Finale badge ──────────────────────────────────────────────── */
+
+.finaleBadge {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(126, 87, 194, 0.6);
+  background: rgba(126, 87, 194, 0.18);
+  backdrop-filter: blur(8px);
+  color: #ce93d8;
+  font-family: var(--v2-font-body, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: finalePulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes finalePulse {
+  0%, 100% { opacity: 0.8; }
+  50%       { opacity: 1; border-color: rgba(126, 87, 194, 0.9); }
+}
+
+/* ── Reduced-motion ────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .switchModeBtn {
+    transition: none !important;
+  }
+  .progressBar::after {
+    transition: none !important;
+  }
+  .finaleBadge {
+    animation: none !important;
+  }
+}
