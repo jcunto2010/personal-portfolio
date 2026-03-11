@@ -69,6 +69,14 @@ const INTRO_START = new THREE.Vector3(18, 14, 22)
  */
 const TRANSITION_SPEED = 0.6
 
+/**
+ * Neptune ↔ Uranus transition is the largest lateral displacement in the
+ * journey (~33u in X). A slower speed gives the camera time to arc through
+ * the space instead of snapping, making it feel like a deliberate sweep.
+ * 0.35 → completes in ~2.86 s.
+ */
+const TRANSITION_SPEED_NEPTUNE_URANUS = 0.35
+
 // ── Easing ────────────────────────────────────────────────────────────────────
 
 function easeInOutCubic(t: number): number {
@@ -97,9 +105,12 @@ export type CameraPhaseId =
   | 'neptune-hold'
   | 'uranus-approach'
   | 'uranus-hold'
+  | 'blackhole-approach'
+  | 'blackhole-hold'
+  | 'reset-loop'
   | 'transit'
 
-export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold' | 'moon-hold' | 'mars-hold' | 'neptune-hold' | 'uranus-hold'
+export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold' | 'moon-hold' | 'mars-hold' | 'neptune-hold' | 'uranus-hold' | 'blackhole-hold'
 
 // ── Focus node ─────────────────────────────────────────────────────────────────
 
@@ -166,6 +177,8 @@ export interface CameraRigProps extends CameraRigShotProps {
   discreteCurrentShotId?:   DiscreteShotId
   discreteTargetShotId?:    DiscreteShotId | null
   discreteIsTransitioning?:  boolean
+  /** True while the reset loop (blackhole → sun) is executing */
+  discreteIsResetting?:      boolean
   discreteTransitionTRef?:   RefObject<number>
   onDiscreteTransitionComplete?: () => void
 }
@@ -173,7 +186,18 @@ export interface CameraRigProps extends CameraRigShotProps {
 // ── Helper: get shot pose vectors from SHOT_MAP ───────────────────────────────
 
 function getShotPose(id: DiscreteShotId): { cam: THREE.Vector3; look: THREE.Vector3 } {
-  const shot = SHOT_MAP.get(id)!
+  const shot = SHOT_MAP.get(id as import('./shotConfig').ShotId)
+  if (!shot) {
+    if (import.meta.env.DEV) {
+      console.error(`[CameraRig] getShotPose: no shot found for id="${id}". SHOT_MAP keys:`, [...SHOT_MAP.keys()])
+    }
+    // Safe fallback — return Sun pose so camera doesn't fly to NaN
+    const sun = SHOT_MAP.get('sun')!
+    return {
+      cam:  new THREE.Vector3(...sun.cameraPosition),
+      look: new THREE.Vector3(...sun.lookAt),
+    }
+  }
   return {
     cam:  new THREE.Vector3(...shot.cameraPosition),
     look: new THREE.Vector3(...shot.lookAt),
@@ -194,6 +218,7 @@ export function CameraRig({
   discreteCurrentShotId   = 'sun',
   discreteTargetShotId    = null,
   discreteIsTransitioning  = false,
+  discreteIsResetting      = false,
   discreteTransitionTRef,
   onDiscreteTransitionComplete,
 }: CameraRigProps) {
@@ -206,14 +231,15 @@ export function CameraRig({
   const lastShotPhaseRef = useRef<ShotPhaseId>('sun')
 
   // Cached shot poses (computed once, stable across frames)
-  const sunPose     = getShotPose('sun')
-  const mercPose    = getShotPose('mercury')
-  const venusPose   = getShotPose('venus')
-  const earthPose   = getShotPose('earth')
-  const moonPose    = getShotPose('moon')
-  const marsPose    = getShotPose('mars')
-  const neptunePose = getShotPose('neptune')
-  const uranusPose  = getShotPose('uranus')
+  const sunPose       = getShotPose('sun')
+  const mercPose      = getShotPose('mercury')
+  const venusPose     = getShotPose('venus')
+  const earthPose     = getShotPose('earth')
+  const moonPose      = getShotPose('moon')
+  const marsPose      = getShotPose('mars')
+  const neptunePose   = getShotPose('neptune')
+  const uranusPose    = getShotPose('uranus')
+  const blackholePose = getShotPose('blackhole')
 
   useFrame((state, delta) => {
     const cam = state.camera
@@ -240,24 +266,31 @@ export function CameraRig({
     // Exceptions: the Sun intro sweep still uses introT (preserved verbatim).
 
     const isOnDiscretePath =
-      discreteCurrentShotId === 'sun'     ||
-      discreteCurrentShotId === 'mercury' ||
-      discreteCurrentShotId === 'venus'   ||
-      discreteCurrentShotId === 'earth'   ||
-      discreteCurrentShotId === 'moon'    ||
-      discreteCurrentShotId === 'mars'    ||
-      discreteCurrentShotId === 'neptune' ||
-      discreteCurrentShotId === 'uranus'  ||
-      discreteIsTransitioning
+      discreteCurrentShotId === 'sun'       ||
+      discreteCurrentShotId === 'mercury'   ||
+      discreteCurrentShotId === 'venus'     ||
+      discreteCurrentShotId === 'earth'     ||
+      discreteCurrentShotId === 'moon'      ||
+      discreteCurrentShotId === 'mars'      ||
+      discreteCurrentShotId === 'neptune'   ||
+      discreteCurrentShotId === 'uranus'    ||
+      discreteCurrentShotId === 'blackhole' ||
+      discreteIsTransitioning               ||
+      discreteIsResetting
 
     if (isOnDiscretePath) {
 
       let posDamp = DAMP_HOLD
 
       if (discreteIsTransitioning && discreteTransitionTRef) {
-        // Advance transitionT
+        // Advance transitionT — use a slower speed for the Neptune↔Uranus arc
+        // because it has the largest lateral displacement (~33u in X).
+        const isNeptuneUranus =
+          (discreteCurrentShotId === 'neptune' && discreteTargetShotId === 'uranus') ||
+          (discreteCurrentShotId === 'uranus'  && discreteTargetShotId === 'neptune')
+        const speed = isNeptuneUranus ? TRANSITION_SPEED_NEPTUNE_URANUS : TRANSITION_SPEED
         const raw = discreteTransitionTRef.current
-        const next = Math.min(1, raw + delta * TRANSITION_SPEED)
+        const next = Math.min(1, raw + delta * speed)
         discreteTransitionTRef.current = next
         
         // Eased t — drives the lerp directly, no additional damp lag.
@@ -270,10 +303,20 @@ export function CameraRig({
         let fromLook: THREE.Vector3
         let toLook:   THREE.Vector3
 
-        if (discreteTargetShotId === 'uranus') {
-          // neptune → uranus
-          fromCam  = neptunePose.cam;  toCam  = uranusPose.cam
-          fromLook = neptunePose.look; toLook = uranusPose.look
+        if (discreteTargetShotId === 'blackhole') {
+          // uranus → blackhole
+          fromCam  = uranusPose.cam;    toCam  = blackholePose.cam
+          fromLook = uranusPose.look;   toLook = blackholePose.look
+        } else if (discreteTargetShotId === 'uranus') {
+          // neptune → uranus  OR  blackhole → uranus
+          if (discreteCurrentShotId === 'blackhole') {
+            fromCam  = blackholePose.cam;  toCam  = uranusPose.cam
+            fromLook = blackholePose.look; toLook = uranusPose.look
+          } else {
+            // neptune → uranus
+            fromCam  = neptunePose.cam;  toCam  = uranusPose.cam
+            fromLook = neptunePose.look; toLook = uranusPose.look
+          }
         } else if (discreteTargetShotId === 'neptune') {
           // mars → neptune  OR  uranus → neptune
           if (discreteCurrentShotId === 'uranus') {
@@ -334,6 +377,10 @@ export function CameraRig({
             fromCam  = sunPose.cam;  toCam  = mercPose.cam
             fromLook = sunPose.look; toLook = mercPose.look
           }
+        } else if (discreteTargetShotId === 'sun' || discreteIsResetting) {
+          // reset loop: blackhole → sun
+          fromCam  = blackholePose.cam;  toCam  = sunPose.cam
+          fromLook = blackholePose.look; toLook = sunPose.look
         } else {
           // mercury → sun  OR  fallback
           fromCam  = mercPose.cam;  toCam  = sunPose.cam
@@ -361,12 +408,14 @@ export function CameraRig({
         if (import.meta.env.DEV) {
           if (onPhaseChange) {
             const id: CameraPhaseId =
-              discreteTargetShotId === 'uranus'  ? 'uranus-approach'  :
-              discreteTargetShotId === 'neptune' ? 'neptune-approach' :
-              discreteTargetShotId === 'mars'    ? 'mars-approach'    :
-              discreteTargetShotId === 'moon'    ? 'moon-approach'    :
-              discreteTargetShotId === 'earth'   ? 'earth-approach'   :
-              discreteTargetShotId === 'venus'   ? 'venus-approach'   :
+              discreteIsResetting                    ? 'reset-loop'         :
+              discreteTargetShotId === 'blackhole'   ? 'blackhole-approach' :
+              discreteTargetShotId === 'uranus'      ? 'uranus-approach'    :
+              discreteTargetShotId === 'neptune'     ? 'neptune-approach'   :
+              discreteTargetShotId === 'mars'        ? 'mars-approach'      :
+              discreteTargetShotId === 'moon'        ? 'moon-approach'      :
+              discreteTargetShotId === 'earth'       ? 'earth-approach'     :
+              discreteTargetShotId === 'venus'       ? 'venus-approach'     :
               'mercury-approach'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
           }
@@ -377,6 +426,23 @@ export function CameraRig({
         }
 
         return  // camera already applied above — skip the damp block at the end
+
+      } else if (discreteCurrentShotId === 'blackhole') {
+        // Idle at Blackhole hold pose — grand finale, snappy settle
+        desiredPos.current.copy(blackholePose.cam)
+        desiredLat.current.copy(blackholePose.look)
+        posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'blackhole-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'blackhole-hold'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
 
       } else if (discreteCurrentShotId === 'uranus') {
         // Idle at Uranus hold pose — snappy damp, same as other planets

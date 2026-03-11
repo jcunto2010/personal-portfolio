@@ -1,46 +1,44 @@
 /**
- * useDiscreteShotNavigation — discrete Sun → Mercury → Venus → Earth → Moon → Mars → Neptune → Uranus shot state machine.
+ * useDiscreteShotNavigation — discrete Sun → … → Uranus → Blackhole shot state machine.
  *
- * REPLACES the continuous scroll-scrub behaviour between Sun, Mercury, Venus, Earth, Moon, Mars, Neptune, and Uranus.
+ * REPLACES the continuous scroll-scrub behaviour for all shots.
  *
  * State:
- *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury' | 'venus' | 'earth' | 'moon' | 'mars' | 'neptune' | 'uranus')
+ *   currentShotId       — where the camera is RIGHT NOW
  *   targetShotId        — where it is heading (null when idle)
  *   isTransitioning     — true while the automatic transition is running
- *   transitionDirection — 'forward' (sun→…→uranus) | 'backward' (uranus→…→sun) | null
+ *   isResetting         — true while the reset loop back to Sun is executing
+ *   transitionDirection — 'forward' | 'backward' | null
  *   transitionT         — [0,1] progress of the ongoing transition (advanced in CameraRig useFrame)
  *   wheelIntent         — current accumulated wheel delta (for debug HUD)
  *
  * Navigation graph:
  *   sun      → wheel down → mercury
- *   mercury  → wheel down → venus
- *   mercury  → wheel up   → sun
- *   venus    → wheel down → earth
- *   venus    → wheel up   → mercury
- *   earth    → wheel down → moon
- *   earth    → wheel up   → venus
- *   moon     → wheel down → mars
- *   moon     → wheel up   → earth
- *   mars     → wheel down → neptune
- *   mars     → wheel up   → moon
- *   neptune  → wheel down → uranus
- *   neptune  → wheel up   → mars
- *   uranus   → wheel up   → neptune
+ *   mercury  → wheel down → venus    | wheel up → sun
+ *   venus    → wheel down → earth    | wheel up → mercury
+ *   earth    → wheel down → moon     | wheel up → venus
+ *   moon     → wheel down → mars     | wheel up → earth
+ *   mars     → wheel down → neptune  | wheel up → moon
+ *   neptune  → wheel down → uranus   | wheel up → mars
+ *   uranus   → wheel down → blackhole| wheel up → neptune
+ *   blackhole→ wheel up   → uranus   | wheel down → RESET LOOP → sun
+ *
+ * Reset loop:
+ *   - Triggered only from currentShotId === 'blackhole' with wheel down intent.
+ *   - isResetting = true while executing.
+ *   - All wheel input ignored during reset.
+ *   - On complete: currentShotId = 'sun', isResetting = false.
+ *   - Does NOT reactivate EntryGate, does NOT reset audio, does NOT reset immersive mode.
  *
  * Input:
  *   - wheel deltaY events captured on the scroll container ref
  *   - Threshold: ±150px accumulated deltaY to trigger a shot change
- *     (chosen to require ~2-3 notches on a standard mouse wheel, or a
- *      deliberate flick on a trackpad, while still feeling responsive)
  *   - Accumulator decays to 0 after 400 ms of silence
  *   - During a transition all wheel input is ignored (inputLock)
  *
  * CameraRig responsibility:
- *   - Read transitionT ref (via getTransitionT / setTransitionT exposed on the
- *     returned object) and advance it each frame with delta * speed.
+ *   - Read transitionT ref and advance it each frame with delta * speed.
  *   - Call onTransitionComplete() when transitionT reaches 1.
- *
- * Sun, Mercury, Venus, Earth, Moon, Mars, and Neptune behaviour: 100% preserved. Uranus added as eighth station.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
@@ -48,13 +46,15 @@ import type { RefObject } from 'react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth' | 'moon' | 'mars' | 'neptune' | 'uranus'
+export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth' | 'moon' | 'mars' | 'neptune' | 'uranus' | 'blackhole'
 export type TransitionDirection = 'forward' | 'backward'
 
 export interface DiscreteShotState {
   currentShotId:       DiscreteShotId
   targetShotId:        DiscreteShotId | null
   isTransitioning:     boolean
+  /** True while the reset loop (blackhole → sun) is executing */
+  isResetting:         boolean
   transitionDirection: TransitionDirection | null
   wheelIntent:         number   // live accumulator value, for debug HUD
   /** Mutable ref — CameraRig reads this every frame and advances it */
@@ -68,37 +68,37 @@ export interface DiscreteShotState {
 /**
  * Accumulated deltaY required to fire a shot change.
  * 150 = ~2-3 mouse wheel notches (each ≈ 53 px on Windows/macOS).
- * On trackpads this is a deliberate short swipe.
  */
 const INTENT_THRESHOLD = 150
 
 /**
  * Milliseconds of wheel silence before the accumulator resets.
- * Prevents "half-saved" intent from a previous incomplete gesture.
  */
 const DECAY_TIMEOUT_MS = 400
 
 // ── Navigation graph helpers ──────────────────────────────────────────────────
 
 function getNextShot(id: DiscreteShotId): DiscreteShotId | null {
-  if (id === 'sun')     return 'mercury'
-  if (id === 'mercury') return 'venus'
-  if (id === 'venus')   return 'earth'
-  if (id === 'earth')   return 'moon'
-  if (id === 'moon')    return 'mars'
-  if (id === 'mars')    return 'neptune'
-  if (id === 'neptune') return 'uranus'
-  return null  // uranus has no next shot (blackhole not yet wired)
+  if (id === 'sun')       return 'mercury'
+  if (id === 'mercury')   return 'venus'
+  if (id === 'venus')     return 'earth'
+  if (id === 'earth')     return 'moon'
+  if (id === 'moon')      return 'mars'
+  if (id === 'mars')      return 'neptune'
+  if (id === 'neptune')   return 'uranus'
+  if (id === 'uranus')    return 'blackhole'
+  return null  // blackhole: no next — triggers reset loop instead
 }
 
 function getPrevShot(id: DiscreteShotId): DiscreteShotId | null {
-  if (id === 'uranus')  return 'neptune'
-  if (id === 'neptune') return 'mars'
-  if (id === 'mars')    return 'moon'
-  if (id === 'moon')    return 'earth'
-  if (id === 'earth')   return 'venus'
-  if (id === 'venus')   return 'mercury'
-  if (id === 'mercury') return 'sun'
+  if (id === 'blackhole') return 'uranus'
+  if (id === 'uranus')    return 'neptune'
+  if (id === 'neptune')   return 'mars'
+  if (id === 'mars')      return 'moon'
+  if (id === 'moon')      return 'earth'
+  if (id === 'earth')     return 'venus'
+  if (id === 'venus')     return 'mercury'
+  if (id === 'mercury')   return 'sun'
   return null  // sun has no prev shot
 }
 
@@ -110,15 +110,16 @@ export function useDiscreteShotNavigation(
   const [currentShotId,   setCurrentShotId]   = useState<DiscreteShotId>('sun')
   const [targetShotId,    setTargetShotId]     = useState<DiscreteShotId | null>(null)
   const [isTransitioning, setIsTransitioning]  = useState(false)
+  const [isResetting,     setIsResetting]      = useState(false)
   const [transitionDir,   setTransitionDir]    = useState<TransitionDirection | null>(null)
   const [wheelIntent,     setWheelIntent]      = useState(0)
 
   // Mutable refs — CameraRig reads transitionT every frame without re-renders
   const transitionTRef       = useRef<number>(0)
   const isTransitioningRef   = useRef(false)
+  const isResettingRef       = useRef(false)
   const currentShotIdRef     = useRef<DiscreteShotId>('sun')
-  // Separate ref tracks the target so onTransitionComplete never reads stale state
-  const targetShotIdRef = useRef<DiscreteShotId | null>(null)
+  const targetShotIdRef      = useRef<DiscreteShotId | null>(null)
   const intentAccRef         = useRef(0)
   const decayTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -136,11 +137,29 @@ export function useDiscreteShotNavigation(
     setIsTransitioning(true)
   }, [])
 
+  /**
+   * Reset loop: transition from blackhole back to sun.
+   * Uses the same transitionT mechanism but sets isResetting=true so
+   * CameraRig can distinguish a reset from a normal backward transition.
+   */
+  const startResetLoop = useCallback(() => {
+    transitionTRef.current = 0
+    isTransitioningRef.current = true
+    isResettingRef.current = true
+    currentShotIdRef.current = 'blackhole'
+    targetShotIdRef.current = 'sun'
+
+    setTargetShotId('sun')
+    setTransitionDir('backward')
+    setIsTransitioning(true)
+    setIsResetting(true)
+  }, [])
+
   const onTransitionComplete = useCallback(() => {
-    // Read from ref — guaranteed non-stale even when called from useFrame
     const arrived = targetShotIdRef.current ?? currentShotIdRef.current
 
     isTransitioningRef.current = false
+    isResettingRef.current = false
     transitionTRef.current = 1
     currentShotIdRef.current = arrived
     targetShotIdRef.current = null
@@ -148,6 +167,7 @@ export function useDiscreteShotNavigation(
     setCurrentShotId(arrived)
     setTargetShotId(null)
     setIsTransitioning(false)
+    setIsResetting(false)
     setTransitionDir(null)
   }, [])
 
@@ -158,7 +178,7 @@ export function useDiscreteShotNavigation(
     if (!el) return
 
     const handleWheel = (e: WheelEvent) => {
-      // During a transition: fully ignore all wheel input
+      // During any transition or reset: fully ignore all wheel input
       if (isTransitioningRef.current) return
 
       // Accumulate intent
@@ -174,7 +194,7 @@ export function useDiscreteShotNavigation(
 
       const curr = currentShotIdRef.current
 
-      // Scroll down: advance to next shot
+      // Scroll down: advance to next shot, or trigger reset loop from blackhole
       if (intentAccRef.current >= INTENT_THRESHOLD) {
         const next = getNextShot(curr)
         if (next !== null) {
@@ -183,6 +203,14 @@ export function useDiscreteShotNavigation(
           setWheelIntent(0)
           if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
           startTransition(curr, next)
+          return
+        } else if (curr === 'blackhole') {
+          // No next shot from blackhole → trigger reset loop to Sun
+          e.preventDefault()
+          intentAccRef.current = 0
+          setWheelIntent(0)
+          if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
+          startResetLoop()
           return
         }
       }
@@ -207,12 +235,13 @@ export function useDiscreteShotNavigation(
     // passive:false so we can call preventDefault during discrete transitions
     el.addEventListener('wheel', handleWheel, { passive: false })
     return () => el.removeEventListener('wheel', handleWheel)
-  }, [scrollContainerRef, startTransition])
+  }, [scrollContainerRef, startTransition, startResetLoop])
 
   return {
     currentShotId,
     targetShotId,
     isTransitioning,
+    isResetting,
     transitionDirection: transitionDir,
     wheelIntent,
     transitionTRef,

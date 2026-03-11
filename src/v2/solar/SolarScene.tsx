@@ -19,8 +19,9 @@
 
 import { Component, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { useGLTF, useTexture } from '@react-three/drei'
 import { getStableActivePlanet, PLANET_REGISTRY } from './planetRegistry'
 import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
@@ -33,6 +34,7 @@ import { useShotNavigation } from './useShotNavigation'
 import { useDiscreteShotNavigation } from './useDiscreteShotNavigation'
 import { DebugHUD } from './DebugHUD'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
+import { disableFrustumCulling } from './glbNormalization'
 import styles from './SolarScene.module.css'
 
 // ── Debug / safe mode detection ───────────────────────────────────────────────
@@ -61,15 +63,15 @@ const SCROLL_TRAVEL_VH = 700
 
 // ── Stars background ───────────────────────────────────────────────────────────
 
-const STAR_COUNT = 2500
+const STAR_COUNT = 4000
 
 function buildStarGeometry(): { positions: Float32Array; colors: Float32Array } {
   const pos = new Float32Array(STAR_COUNT * 3)
   const col = new Float32Array(STAR_COUNT * 3)
   for (let i = 0; i < STAR_COUNT; i++) {
-    pos[i * 3]     = (Math.random() - 0.5) * 400
-    pos[i * 3 + 1] = (Math.random() - 0.5) * 200
-    pos[i * 3 + 2] = Math.random() * -250 + 20
+    pos[i * 3]     = (Math.random() - 0.5) * 600
+    pos[i * 3 + 1] = (Math.random() - 0.5) * 300
+    pos[i * 3 + 2] = Math.random() * -500 + 20
     const t = Math.random()
     col[i * 3]     = 0.8 + t * 0.2
     col[i * 3 + 1] = 0.85 + t * 0.1
@@ -101,6 +103,23 @@ function StarField() {
   )
 }
 
+
+// ── Space background (Blackhole shot only) ─────────────────────────────────────
+//
+// Full-sky inverted sphere using an 8K Milky Way starfield texture.
+// Centered at origin so it covers the entire scene regardless of camera position.
+// renderOrder=-1 and depthWrite=false ensures it renders behind everything.
+
+function NebulaBackground({ visible }: { visible: boolean }) {
+  const texture = useTexture('/assets/solar/textures/8k_stars_milky_way.jpg')
+  if (!visible) return null
+  return (
+    <mesh renderOrder={-1} frustumCulled={false}>
+      <sphereGeometry args={[900, 64, 64]} />
+      <meshBasicMaterial map={texture} side={THREE.BackSide} depthWrite={false} />
+    </mesh>
+  )
+}
 
 // ── Uranus material patch ─────────────────────────────────────────────────────
 //
@@ -202,6 +221,166 @@ function UranusGuaranteedMesh({ visible, onClick }: { visible: boolean; onClick?
   )
 }
 
+// ── Blackhole GLB mesh ────────────────────────────────────────────────────────
+//
+// Uses the real blackhole.glb (31 MB) — same normalisation pipeline as PlanetMesh.
+// Position: [0, 0, -400]  (matches planetRegistry + shotConfig)
+// scale=4.0 → after GLB normalisation, dominant axis maps to 2*1 = 2u, then ×4 = 8u world radius.
+// The accretion disk in the GLB extends well beyond the sphere, so the visual
+// fills 45-60% of the frame at the shotConfig camera distance.
+//
+// Preload strategy:
+//   - useGLTF.preload is called from SolarScene when discreteCurrentShotId === 'uranus'
+//     so the GLB is ready (or nearly) before the user scrolls to Blackhole.
+//   - While loading, the Suspense fallback shows a dark procedural sphere.
+
+const BLACKHOLE_GLB_PATH = '/assets/solar/models/blackhole_pbr.glb'
+const BLACKHOLE_POS: [number, number, number] = [0, 0, -400]
+// Raw GLB scale — no normalization. The blackhole GLB is placed directly at
+// BLACKHOLE_POS with this scale. Adjust until the disk fills the frame.
+// Start at 0.012 based on typical Sketchfab blackhole GLB native sizes (~2000 units).
+const BLACKHOLE_SCALE = 0.012
+const BLACKHOLE_SPHERE_R = 8.0  // fallback sphere radius (visible while GLB loads)
+
+// Refs to animated materials — populated once in useEffect, driven each frame in useFrame
+interface BlackholeLightMats {
+  light1: THREE.MeshStandardMaterial[]
+  light2: THREE.MeshStandardMaterial[]
+  light3: THREE.MeshStandardMaterial[]
+  diskGroup: THREE.Group | null   // the sub-group containing the accretion disk meshes
+}
+
+function BlackholeGLBInner({ onClick }: { onClick?: () => void }) {
+  const { scene } = useGLTF(BLACKHOLE_GLB_PATH)
+  const { gl } = useThree()
+  const lightMatsRef = useRef<BlackholeLightMats>({ light1: [], light2: [], light3: [], diskGroup: null })
+
+  useEffect(() => {
+    disableFrustumCulling(scene)
+
+    const pmrem = new THREE.PMREMGenerator(gl)
+    pmrem.compileEquirectangularShader()
+    const envMap = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+    pmrem.dispose()
+
+    const collected: BlackholeLightMats = { light1: [], light2: [], light3: [], diskGroup: null }
+
+    scene.traverse((obj) => {
+      if (!(obj as THREE.Mesh).isMesh) return
+      const mesh = obj as THREE.Mesh
+      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      mats.forEach((mat) => {
+        if (!mat) return
+        const m = mat as THREE.MeshStandardMaterial
+        if (!m.isMeshStandardMaterial) return
+
+        if (mat.name === 'black_hole_light3') {
+          // emissiveFactor=[0.2,0.2,0.2] — outer dim ring, keep low so ACES compresses naturally
+          m.emissive.set(0xffffff)
+          m.emissiveIntensity = 1.6
+          m.color.set(0x000000)
+          m.metalness = 0
+          m.roughness = 0.83
+          collected.light3.push(m)
+        } else if (mat.name === 'black_hole_light2') {
+          // emissiveFactor=[0.6,0.6,0.6] — mid ring
+          m.emissive.set(0xffffff)
+          m.emissiveIntensity = 2.5
+          m.color.set(0x000000)
+          m.metalness = 0
+          m.roughness = 0.67
+          collected.light2.push(m)
+        } else if (mat.name === 'black_hole_light1') {
+          // emissiveFactor=[1,1,1], emissiveStrength=2 — inner bright ring
+          m.emissive.set(0xffffff)
+          m.emissiveIntensity = 4.0
+          m.color.set(0x000000)
+          m.metalness = 0
+          m.roughness = 1
+          collected.light1.push(m)
+        } else if (
+          mat.name === 'black_hole_blackoutside' ||
+          mat.name === 'black_hole_center' ||
+          mat.name === 'black_hole_distortion'
+        ) {
+          m.color.set(0x000000)
+          m.metalness = 0
+          m.roughness = 1
+          m.emissive.set(0x000000)
+          m.emissiveIntensity = 0
+        } else {
+          // ring / ring2 / Planet — keep original PBR, minimal envMap for specularity
+          m.envMap = envMap
+          m.envMapIntensity = 0.05
+        }
+        m.needsUpdate = true
+      })
+    })
+
+    lightMatsRef.current = collected
+  }, [scene, gl])
+
+  // Procedural animation: slow disk rotation + emissive pulse on the inner ring
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime()
+
+    // Rotate the entire scene slowly around Y (disk spin)
+    scene.rotation.y = t * 0.04
+
+    // Pulse around the correct base intensities (light1=4.0, light2=2.5)
+    const pulse = 4.0 + Math.sin(t * 1.3) * 0.6 + Math.sin(t * 3.1) * 0.2
+    lightMatsRef.current.light1.forEach(m => { m.emissiveIntensity = pulse })
+
+    const pulse2 = 2.5 + Math.sin(t * 0.7 + 1.2) * 0.3
+    lightMatsRef.current.light2.forEach(m => { m.emissiveIntensity = pulse2 })
+  })
+
+  return (
+    <group
+      position={BLACKHOLE_POS}
+      scale={BLACKHOLE_SCALE}
+      frustumCulled={false}
+      onClick={(e) => { e.stopPropagation(); onClick?.() }}
+    >
+      <primitive object={scene} frustumCulled={false} />
+    </group>
+  )
+}
+
+function BlackholeGuaranteedMesh({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
+  if (!visible) return null
+  return (
+    <Suspense fallback={
+      <group position={BLACKHOLE_POS}>
+        {/* Visible fallback while GLB loads — bright enough to confirm camera is aimed correctly */}
+        <mesh frustumCulled={false}>
+          <sphereGeometry args={[BLACKHOLE_SPHERE_R, 32, 32]} />
+          <meshStandardMaterial
+            color="#1a0030"
+            emissive="#9c27b0"
+            emissiveIntensity={1.2}
+            roughness={0.5}
+          />
+        </mesh>
+        {/* Accretion disk placeholder ring */}
+        <mesh frustumCulled={false} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[BLACKHOLE_SPHERE_R * 2.2, BLACKHOLE_SPHERE_R * 0.35, 16, 80]} />
+          <meshStandardMaterial
+            color="#ff8c00"
+            emissive="#ff6600"
+            emissiveIntensity={1.5}
+            roughness={0.3}
+            transparent
+            opacity={0.85}
+          />
+        </mesh>
+      </group>
+    }>
+      <BlackholeGLBInner onClick={onClick} />
+    </Suspense>
+  )
+}
+
 // ── Lighting rig ──────────────────────────────────────────────────────────────
 
 function LightingRig({ safe = false }: { safe?: boolean }) {
@@ -226,6 +405,8 @@ function LightingRig({ safe = false }: { safe?: boolean }) {
       <pointLight position={[-20, 8, -260]} intensity={4.5} distance={80} decay={1.8} color="#7986cb" />
       {/* Uranus fill — ultra-local to guarantee legibility without affecting earlier planets */}
       <pointLight position={[22, 2, -328]} intensity={12.0} distance={55} decay={2.0} color="#80cbc4" />
+      {/* Blackhole: NO external lights — the GLB has fully emissive materials that self-illuminate.
+          External lights would wash out the accretion disk colors. */}
     </>
   )
 }
@@ -418,11 +599,12 @@ export function SolarScene({
   // Legacy scroll-based shot navigation (kept for debug display only)
   const { currentShot, nextShot, shotProgress } = useShotNavigation(scrollProgress)
 
-  // Discrete Sun ↔ Mercury navigation (replaces scroll scrub between these two shots)
+  // Discrete shot navigation (Sun → … → Uranus → Blackhole + reset loop)
   const {
     currentShotId:       discreteCurrentShotId,
     targetShotId:        discreteTargetShotId,
     isTransitioning:     discreteIsTransitioning,
+    isResetting:         discreteIsResetting,
     transitionDirection: discreteTransitionDir,
     wheelIntent:         discreteWheelIntent,
     transitionTRef:      discreteTransitionTRef,
@@ -445,12 +627,38 @@ export function SolarScene({
     return () => el.removeEventListener('scroll', lockScroll)
   }, [scrollContainerRef])
 
-  // Blackhole excluded always. Uranus excluded from GLB pipeline — the high-quality
-  // procedural mesh (UranusGuaranteedMesh) replaces the low-poly GLB (2143 verts).
+  // Preload Blackhole GLB as early as possible:
+  //   - when arriving at Uranus (gives ~time to download before user scrolls down)
+  //   - when Blackhole becomes the target or current shot (safety net)
+  // useGLTF.preload is idempotent — safe to call multiple times.
+  useEffect(() => {
+    if (IS_SAFE) return
+    const shouldPreload =
+      discreteCurrentShotId === 'uranus'    ||
+      discreteCurrentShotId === 'blackhole' ||
+      discreteTargetShotId   === 'uranus'   ||
+      discreteTargetShotId   === 'blackhole'
+    if (shouldPreload) {
+      useGLTF.preload(BLACKHOLE_GLB_PATH)
+    }
+  }, [discreteCurrentShotId, discreteTargetShotId])
+
+  // Blackhole and Uranus excluded from the GLB pipeline.
+  // Uranus: replaced by UranusGuaranteedMesh (procedural textured mesh).
+  // Blackhole: rendered via BlackholeGuaranteedMesh below, only when its shot is active.
   const RENDERED_PLANETS = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus')
-  const BLACKHOLE_VISIBLE = false
+
+  // Blackhole is visible ONLY when it is the current or target shot.
+  // During the reset loop, discreteCurrentShotId is still 'blackhole' until
+  // the transition completes, so this condition covers that case too.
+  const BLACKHOLE_VISIBLE =
+    discreteCurrentShotId === 'blackhole' ||
+    discreteTargetShotId   === 'blackhole'
+
   const URANUS_VISIBLE =
-    discreteCurrentShotId === 'uranus' || discreteTargetShotId === 'uranus'
+    discreteCurrentShotId === 'uranus' ||
+    discreteTargetShotId   === 'uranus' ||
+    (discreteCurrentShotId === 'neptune' && discreteIsTransitioning)
 
   const [activePlanet, setActivePlanet] = useState<PlanetConfig | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
@@ -465,6 +673,8 @@ export function SolarScene({
   })
   const [glbFailed, setGlbFailed]         = useState(0)
   const [glbLoaded, setGlbLoaded]         = useState(0)
+  // Deduplication set — prevents double-counting when GLBModel's useEffect re-fires
+  const glbLoadedIdsRef = useRef(new Set<string>())
   const [cameraPhase, setCameraPhase]     = useState<CameraPhaseId>('intro')
   const [shotPhase, setShotPhase]         = useState<ShotPhaseId>('sun')
   // Gate: how many GLBs in the 'initial' group need to load before we start the journey.
@@ -478,6 +688,10 @@ export function SolarScene({
     setCanvasMounted(true)
     setCanvasSize({ width: state.gl.domElement.clientWidth, height: state.gl.domElement.clientHeight })
     setCameraPos({ x: state.camera.position.x, y: state.camera.position.y, z: state.camera.position.z })
+    // ACESFilmicToneMapping matches Sketchfab's renderer — compresses highlights naturally
+    // so emissive rings glow without saturating to white. Exposure 1.2 gives the warm bloom effect.
+    state.gl.toneMapping = THREE.ACESFilmicToneMapping
+    state.gl.toneMappingExposure = 1.2
 
     if (!IS_DEBUG) return
     const id = window.setInterval(() => {
@@ -566,6 +780,7 @@ export function SolarScene({
                   discreteCurrentShotId={discreteCurrentShotId}
                   discreteTargetShotId={discreteTargetShotId}
                   discreteIsTransitioning={discreteIsTransitioning}
+                  discreteIsResetting={discreteIsResetting}
                   discreteTransitionTRef={discreteTransitionTRef}
                   onDiscreteTransitionComplete={onDiscreteTransitionComplete}
                 />
@@ -590,6 +805,18 @@ export function SolarScene({
                   if (cfg) setActivePlanet(cfg)
                 }}
               />
+
+              {/* Blackhole GLB mesh — only visible during its shot */}
+              <BlackholeGuaranteedMesh
+                visible={BLACKHOLE_VISIBLE}
+                onClick={() => {
+                  const cfg = PLANET_REGISTRY.find((p) => p.id === 'blackhole')
+                  if (cfg) setActivePlanet(cfg)
+                }}
+              />
+
+              {/* Nebula background — epic space backdrop, only during Blackhole shot */}
+              <NebulaBackground visible={BLACKHOLE_VISIBLE} />
 
               {/* Lighting */}
               <LightingRig safe={IS_SAFE} />
@@ -625,6 +852,8 @@ export function SolarScene({
                       activeGroups={activeGroups}
                       onPlanetClick={(c) => setActivePlanet(c)}
                       onGlbLoaded={() => {
+                        if (glbLoadedIdsRef.current.has(config.id)) return
+                        glbLoadedIdsRef.current.add(config.id)
                         setGlbLoaded((n) => {
                           const next = n + 1
                           if (!journeyReady && next >= initialGroupSize) {
@@ -727,6 +956,9 @@ export function SolarScene({
           <div>currentShot={discreteCurrentShotId}</div>
           <div>targetShot={discreteTargetShotId ?? 'idle'}</div>
           <div>transitioning={String(discreteIsTransitioning)} | dir={discreteTransitionDir ?? 'none'}</div>
+          <div style={{ color: discreteIsResetting ? '#f87171' : undefined }}>
+            resetting={String(discreteIsResetting)}
+          </div>
           <div>shotPhase={shotPhase} | cameraPhase={cameraPhase}</div>
           <div>intent={discreteWheelIntent.toFixed(0)}</div>
           <div>uranusVisible={URANUS_VISIBLE ? 'yes' : 'no'} | blackholeVisible={BLACKHOLE_VISIBLE ? 'yes' : 'no'}</div>

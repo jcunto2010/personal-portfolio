@@ -17,7 +17,9 @@
  * Mercury shot: LIVE — driving visible camera behaviour as of microfase 2.
  *   CameraRig takes the shot-based path when currentShotId === 'mercury'.
  *
- * [NV] Microfase 8+: wire Uranus → Blackhole shots.
+ * Blackhole shot: Grand Finale — final station of the discrete journey.
+ *   Uranus → Blackhole (wheel down), Blackhole → Uranus (wheel up),
+ *   Blackhole → reset loop → Sun (wheel down again from Blackhole).
  */
 
 export type ShotId =
@@ -426,11 +428,72 @@ const URANUS_SHOT: ShotConfig = {
   lookAt:         [18.5, -1.0, -328.0],
 }
 
-// ── Shot registry ─────────────────────────────────────────────────────────────
-// Sun, Mercury, Venus, Earth, Moon, Mars, Neptune, and Uranus are active on the discrete path.
+// ── Blackhole shot ─────────────────────────────────────────────────────────────
+// Grand Finale — final discrete station of the solar journey.
 //
-// [NV] Microfase 9+: add blackhole.
-export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT, MARS_SHOT, NEPTUNE_SHOT, URANUS_SHOT]
+// Blackhole planet position: [0, 0, -400]
+// effective radius ≈ 4.0u (scale=4.0 in planetRegistry)
+// FOV: 45° vertical  →  ~75° horizontal at 16:9
+//
+// COMPOSITION: Blackhole centred, fills ~50% of frame height.
+// More central and dramatic than all previous shots — the definitive closure.
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// TARGET vertical fill = 50%
+//   fill_angle = 0.50 × 45° = 22.5°  →  half_angle = 11.25°
+//   required dist = radius / tan(11.25°) = 4.0 / 0.1989 ≈ 20.1u
+//
+// COMPOSICIÓN OBJETIVO:
+//   - La esfera del agujero negro ocupa ~50% del alto del frame
+//   - La esfera está en el 25% izquierdo del frame (centro de la esfera a ~25% desde el borde izq.)
+//   - El disco de acreción puede salirse del frame — no importa
+//   - Cámara rasante al disco, a la derecha de la esfera
+//
+// La esfera del GLB está cerca de [0, 0, -400] en world space (scale=0.012).
+// lookAt apunta directamente a la esfera.
+//
+// Para 50% fill vertical con FOV45:
+//   fill_angle = 0.50 × 45° = 22.5° → half_angle = 11.25°
+//   dist_cam_to_sphere = sphere_world_radius / tan(11.25°)
+//   sphere_world_radius ≈ 3.5u (estimado de la imagen) → dist ≈ 3.5/0.199 ≈ 17.6u
+//
+// Para esfera en 25% desde la izquierda (= -25% desde el centro del frame):
+//   Con hFOV≈75°, half_hFOV=37.5°
+//   Esfera debe estar a -25% × 37.5° = -9.4° desde el centro del frustum
+//   → lookAt debe estar 9.4° a la DERECHA de la esfera
+//   → cámara a la derecha de la esfera, lookAt ligeramente a la derecha de la esfera
+//
+// Estrategia: cámara en [+14, +3, -400] (a la derecha y ligeramente elevada),
+//   lookAt en [0, 0, -400] (centro de la esfera).
+//   dist cam→esfera = √(14²+3²+0²) ≈ 14.3u → fill = 2·atan(3.5/14.3) ≈ 27.7° → 61% de FOV45
+//   Demasiado grande. Alejamos a dist≈17.6u: cámara en [+16, +7, -395].
+//   dist = √(16²+7²+5²) ≈ 18.2u → fill ≈ 2·atan(3.5/18.2) ≈ 21.9° → 49% ✓
+//
+// Lateral offset: cámara en +X respecto a la esfera → esfera aparece a la izquierda del frustum.
+//   Con dist_lateral=16u y dist_total≈18u: angular offset = atan(16/18) ≈ 41.6° — demasiado.
+//   Necesitamos que la esfera esté a 25% desde la izquierda = -12.5% desde el centro.
+//   angular = -12.5% × 75° = -9.4° desde el centro → lateral_delta = tan(9.4°) × dist_fwd ≈ 0.165 × 18 ≈ 3u
+//   → cámara desplazada +3u en X respecto al lookAt, pero el lookAt está en la esfera.
+//   → cameraPosition = [0+3, 0+7, -400+18] = [3, 7, -382]
+//   → lookAt = [0, 0, -400]
+//   dist = √(3²+7²+18²) ≈ √(9+49+324) ≈ 19.2u → fill = 2·atan(3.5/19.2) ≈ 20.8° → 46% ✓
+//   lateral: esfera a -3u del lookAt en X, a dist 19.2u → atan(3/19.2) ≈ 8.9° → 25% from left ✓
+const BLACKHOLE_SHOT: ShotConfig = {
+  id:      'blackhole',
+  planetId: 'blackhole',
+  scrollStart:          0.96,
+  scrollEnd:            1.00,
+  enterTransitionStart: 0.96,
+  holdStart:            0.97,
+  holdEnd:              0.99,
+  exitStart:            0.99,
+  cameraPosition: [5.0, 8.0, -369.0],
+  lookAt:         [0.0, 0.0, -400.0],
+}
+
+// ── Shot registry ─────────────────────────────────────────────────────────────
+// All discrete stations: Sun → Mercury → Venus → Earth → Moon → Mars → Neptune → Uranus → Blackhole
+export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT, MARS_SHOT, NEPTUNE_SHOT, URANUS_SHOT, BLACKHOLE_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(
   SHOT_REGISTRY.map((s) => [s.id, s]),
@@ -444,4 +507,10 @@ export function getNextShot(id: ShotId): ShotConfig | undefined {
   const idx = SHOT_REGISTRY.findIndex((s) => s.id === id)
   if (idx === -1 || idx === SHOT_REGISTRY.length - 1) return undefined
   return SHOT_REGISTRY[idx + 1]
+}
+
+export function getPrevShot(id: ShotId): ShotConfig | undefined {
+  const idx = SHOT_REGISTRY.findIndex((s) => s.id === id)
+  if (idx <= 0) return undefined
+  return SHOT_REGISTRY[idx - 1]
 }
