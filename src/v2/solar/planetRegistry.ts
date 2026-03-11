@@ -30,10 +30,10 @@
  * Loading groups (progressive / zone-based strategy)
  * ────────────────────────────────────────────────────
  * group 1 — "initial"   : loaded immediately on immersive-mode entry
- *   sun, mercury, venus  (first visible bodies; camera starts near sun)
+ *   sun, mercury, venus, earth  (active discrete stations)
  *
  * group 2 — "mid"       : loaded after group-1 resolves (or after a
- *   earth, moon, mars      short idle delay, whichever comes first)
+ *   moon, mars             short idle delay, whichever comes first)
  *
  * group 3 — "deep"      : loaded only once scroll progress crosses
  *   neptune, uranus,       DEEP_LOAD_THRESHOLD (0.45); blackhole is
@@ -240,7 +240,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     rotationSpeed: -0.06,
   },
 
-  // ── Group 2: mid — loaded after group-1 idle delay (≥2 s after mount) ───────
+  // ── Earth: initial group — active discrete station (microfase 4) ─────────────
   {
     id: 'earth',
     label: 'Earth',
@@ -252,7 +252,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     normalizedRadiusTarget: 1,
     fallbackRadius: 1.1,
     accentColor: '#42A5F5',
-    loadingGroup: 'mid',
+    loadingGroup: 'initial',
     focusStart:   0.38,
     approachStart: 0.38,
     settleStart:   0.42,

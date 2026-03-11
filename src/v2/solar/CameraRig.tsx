@@ -84,9 +84,11 @@ export type CameraPhaseId =
   | 'mercury-depart'
   | 'venus-approach'
   | 'venus-hold'
+  | 'earth-approach'
+  | 'earth-hold'
   | 'transit'
 
-export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold'
+export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold'
 
 // ── Focus node ─────────────────────────────────────────────────────────────────
 
@@ -193,9 +195,10 @@ export function CameraRig({
   const lastShotPhaseRef = useRef<ShotPhaseId>('sun')
 
   // Cached shot poses (computed once, stable across frames)
-  const sunPose  = getShotPose('sun')
-  const mercPose = getShotPose('mercury')
+  const sunPose   = getShotPose('sun')
+  const mercPose  = getShotPose('mercury')
   const venusPose = getShotPose('venus')
+  const earthPose = getShotPose('earth')
 
   useFrame((state, delta) => {
     const cam = state.camera
@@ -222,9 +225,10 @@ export function CameraRig({
     // Exceptions: the Sun intro sweep still uses introT (preserved verbatim).
 
     const isOnDiscretePath =
-      discreteCurrentShotId === 'sun' ||
+      discreteCurrentShotId === 'sun'     ||
       discreteCurrentShotId === 'mercury' ||
-      discreteCurrentShotId === 'venus' ||
+      discreteCurrentShotId === 'venus'   ||
+      discreteCurrentShotId === 'earth'   ||
       discreteIsTransitioning
 
     if (isOnDiscretePath) {
@@ -247,10 +251,20 @@ export function CameraRig({
         let fromLook: THREE.Vector3
         let toLook:   THREE.Vector3
 
-        if (discreteTargetShotId === 'venus') {
-          // mercury → venus
-          fromCam  = mercPose.cam;  toCam  = venusPose.cam
-          fromLook = mercPose.look; toLook = venusPose.look
+        if (discreteTargetShotId === 'earth') {
+          // venus → earth
+          fromCam  = venusPose.cam;  toCam  = earthPose.cam
+          fromLook = venusPose.look; toLook = earthPose.look
+        } else if (discreteTargetShotId === 'venus') {
+          // mercury → venus  OR  earth → venus
+          if (discreteCurrentShotId === 'earth') {
+            fromCam  = earthPose.cam;  toCam  = venusPose.cam
+            fromLook = earthPose.look; toLook = venusPose.look
+          } else {
+            // mercury → venus
+            fromCam  = mercPose.cam;  toCam  = venusPose.cam
+            fromLook = mercPose.look; toLook = venusPose.look
+          }
         } else if (discreteTargetShotId === 'mercury') {
           // sun → mercury  OR  venus → mercury
           if (discreteCurrentShotId === 'venus') {
@@ -287,9 +301,10 @@ export function CameraRig({
         // Debug
         if (import.meta.env.DEV) {
           if (onPhaseChange) {
-            const id: CameraPhaseId = discreteTargetShotId === 'venus'
-              ? 'venus-approach'
-              : 'mercury-approach'
+            const id: CameraPhaseId =
+              discreteTargetShotId === 'earth'   ? 'earth-approach'   :
+              discreteTargetShotId === 'venus'   ? 'venus-approach'   :
+              'mercury-approach'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
           }
           if (onShotPhaseChange) {
@@ -299,6 +314,23 @@ export function CameraRig({
         }
 
         return  // camera already applied above — skip the damp block at the end
+
+      } else if (discreteCurrentShotId === 'earth') {
+        // Idle at Earth hold pose — snappy damp, same as other planets
+        desiredPos.current.copy(earthPose.cam)
+        desiredLat.current.copy(earthPose.look)
+        posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'earth-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'earth-hold'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
 
       } else if (discreteCurrentShotId === 'venus') {
         // Idle at Venus hold pose — snappy damp so camera settles quickly

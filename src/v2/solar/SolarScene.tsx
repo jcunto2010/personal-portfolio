@@ -120,6 +120,8 @@ function LightingRig({ safe = false }: { safe?: boolean }) {
       <directionalLight position={[0, 8, 12]}    intensity={1.6} color="#fff5e0" castShadow={false} />
       <directionalLight position={[-10, 3, -100]} intensity={0.3} color="#4466cc" castShadow={false} />
       <pointLight position={[0, 0, 0]} intensity={3} distance={30} decay={2} color="#FFA726" />
+      {/* Deep-field fill — illuminates Earth and beyond without affecting Sun zone */}
+      <directionalLight position={[-5, 10, -100]} intensity={1.8} color="#fff8f0" castShadow={false} />
     </>
   )
 }

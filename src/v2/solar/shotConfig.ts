@@ -196,12 +196,57 @@ const VENUS_SHOT: ShotConfig = {
   lookAt:         [17.2, -1.2, -100.0],
 }
 
-// ── Shot registry ─────────────────────────────────────────────────────────────
-// Sun, Mercury, and Venus are active on the discrete path.
-// The rest will be added in subsequent microfases as shots are visually wired.
+// ── Earth shot ────────────────────────────────────────────────────────────────
+// LIVE as of microfase 4 — discrete CameraRig drives camera from these values.
 //
-// [NV] Microfase 4+: add earth, moon, mars, neptune, uranus, blackhole.
-export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT]
+// Earth planet position: [-16, 0.8, -155]
+// effective radius in scene units = artisticScale × normalizedRadiusTarget = 1.1 × 1 = 1.1u
+// FOV: 45° vertical  →  ~75° horizontal at 16:9
+//
+// COMPOSITION: Earth fills 100% of frame height, occupies RIGHT 50% of screen.
+//              LEFT 50% of frame is empty space.
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// TARGET vertical fill = 100% (Earth diameter == frame height)
+//   required dist = radius / tan(FOVv/2) = 1.1 / tan(22.5°) = 1.1 / 0.4142 ≈ 2.655u
+//
+// Camera sits along the –Z axis from Earth (pulling back) and slightly –X
+// (left of Earth) so the view direction points slightly right, placing Earth
+// in the right half of the frame.
+//
+//   Pull back mostly in Z so the approach from Venus (z=-100) makes sense:
+//   cameraPosition = [-16 - 1.0,  0.8 + 0.5,  -155 + 2.6] = [-17.0, 1.3, -152.4]
+//
+//   cam→Earth distance: √(1²+0.5²+2.6²) = √(1+0.25+6.76) = √8.01 ≈ 2.83u
+//   vertical fill: 2·atan(1.1/2.83) ≈ 2·21.3° ≈ 42.6° → ~95% of FOV45  ✓ ≈100%
+//
+// LATERAL placement — Earth centre at x≈75% of screen (right 50% centre):
+//   Need Earth to appear at 25° to the right of frustum centre (half of hFOV/2=37.5°).
+//   lookAt must be offset LEFT of Earth so Earth sits right of frustum centre.
+//   depth cam→lookAt ≈ 2.83u (roughly same depth as cam→Earth)
+//   required angular offset = 25° → lateral delta = tan(25°) × 2.83 ≈ 1.32u
+//   lookAt.x = earth.x - 1.32 = -16 - 1.32 = -17.32  → round to -17.3
+//   lookAt = [-17.3, 0.8, -155.0]
+//   screen x of Earth: 50% + (25°/37.5°)×50% ≈ 50% + 33% = 83% from left
+//   → Earth centre at ~83% → Earth spans roughly 50%–100% of the frame  ✓
+const EARTH_SHOT: ShotConfig = {
+  id:      'earth',
+  planetId: 'earth',
+  scrollStart:          0.40,
+  scrollEnd:            0.52,
+  enterTransitionStart: 0.40,
+  holdStart:            0.44,
+  holdEnd:              0.49,
+  exitStart:            0.49,
+  cameraPosition: [-17.0, 1.3, -152.4],
+  lookAt:         [-17.3, 0.8, -155.0],
+}
+
+// ── Shot registry ─────────────────────────────────────────────────────────────
+// Sun, Mercury, Venus, and Earth are active on the discrete path.
+//
+// [NV] Microfase 5+: add moon, mars, neptune, uranus, blackhole.
+export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(
   SHOT_REGISTRY.map((s) => [s.id, s]),
