@@ -1,13 +1,13 @@
 /**
- * useDiscreteShotNavigation — discrete Sun → Mercury → Venus → Earth shot state machine.
+ * useDiscreteShotNavigation — discrete Sun → Mercury → Venus → Earth → Moon shot state machine.
  *
- * REPLACES the continuous scroll-scrub behaviour between Sun, Mercury, Venus, and Earth.
+ * REPLACES the continuous scroll-scrub behaviour between Sun, Mercury, Venus, Earth, and Moon.
  *
  * State:
- *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury' | 'venus' | 'earth')
+ *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury' | 'venus' | 'earth' | 'moon')
  *   targetShotId        — where it is heading (null when idle)
  *   isTransitioning     — true while the automatic transition is running
- *   transitionDirection — 'forward' (sun→mercury, mercury→venus, venus→earth) | 'backward' (earth→venus, venus→mercury, mercury→sun) | null
+ *   transitionDirection — 'forward' (sun→…→moon) | 'backward' (moon→…→sun) | null
  *   transitionT         — [0,1] progress of the ongoing transition (advanced in CameraRig useFrame)
  *   wheelIntent         — current accumulated wheel delta (for debug HUD)
  *
@@ -17,7 +17,9 @@
  *   mercury  → wheel up   → sun
  *   venus    → wheel down → earth
  *   venus    → wheel up   → mercury
+ *   earth    → wheel down → moon
  *   earth    → wheel up   → venus
+ *   moon     → wheel up   → earth
  *
  * Input:
  *   - wheel deltaY events captured on the scroll container ref
@@ -32,7 +34,7 @@
  *     returned object) and advance it each frame with delta * speed.
  *   - Call onTransitionComplete() when transitionT reaches 1.
  *
- * Sun, Mercury and Venus behaviour: 100% preserved. Earth added as fourth station.
+ * Sun, Mercury, Venus and Earth behaviour: 100% preserved. Moon added as fifth station.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
@@ -40,7 +42,7 @@ import type { RefObject } from 'react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth'
+export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth' | 'moon'
 export type TransitionDirection = 'forward' | 'backward'
 
 export interface DiscreteShotState {
@@ -76,10 +78,12 @@ function getNextShot(id: DiscreteShotId): DiscreteShotId | null {
   if (id === 'sun')     return 'mercury'
   if (id === 'mercury') return 'venus'
   if (id === 'venus')   return 'earth'
-  return null  // earth has no next shot yet
+  if (id === 'earth')   return 'moon'
+  return null  // moon has no next shot
 }
 
 function getPrevShot(id: DiscreteShotId): DiscreteShotId | null {
+  if (id === 'moon')    return 'earth'
   if (id === 'earth')   return 'venus'
   if (id === 'venus')   return 'mercury'
   if (id === 'mercury') return 'sun'
@@ -102,7 +106,7 @@ export function useDiscreteShotNavigation(
   const isTransitioningRef   = useRef(false)
   const currentShotIdRef     = useRef<DiscreteShotId>('sun')
   // Separate ref tracks the target so onTransitionComplete never reads stale state
-  const targetShotIdRef      = useRef<DiscreteShotId | null>(null)
+  const targetShotIdRef = useRef<DiscreteShotId | null>(null)
   const intentAccRef         = useRef(0)
   const decayTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null)
 

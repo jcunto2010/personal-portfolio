@@ -242,11 +242,56 @@ const EARTH_SHOT: ShotConfig = {
   lookAt:         [-17.3, 0.8, -155.0],
 }
 
-// ── Shot registry ─────────────────────────────────────────────────────────────
-// Sun, Mercury, Venus, and Earth are active on the discrete path.
+// ── Moon shot ─────────────────────────────────────────────────────────────────
+// LIVE as of microfase 5 — discrete CameraRig drives camera from these values.
 //
-// [NV] Microfase 5+: add moon, mars, neptune, uranus, blackhole.
-export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT]
+// Moon planet position: [-20, 2.0, -170]
+// effective radius = scale × normalizedRadiusTarget = 0.4 × 1 = 0.4u
+// FOV: 45° vertical  →  ~75° horizontal at 16:9
+//
+// COMPOSITION: Moon fills ~35-40% of frame height, LEFT THIRD of screen.
+// Moon is a secondary station of Earth — closer, smaller, more intimate.
+// ──────────────────────────────────────────────────────────────────────────────
+//
+// Laterality: Moon = LEFT side (camera to the RIGHT of Moon)
+//   Contrast with Earth (RIGHT side) — same lateral rhythm as Mercury/Venus.
+//
+// VERTICAL fill target = 39%  (~35-40% band, secondary feel)
+//   required dist = radius / tan(fill_angle/2)
+//   fill_angle = 0.39 × 45° = 17.55°  →  half_angle = 8.775°
+//   dist = 0.4 / tan(8.775°) = 0.4 / 0.1545 ≈ 2.59u
+//
+// Camera to the RIGHT (+X) of Moon, slightly elevated, close:
+//   cameraPosition = [-20+2.0, 2.0+0.6, -170+1.5] = [-18.0, 2.6, -168.5]
+//   cam→Moon distance: √(2²+0.6²+1.5²) = √6.61 ≈ 2.57u  ✓ ~39% fill
+//
+// LATERAL placement — Moon in LEFT QUARTER (Moon center at ~25% from left):
+//   lookAt 1.0u to the RIGHT of Moon so Moon sits further LEFT of frustum centre.
+//   lookAt = [-20 + 1.0, 2.0, -170.0] = [-19.0, 2.0, -170.0]
+//   depth cam→lookAt ≈ 1.9u
+//   angular offset = atan(1.0/1.9) ≈ 27.8° — nudged down with 0.85u: atan(0.85/1.9) ≈ 24.1°
+//   screen x of Moon: 50% - (24.1/37.5)×50% ≈ 50% - 32% = 18% from RIGHT = 82% from left  (too far)
+//   Use lookAt.x = -19.2  (0.8u right of Moon):
+//   angular = atan(0.8/1.9) ≈ 22.8°  → 50% - 30% = 20% from right = 80% from left
+//   → Moon centre at ~80% from left — clearly left, a bit more than before ✓
+const MOON_SHOT: ShotConfig = {
+  id:      'moon',
+  planetId: 'moon',
+  scrollStart:          0.52,
+  scrollEnd:            0.60,
+  enterTransitionStart: 0.52,
+  holdStart:            0.55,
+  holdEnd:              0.58,
+  exitStart:            0.58,
+  cameraPosition: [-18.0, 2.6, -168.5],
+  lookAt:         [-19.2, 2.0, -170.0],
+}
+
+// ── Shot registry ─────────────────────────────────────────────────────────────
+// Sun, Mercury, Venus, Earth, and Moon are active on the discrete path.
+//
+// [NV] Microfase 6+: add mars, neptune, uranus, blackhole.
+export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(
   SHOT_REGISTRY.map((s) => [s.id, s]),
