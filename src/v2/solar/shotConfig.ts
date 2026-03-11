@@ -103,25 +103,46 @@ const SUN_SHOT: ShotConfig = {
 }
 
 // ── Mercury shot ──────────────────────────────────────────────────────────────
-// LIVE as of microfase 2 — CameraRig drives camera from these values.
-// Values lifted VERBATIM from PLANET_REGISTRY mercury entry.
+// LIVE as of microfase 3 — discrete CameraRig drives camera from these values.
 //
 // Mercury planet position: [14, 1.2, -36]
-// cameraOffsetX: -9.0, cameraOffsetY: 1.5, cameraOffsetZ: 12.0
-// lookAtOffsetX: -3.0, lookAtOffsetY: 0.2, lookAtOffsetZ: 0.0
-// → cameraPosition = [14-9.0, 1.2+1.5, -36+12.0] = [5.0, 2.7, -24.0]
-// → lookAt         = [14-3.0, 1.2+0.2, -36+0.0]  = [11.0, 1.4, -36.0]
+// artisticRadius (scale): 0.8 units
+// FOV: 45° vertical  →  ~75° horizontal at 16:9 (1280×720)
+//
+// COMPOSITION: Mercury large, in the RIGHT THIRD of frame
+// ────────────────────────────────────────────────────────
+// Key rule: lookAt defines the frustum CENTRE. Mercury must be INSIDE the
+// frustum — i.e. the camera→Mercury vector must be within the FOV cone of
+// the camera→lookAt direction.
+//
+// To place Mercury in the right third:
+//   1. Camera is LEFT of Mercury → view direction points rightward toward Mercury.
+//   2. lookAt is set 1u to the LEFT of Mercury's X → Mercury appears 1u right of
+//      the frustum centre, placing it in the right third of the 75° hFOV.
+//
+// Camera offset from Mercury [14, 1.2, -36]:
+//   Same view direction as before, moved closer along the same axis.
+//   → cameraPosition = [11.6, 2.4, -32.9]
+//
+// lookAt = 1u left of Mercury centre = [13.0, 1.2, -36.0]
+//   lateral offset of Mercury from frustum centre = 14 - 13 = 1u right
+//   depth cam→lookAt ≈ 4.7u → angular offset = atan(1/4.7) ≈ 12°
+//   screen position: 50% + (12°/37.5°)×50% ≈ 66% from left  ✓ right third
+//
+// cam→Mercury distance: √((14-11.6)²+(1.2-2.4)²+(-36+32.9)²)
+//                     = √(5.76+1.44+9.61) ≈ 4.06u
+// vertical fill: 2·atan(0.8/4.06) ≈ 22.4° → ~50% of FOV45  ✓
 const MERCURY_SHOT: ShotConfig = {
   id:      'mercury',
   planetId: 'mercury',
   scrollStart:          0.16,
   scrollEnd:            0.28,
-  enterTransitionStart: 0.16,  // approachStart
-  holdStart:            0.21,  // settleStart
-  holdEnd:              0.26,  // departStart
-  exitStart:            0.26,  // same as departStart
-  cameraPosition: [5.0,  2.7, -24.0],  // mercury.position + cameraOffset{X,Y,Z}
-  lookAt:         [11.0, 1.4, -36.0],  // mercury.position + lookAtOffset{X,Y,Z}
+  enterTransitionStart: 0.16,
+  holdStart:            0.21,
+  holdEnd:              0.26,
+  exitStart:            0.26,
+  cameraPosition: [12.5, 1.9, -34.1],
+  lookAt:         [13.0, 1.2, -36.0],
 }
 
 // ── Shot registry ─────────────────────────────────────────────────────────────

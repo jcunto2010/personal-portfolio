@@ -220,21 +220,26 @@ export function CameraRig({
         const next = Math.min(1, raw + delta * TRANSITION_SPEED)
         discreteTransitionTRef.current = next
 
-        // Eased t
+        // Eased t — drives the lerp directly, no additional damp lag
         const t = easeInOutCubic(next)
 
         // Determine direction: going to mercury or back to sun?
-        if (discreteTargetShotId === 'mercury') {
-          // Forward: Sun → Mercury
-          desiredPos.current.lerpVectors(sunCamPos, mercCamPos, t)
-          desiredLat.current.lerpVectors(sunLookAt,  mercLookAt,  t)
-        } else {
-          // Backward: Mercury → Sun
-          desiredPos.current.lerpVectors(mercCamPos, sunCamPos, t)
-          desiredLat.current.lerpVectors(mercLookAt,  sunLookAt,  t)
-        }
+        const fromCam  = discreteTargetShotId === 'mercury' ? sunCamPos  : mercCamPos
+        const toCam    = discreteTargetShotId === 'mercury' ? mercCamPos : sunCamPos
+        const fromLook = discreteTargetShotId === 'mercury' ? sunLookAt  : mercLookAt
+        const toLook   = discreteTargetShotId === 'mercury' ? mercLookAt : sunLookAt
 
-        posDamp = DAMP_APPROACH
+        // Direct assignment — easeInOutCubic already provides smooth motion.
+        // No damp here: damp would lag behind and leave the camera off-pose
+        // after the transition ends.
+        cam.position.lerpVectors(fromCam, toCam, t)
+        lookAtSmoothed.current.lerpVectors(fromLook, toLook, t)
+        cam.lookAt(lookAtSmoothed.current)
+
+        // Also keep desiredPos/desiredLat in sync so the hold phase below
+        // starts from the correct target when transitioning finishes.
+        desiredPos.current.copy(cam.position)
+        desiredLat.current.copy(lookAtSmoothed.current)
 
         // Transition complete
         if (next >= 1) {
@@ -253,11 +258,13 @@ export function CameraRig({
           }
         }
 
+        return  // camera already applied above — skip the damp block at the end
+
       } else if (discreteCurrentShotId === 'mercury') {
-        // Idle at Mercury hold pose
+        // Idle at Mercury hold pose — snappy damp so camera settles quickly
         desiredPos.current.copy(mercCamPos)
         desiredLat.current.copy(mercLookAt)
-        posDamp = DAMP_HOLD
+        posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s instead of ~2.9s
 
         if (import.meta.env.DEV) {
           if (onPhaseChange) {
