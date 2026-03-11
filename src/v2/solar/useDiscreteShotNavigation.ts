@@ -1,15 +1,21 @@
 /**
- * useDiscreteShotNavigation — discrete Sun ↔ Mercury shot state machine.
+ * useDiscreteShotNavigation — discrete Sun → Mercury → Venus shot state machine.
  *
- * REPLACES the continuous scroll-scrub behaviour between Sun and Mercury.
+ * REPLACES the continuous scroll-scrub behaviour between Sun, Mercury, and Venus.
  *
  * State:
- *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury')
+ *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury' | 'venus')
  *   targetShotId        — where it is heading (null when idle)
  *   isTransitioning     — true while the automatic transition is running
- *   transitionDirection — 'forward' (sun→mercury) | 'backward' (mercury→sun) | null
+ *   transitionDirection — 'forward' (sun→mercury, mercury→venus) | 'backward' (venus→mercury, mercury→sun) | null
  *   transitionT         — [0,1] progress of the ongoing transition (advanced in CameraRig useFrame)
  *   wheelIntent         — current accumulated wheel delta (for debug HUD)
+ *
+ * Navigation graph:
+ *   sun      → wheel down → mercury
+ *   mercury  → wheel down → venus
+ *   mercury  → wheel up   → sun
+ *   venus    → wheel up   → mercury
  *
  * Input:
  *   - wheel deltaY events captured on the scroll container ref
@@ -24,8 +30,7 @@
  *     returned object) and advance it each frame with delta * speed.
  *   - Call onTransitionComplete() when transitionT reaches 1.
  *
- * This hook handles ONLY Sun ↔ Mercury.
- * All other scroll/progress logic continues unchanged.
+ * Sun and Mercury behaviour: 100% preserved. Venus added as third station.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
@@ -33,7 +38,7 @@ import type { RefObject } from 'react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type DiscreteShotId = 'sun' | 'mercury'
+export type DiscreteShotId = 'sun' | 'mercury' | 'venus'
 export type TransitionDirection = 'forward' | 'backward'
 
 export interface DiscreteShotState {
@@ -63,6 +68,20 @@ const INTENT_THRESHOLD = 150
  */
 const DECAY_TIMEOUT_MS = 400
 
+// ── Navigation graph helpers ──────────────────────────────────────────────────
+
+function getNextShot(id: DiscreteShotId): DiscreteShotId | null {
+  if (id === 'sun') return 'mercury'
+  if (id === 'mercury') return 'venus'
+  return null
+}
+
+function getPrevShot(id: DiscreteShotId): DiscreteShotId | null {
+  if (id === 'venus') return 'mercury'
+  if (id === 'mercury') return 'sun'
+  return null
+}
+
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useDiscreteShotNavigation(
@@ -86,7 +105,7 @@ export function useDiscreteShotNavigation(
   // ── Transition control ───────────────────────────────────────────────────
 
   const startTransition = useCallback((from: DiscreteShotId, to: DiscreteShotId) => {
-    const dir: TransitionDirection = to === 'mercury' ? 'forward' : 'backward'
+    const dir: TransitionDirection = getNextShot(from) === to ? 'forward' : 'backward'
     transitionTRef.current = 0
     isTransitioningRef.current = true
     currentShotIdRef.current = from
@@ -133,24 +152,32 @@ export function useDiscreteShotNavigation(
         setWheelIntent(0)
       }, DECAY_TIMEOUT_MS)
 
-      // Check threshold
-      if (intentAccRef.current >= INTENT_THRESHOLD && currentShotIdRef.current === 'sun') {
-        // Prevent default to stop the page scrolling during the discrete transition
-        e.preventDefault()
-        intentAccRef.current = 0
-        setWheelIntent(0)
-        if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-        startTransition('sun', 'mercury')
-        return
+      const curr = currentShotIdRef.current
+
+      // Scroll down: advance to next shot
+      if (intentAccRef.current >= INTENT_THRESHOLD) {
+        const next = getNextShot(curr)
+        if (next !== null) {
+          e.preventDefault()
+          intentAccRef.current = 0
+          setWheelIntent(0)
+          if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
+          startTransition(curr, next)
+          return
+        }
       }
 
-      if (intentAccRef.current <= -INTENT_THRESHOLD && currentShotIdRef.current === 'mercury') {
-        e.preventDefault()
-        intentAccRef.current = 0
-        setWheelIntent(0)
-        if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-        startTransition('mercury', 'sun')
-        return
+      // Scroll up: go back to previous shot
+      if (intentAccRef.current <= -INTENT_THRESHOLD) {
+        const prev = getPrevShot(curr)
+        if (prev !== null) {
+          e.preventDefault()
+          intentAccRef.current = 0
+          setWheelIntent(0)
+          if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
+          startTransition(curr, prev)
+          return
+        }
       }
 
       // Clamp accumulator so it doesn't drift into huge values

@@ -211,9 +211,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     lookAtOffsetX: -3.0,
     lookAtOffsetY: 0.2,
     lookAtOffsetZ: 0.0,
-    // [NV] rotationSpeed disabled (was 0.18 rad/s) pending pivot-centre validation.
-    // Re-enable once the Mercury GLB bounding-box pivot is confirmed centred in DEV.
-    rotationSpeed: 0,
+    rotationSpeed: 0.18,
   },
   {
     id: 'venus',

@@ -145,12 +145,63 @@ const MERCURY_SHOT: ShotConfig = {
   lookAt:         [13.0, 1.2, -36.0],
 }
 
+// ── Venus shot ────────────────────────────────────────────────────────────────
+// LIVE as of microfase 3 (Venus) — discrete CameraRig drives camera from these values.
+//
+// Venus planet position: [16, -1.2, -100]
+// artisticRadius (scale): 1.0 units
+// FOV: 45° vertical  →  ~75° horizontal at 16:9 (1280×720)
+//
+// COMPOSITION: Venus fills 100% of frame height, occupies LEFT 50% of width
+// ──────────────────────────────────────────────────────────────────────────
+// Laterality contrast with Mercury:
+//   Mercury = RIGHT side  (camera to the LEFT of Mercury)
+//   Venus   = LEFT side   (camera to the RIGHT of Venus)
+//
+// Target:
+//   - 100% vertical fill  → dist ≈ scale / tan(22.5°) = 1.0 / 0.4142 ≈ 2.41u
+//   - Venus in LEFT 50%   → Venus centre at ~25% from left = -25% from screen centre
+//     angular offset = -25% × hFOV/2 = -0.25 × 37.5° ≈ -9.4°
+//     lookAt must be 9.4° to the RIGHT of Venus in the frustum
+//     delta_x = tan(9.4°) × dist_to_lookAt ≈ 0.166 × 2.5 ≈ 0.41u → round to 0.5u
+//     so lookAt.x = venus.x + 0.5 = 16.5   (camera looks slightly right of Venus)
+//     with larger offset for more push: lookAt.x = venus.x + 1.2 = 17.2
+//     angular = atan(1.2 / 2.5) ≈ 25.6° → Venus at 50% - 34% = 16% from left — too far left
+//     use lookAt.x = venus.x + 0.7 = 16.7  → atan(0.7/2.4) ≈ 16° → 50%-21% = 29% from left ✓
+//
+// Camera offset from Venus [16, -1.2, -100]:
+//   Camera to the RIGHT (+X) and slightly in front (+Z) for a close, dramatic frame.
+//   cameraPosition = [16+2.2, -1.2+0.3, -100+1.2] = [18.2, -0.9, -98.8]
+//
+// cam→Venus distance: √((16-18.2)²+(-1.2+0.9)²+(-100+98.8)²)
+//                   = √(4.84+0.09+1.44) ≈ √6.37 ≈ 2.52u
+// vertical fill: 2·atan(1.0/2.52) ≈ 43.4° → ~96% of FOV45  ✓ ~100%
+//
+// lookAt = 0.7u right of Venus X, at Venus Y/Z:
+//   lookAt = [16.7, -1.2, -100.0]
+//   depth cam→lookAt ≈ √((16.7-18.2)²+(-1.2+0.9)²+(-100+98.8)²) ≈ √(2.25+0.09+1.44) ≈ 1.95u
+//   angular offset = atan(0.7/1.95) ≈ 19.7°
+//   Venus screen x: 50% - (19.7/37.5)×50% ≈ 50% - 26% = 24% from right = 76% from left
+//   → Venus centre at ~24% from right edge = well into the left half  ✓
+const VENUS_SHOT: ShotConfig = {
+  id:      'venus',
+  planetId: 'venus',
+  scrollStart:          0.28,
+  scrollEnd:            0.40,
+  enterTransitionStart: 0.28,
+  holdStart:            0.32,
+  holdEnd:              0.37,
+  exitStart:            0.37,
+  cameraPosition: [18.0, -0.9, -98.3],
+  lookAt:         [17.2, -1.2, -100.0],
+}
+
 // ── Shot registry ─────────────────────────────────────────────────────────────
-// Sun (legacy path) and Mercury (shot-based path) are active.
+// Sun, Mercury, and Venus are active on the discrete path.
 // The rest will be added in subsequent microfases as shots are visually wired.
 //
-// [NV] Microfase 3+: add venus, earth, moon, mars, neptune, uranus, blackhole.
-export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT]
+// [NV] Microfase 4+: add earth, moon, mars, neptune, uranus, blackhole.
+export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(
   SHOT_REGISTRY.map((s) => [s.id, s]),
