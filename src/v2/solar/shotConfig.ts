@@ -17,7 +17,7 @@
  * Mercury shot: LIVE — driving visible camera behaviour as of microfase 2.
  *   CameraRig takes the shot-based path when currentShotId === 'mercury'.
  *
- * [NV] Microfase 3+: wire Venus → Blackhole shots.
+ * [NV] Microfase 7+: wire Neptune → Blackhole shots.
  */
 
 export type ShotId =
@@ -287,11 +287,51 @@ const MOON_SHOT: ShotConfig = {
   lookAt:         [-19.2, 2.0, -170.0],
 }
 
-// ── Shot registry ─────────────────────────────────────────────────────────────
-// Sun, Mercury, Venus, Earth, and Moon are active on the discrete path.
+// ── Mars shot ─────────────────────────────────────────────────────────────────
+// LIVE as of microfase 6 — discrete CameraRig drives camera from these values.
 //
-// [NV] Microfase 6+: add mars, neptune, uranus, blackhole.
-export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT]
+// Mars planet position: [18, -1.8, -215]
+// effective radius = scale × normalizedRadiusTarget = 0.85 × 1 = 0.85u
+// FOV: 45° vertical  →  ~75° horizontal at 16:9
+//
+// COMPOSITION: Mars fills ~40% of frame height, RIGHT SIDE of screen.
+// Mars = second "daughter station" of Projects block (like Moon, but right).
+// Laterality contrast with Moon (LEFT) — Mars = RIGHT (same as Mercury).
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// TARGET vertical fill = 40%
+//   fill_angle = 0.40 × 45° = 18°  →  half_angle = 9°
+//   required dist = radius / tan(half_angle) = 0.85 / tan(9°) = 0.85 / 0.1584 ≈ 5.37u
+//
+// Camera to the LEFT (–X) of Mars so view direction points rightward → Mars in RIGHT side.
+//   cameraPosition = [18 - 3.0, -1.8 + 0.4, -215 + 4.5] = [15.0, -1.4, -210.5]
+//   cam→Mars distance: √(3²+0.4²+4.5²) = √(9+0.16+20.25) = √29.41 ≈ 5.42u
+//   vertical fill: 2·atan(0.85/5.42) ≈ 17.8° → 39.6% of FOV45  ✓ ~40%
+//
+// LATERAL placement — Mars in RIGHT THIRD (center at ~68% from left):
+//   lookAt 1.2u to the LEFT of Mars X → Mars sits RIGHT of frustum center.
+//   lookAt = [18 - 1.2, -1.8, -215.0] = [16.8, -1.8, -215.0]
+//   depth cam→lookAt ≈ √((16.8-15.0)²+(-1.8+1.4)²+(-215+210.5)²) ≈ √(3.24+0.16+20.25) ≈ 4.85u
+//   angular offset = atan(1.2/4.85) ≈ 13.9°
+//   screen x of Mars: 50% + (13.9°/37.5°)×50% ≈ 50% + 18.5% = 68.5% from left  ✓ right side
+const MARS_SHOT: ShotConfig = {
+  id:      'mars',
+  planetId: 'mars',
+  scrollStart:          0.60,
+  scrollEnd:            0.72,
+  enterTransitionStart: 0.60,
+  holdStart:            0.64,
+  holdEnd:              0.69,
+  exitStart:            0.69,
+  cameraPosition: [15.0, -1.4, -210.5],
+  lookAt:         [16.8, -1.8, -215.0],
+}
+
+// ── Shot registry ─────────────────────────────────────────────────────────────
+// Sun, Mercury, Venus, Earth, Moon, and Mars are active on the discrete path.
+//
+// [NV] Microfase 7+: add neptune, uranus, blackhole.
+export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT, MARS_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(
   SHOT_REGISTRY.map((s) => [s.id, s]),

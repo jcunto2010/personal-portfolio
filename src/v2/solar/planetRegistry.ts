@@ -30,10 +30,10 @@
  * Loading groups (progressive / zone-based strategy)
  * ────────────────────────────────────────────────────
  * group 1 — "initial"   : loaded immediately on immersive-mode entry
- *   sun, mercury, venus, earth, moon  (active discrete stations)
+ *   sun, mercury, venus, earth, moon, mars  (active discrete stations)
  *
  * group 2 — "mid"       : loaded after group-1 resolves (or after a
- *   mars                   short idle delay, whichever comes first)
+ *                          short idle delay, whichever comes first)
  *
  * group 3 — "deep"      : loaded only once scroll progress crosses
  *   neptune, uranus,       DEEP_LOAD_THRESHOLD (0.45); blackhole is
@@ -308,7 +308,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     normalizedRadiusTarget: 1,
     fallbackRadius: 0.85,
     accentColor: '#EF5350',
-    loadingGroup: 'mid',
+    // Moved from 'mid' to 'initial' so Mars is guaranteed to load before the
+    // discrete navigation reaches the Moon → Mars transition.
+    loadingGroup: 'initial',
     focusStart:   0.56,
     approachStart: 0.56,
     settleStart:   0.60,

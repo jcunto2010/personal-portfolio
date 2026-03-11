@@ -1,13 +1,13 @@
 /**
- * useDiscreteShotNavigation — discrete Sun → Mercury → Venus → Earth → Moon shot state machine.
+ * useDiscreteShotNavigation — discrete Sun → Mercury → Venus → Earth → Moon → Mars shot state machine.
  *
- * REPLACES the continuous scroll-scrub behaviour between Sun, Mercury, Venus, Earth, and Moon.
+ * REPLACES the continuous scroll-scrub behaviour between Sun, Mercury, Venus, Earth, Moon, and Mars.
  *
  * State:
- *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury' | 'venus' | 'earth' | 'moon')
+ *   currentShotId       — where the camera is RIGHT NOW ('sun' | 'mercury' | 'venus' | 'earth' | 'moon' | 'mars')
  *   targetShotId        — where it is heading (null when idle)
  *   isTransitioning     — true while the automatic transition is running
- *   transitionDirection — 'forward' (sun→…→moon) | 'backward' (moon→…→sun) | null
+ *   transitionDirection — 'forward' (sun→…→mars) | 'backward' (mars→…→sun) | null
  *   transitionT         — [0,1] progress of the ongoing transition (advanced in CameraRig useFrame)
  *   wheelIntent         — current accumulated wheel delta (for debug HUD)
  *
@@ -19,7 +19,9 @@
  *   venus    → wheel up   → mercury
  *   earth    → wheel down → moon
  *   earth    → wheel up   → venus
+ *   moon     → wheel down → mars
  *   moon     → wheel up   → earth
+ *   mars     → wheel up   → moon
  *
  * Input:
  *   - wheel deltaY events captured on the scroll container ref
@@ -34,7 +36,7 @@
  *     returned object) and advance it each frame with delta * speed.
  *   - Call onTransitionComplete() when transitionT reaches 1.
  *
- * Sun, Mercury, Venus and Earth behaviour: 100% preserved. Moon added as fifth station.
+ * Sun, Mercury, Venus, Earth and Moon behaviour: 100% preserved. Mars added as sixth station.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react'
@@ -42,7 +44,7 @@ import type { RefObject } from 'react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth' | 'moon'
+export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth' | 'moon' | 'mars'
 export type TransitionDirection = 'forward' | 'backward'
 
 export interface DiscreteShotState {
@@ -79,10 +81,12 @@ function getNextShot(id: DiscreteShotId): DiscreteShotId | null {
   if (id === 'mercury') return 'venus'
   if (id === 'venus')   return 'earth'
   if (id === 'earth')   return 'moon'
-  return null  // moon has no next shot
+  if (id === 'moon')    return 'mars'
+  return null  // mars has no next shot
 }
 
 function getPrevShot(id: DiscreteShotId): DiscreteShotId | null {
+  if (id === 'mars')    return 'moon'
   if (id === 'moon')    return 'earth'
   if (id === 'earth')   return 'venus'
   if (id === 'venus')   return 'mercury'

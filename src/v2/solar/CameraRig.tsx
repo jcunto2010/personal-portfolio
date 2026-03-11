@@ -1,11 +1,11 @@
 /**
  * CameraRig — solar journey camera.
  *
- * Architecture (microfase 5 — discrete Sun → Mercury → Venus → Earth → Moon)
- * ─────────────────────────────────────────────────────────────────────────────
- * Sun → Mercury → Venus → Earth → Moon navigation is DISCRETE: the transition
- * runs automatically once triggered, driven by transitionT advancing in useFrame
- * at a fixed speed. It no longer depends on scroll scrub position.
+ * Architecture (microfase 6 — discrete Sun → Mercury → Venus → Earth → Moon → Mars)
+ * ─────────────────────────────────────────────────────────────────────────────────
+ * Sun → Mercury → Venus → Earth → Moon → Mars navigation is DISCRETE: the
+ * transition runs automatically once triggered, driven by transitionT advancing
+ * in useFrame at a fixed speed. It no longer depends on scroll scrub position.
  *
  * Shot routing:
  *   DISCRETE path (this file):
@@ -14,6 +14,7 @@
  *     'venus'   → discrete transition from Mercury pose to Venus pose
  *     'earth'   → discrete transition from Venus pose to Earth pose
  *     'moon'    → discrete transition from Earth pose to Moon pose
+ *     'mars'    → discrete transition from Moon pose to Mars pose
  *
  *   LEGACY path (scroll-driven, unchanged for future planets):
  *     Everything else → planet-registry approach/hold/depart logic
@@ -26,11 +27,11 @@
  *   - Camera position and lookAt are lerped between the FROM and TO hold poses.
  *
  * Sun intro: 100% preserved verbatim. DO NOT MODIFY.
- * Mercury/Venus/Earth poses: 100% preserved. DO NOT MODIFY.
+ * Mercury/Venus/Earth/Moon poses: 100% preserved. DO NOT MODIFY.
  *
  * Exported types:
- *   CameraPhaseId        — debug HUD (extended with 'moon-approach', 'moon-hold')
- *   ShotPhaseId          — debug HUD (extended with 'moon-hold')
+ *   CameraPhaseId        — debug HUD (extended with 'mars-approach', 'mars-hold')
+ *   ShotPhaseId          — debug HUD (extended with 'mars-hold')
  *   CameraRigShotProps   — discrete props
  */
 
@@ -90,9 +91,11 @@ export type CameraPhaseId =
   | 'earth-hold'
   | 'moon-approach'
   | 'moon-hold'
+  | 'mars-approach'
+  | 'mars-hold'
   | 'transit'
 
-export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold' | 'moon-hold'
+export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold' | 'moon-hold' | 'mars-hold'
 
 // ── Focus node ─────────────────────────────────────────────────────────────────
 
@@ -204,6 +207,7 @@ export function CameraRig({
   const venusPose = getShotPose('venus')
   const earthPose = getShotPose('earth')
   const moonPose  = getShotPose('moon')
+  const marsPose  = getShotPose('mars')
 
   useFrame((state, delta) => {
     const cam = state.camera
@@ -235,6 +239,7 @@ export function CameraRig({
       discreteCurrentShotId === 'venus'   ||
       discreteCurrentShotId === 'earth'   ||
       discreteCurrentShotId === 'moon'    ||
+      discreteCurrentShotId === 'mars'    ||
       discreteIsTransitioning
 
     if (isOnDiscretePath) {
@@ -257,10 +262,20 @@ export function CameraRig({
         let fromLook: THREE.Vector3
         let toLook:   THREE.Vector3
 
-        if (discreteTargetShotId === 'moon') {
-          // earth → moon
-          fromCam  = earthPose.cam;  toCam  = moonPose.cam
-          fromLook = earthPose.look; toLook = moonPose.look
+        if (discreteTargetShotId === 'mars') {
+          // moon → mars
+          fromCam  = moonPose.cam;  toCam  = marsPose.cam
+          fromLook = moonPose.look; toLook = marsPose.look
+        } else if (discreteTargetShotId === 'moon') {
+          // earth → moon  OR  mars → moon
+          if (discreteCurrentShotId === 'mars') {
+            fromCam  = marsPose.cam;  toCam  = moonPose.cam
+            fromLook = marsPose.look; toLook = moonPose.look
+          } else {
+            // earth → moon
+            fromCam  = earthPose.cam;  toCam  = moonPose.cam
+            fromLook = earthPose.look; toLook = moonPose.look
+          }
         } else if (discreteTargetShotId === 'earth') {
           // venus → earth  OR  moon → earth
           if (discreteCurrentShotId === 'moon') {
@@ -318,6 +333,7 @@ export function CameraRig({
         if (import.meta.env.DEV) {
           if (onPhaseChange) {
             const id: CameraPhaseId =
+              discreteTargetShotId === 'mars'    ? 'mars-approach'    :
               discreteTargetShotId === 'moon'    ? 'moon-approach'    :
               discreteTargetShotId === 'earth'   ? 'earth-approach'   :
               discreteTargetShotId === 'venus'   ? 'venus-approach'   :
@@ -331,6 +347,23 @@ export function CameraRig({
         }
 
         return  // camera already applied above — skip the damp block at the end
+
+      } else if (discreteCurrentShotId === 'mars') {
+        // Idle at Mars hold pose — snappy damp, same as other planets
+        desiredPos.current.copy(marsPose.cam)
+        desiredLat.current.copy(marsPose.look)
+        posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'mars-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'mars-hold'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
 
       } else if (discreteCurrentShotId === 'moon') {
         // Idle at Moon hold pose — snappy damp, same as other planets
