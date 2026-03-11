@@ -17,7 +17,7 @@
  * Mercury shot: LIVE — driving visible camera behaviour as of microfase 2.
  *   CameraRig takes the shot-based path when currentShotId === 'mercury'.
  *
- * [NV] Microfase 7+: wire Neptune → Blackhole shots.
+ * [NV] Microfase 8+: wire Uranus → Blackhole shots.
  */
 
 export type ShotId =
@@ -327,11 +327,110 @@ const MARS_SHOT: ShotConfig = {
   lookAt:         [16.8, -1.8, -215.0],
 }
 
-// ── Shot registry ─────────────────────────────────────────────────────────────
-// Sun, Mercury, Venus, Earth, Moon, and Mars are active on the discrete path.
+// ── Neptune shot ───────────────────────────────────────────────────────────────
+// LIVE as of microfase 7 — discrete CameraRig drives camera from these values.
 //
-// [NV] Microfase 7+: add neptune, uranus, blackhole.
-export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT, MARS_SHOT]
+// Neptune planet position: [-20, 1.0, -275]
+// Neptune GLB includes rings. computeNormParams measures the full bounding box
+// (sphere + rings). Rings are ~4× the sphere diameter, so after normalisation
+// the effective sphere radius ≈ scale × 0.25.
+//   scale=6.0 → effective sphere radius ≈ 6.0 × 0.25 = 1.5u in world space.
+//
+// FOV: 45° vertical  →  ~75° horizontal at 16:9
+//
+// COMPOSITION: Neptune SPHERE fills ~90% of frame height, LEFT SIDE of screen.
+// Neptune = Experience — serene, mature, the beginning of the final leg.
+// Laterality: Neptune = LEFT side (camera to the RIGHT of Neptune).
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// TARGET vertical fill = 90% of frame height → sphere fills 90% of FOV45
+//   fill_angle = 0.90 × 45° = 40.5°  →  half_angle = 20.25°
+//   required dist = sphR / tan(half_angle) = 1.5 / tan(20.25°) ≈ 1.5 / 0.3697 ≈ 4.06u
+//
+// Camera to the RIGHT (+X) of Neptune so view direction points leftward → Neptune on LEFT side.
+//   cameraPosition = [-20 + 2.8, 1.0 + 0.4, -275 + 2.8] = [-17.2, 1.4, -272.2]
+//   cam→Neptune distance: √(2.8²+0.4²+2.8²) = √(7.84+0.16+7.84) = √15.84 ≈ 3.98u  ✓ ~90% fill
+//
+// LATERAL placement — Neptune in LEFT 40% of screen:
+//   Camera is to the RIGHT (+X) of Neptune. To place Neptune in the LEFT half,
+//   lookAt must be to the RIGHT of Neptune's centre so Neptune sits LEFT of the
+//   frustum centre.
+//   lookAt = [-20 + 2.0, 1.0, -275.0] = [-18.0, 1.0, -275.0]  (2u right of Neptune)
+//   depth cam→lookAt ≈ √((−18.0+17.2)²+(1.0−1.4)²+(−275+272.2)²)
+//                     = √(0.64+0.16+7.84) ≈ √8.64 ≈ 2.94u
+//   angular offset = atan(2.0/2.94) ≈ 34.2°
+//   screen x of Neptune: 50% - (34.2°/37.5°)×50% ≈ 50% - 45.6% = 4.4% from right = 95.6% from left — too far left
+//   Use smaller offset: lookAt.x = -20 + 1.2 = -18.8
+//   depth ≈ √((−18.8+17.2)²+0.16+7.84) = √(2.56+0.16+7.84) ≈ √10.56 ≈ 3.25u
+//   angular = atan(1.2/3.25) ≈ 20.3°  → 50% - 27% = 23% from right = 77% from left  ✓ left side
+const NEPTUNE_SHOT: ShotConfig = {
+  id:      'neptune',
+  planetId: 'neptune',
+  scrollStart:          0.72,
+  scrollEnd:            0.84,
+  enterTransitionStart: 0.72,
+  holdStart:            0.76,
+  holdEnd:              0.81,
+  exitStart:            0.81,
+  cameraPosition: [-17.2, 1.4, -272.2],
+  lookAt:         [-17.8, 1.0, -275.0],
+}
+
+// ── Uranus shot ────────────────────────────────────────────────────────────────
+// LIVE — new 3MB GLB (replaced 86MB model).
+//
+// New GLB measurements (from accessor min/max):
+//   Sphere (Uranus_1_0):       radius = 441.1 native units, doubleSided=true
+//   Clouds (Uranus_clouds_2_0): radius = 441.1 native units, doubleSided=false → patched to DoubleSide in SolarScene
+//   Rings  (Ring_3_0):         radius = 1000  native units, doubleSided=true, flat in XY plane (Z≈0)
+//   normScale = 0.001000  (dominant axis = 2000 native units)
+//
+// With scale=9.0:
+//   Sphere world radius  = 441.1 × 0.001 × 9.0 ≈ 3.97u
+//   Ring   world radius  = 1000  × 0.001 × 9.0 = 9.0u
+//
+// FOV: 45° vertical  →  ~75° horizontal at 16:9
+//
+// COMPOSITION: Uranus SPHERE fills ~90% of frame height, RIGHT SIDE of screen.
+// Uranus = Contact / final approach — last station before closure.
+// Laterality: Uranus = RIGHT side (camera to the LEFT of Uranus, X=16 vs X=22).
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// TARGET vertical fill = 90% of frame height → sphere fills 90% of FOV45
+//   fill_angle = 0.90 × 45° = 40.5°  →  half_angle = 20.25°
+//   required dist = sphR / tan(20.25°) = 4.0 / 0.369 ≈ 10.8u
+//
+// Camera framing for Uranus:
+//   Camera at [16, -1, -319.5], Uranus at [22, -1, -328].
+//   Δ cam→uranus = [-6, 0, -8.5], dist ≈ 10.4u  ✓ ~90% fill height
+//
+//   To place Uranus on the RIGHT 50% of the frame, the lookAt must be shifted
+//   LEFT of Uranus so the camera "looks past" the left side of the screen,
+//   pushing Uranus into the right half.
+//
+//   FOV_h at 16:9 ≈ 75°. Half-frame horizontal = 37.5°.
+//   Right-half centre = 75% from left = offset of +18.75° from frame centre.
+//   At dist 10.4u: lateral shift needed ≈ 10.4 × tan(18.75°) ≈ 3.5u to the LEFT.
+//   lookAt.x = 22 - 3.5 ≈ 18.5  (shift left so Uranus drifts right in frame)
+//   lookAt = [18.5, -1, -328]
+const URANUS_SHOT: ShotConfig = {
+  id:      'uranus',
+  planetId: 'uranus',
+  scrollStart:          0.84,
+  scrollEnd:            0.96,
+  enterTransitionStart: 0.84,
+  holdStart:            0.88,
+  holdEnd:              0.93,
+  exitStart:            0.93,
+  cameraPosition: [16.0, -1.0, -319.5],
+  lookAt:         [18.5, -1.0, -328.0],
+}
+
+// ── Shot registry ─────────────────────────────────────────────────────────────
+// Sun, Mercury, Venus, Earth, Moon, Mars, Neptune, and Uranus are active on the discrete path.
+//
+// [NV] Microfase 9+: add blackhole.
+export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT, MARS_SHOT, NEPTUNE_SHOT, URANUS_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(
   SHOT_REGISTRY.map((s) => [s.id, s]),

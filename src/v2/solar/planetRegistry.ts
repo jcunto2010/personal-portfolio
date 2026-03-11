@@ -30,14 +30,14 @@
  * Loading groups (progressive / zone-based strategy)
  * ────────────────────────────────────────────────────
  * group 1 — "initial"   : loaded immediately on immersive-mode entry
- *   sun, mercury, venus, earth, moon, mars  (active discrete stations)
+ *   sun, mercury, venus, earth, moon, mars, neptune, uranus  (active discrete stations)
  *
  * group 2 — "mid"       : loaded after group-1 resolves (or after a
  *                          short idle delay, whichever comes first)
  *
  * group 3 — "deep"      : loaded only once scroll progress crosses
- *   neptune, uranus,       DEEP_LOAD_THRESHOLD (0.45); blackhole is
- *   blackhole              NEVER preloaded at scene mount.
+ *   blackhole              DEEP_LOAD_THRESHOLD (0.45); blackhole is
+ *                          NEVER preloaded at scene mount.
  *
  * Phase subdivision per planet (scroll progress, normalised 0..1)
  * ───────────────────────────────────────────────────────────────
@@ -334,11 +334,19 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     modelPath: '/assets/solar/models/neptune.glb',
     // LEFT lane (-X). Camera hold pose is on the right.
     position: [-20, 1.0, -275],
-    scale: 1.4,
+    // scale is large to compensate for the rings expanding the GLB bounding box.
+    // computeNormParams measures the full model (sphere + rings) and normalises
+    // the dominant axis to radius=1. The rings are ~4× wider than the sphere,
+    // so the effective sphere radius after normalisation ≈ scale × 0.25.
+    // scale=6.0 → effective sphere radius ≈ 1.5u, which fills ~90% of FOV45
+    // at the camera distance used in the Neptune shot.
+    scale: 6.0,
     normalizedRadiusTarget: 1,
-    fallbackRadius: 1.4,
+    fallbackRadius: 1.5,
     accentColor: '#5C6BC0',
-    loadingGroup: 'deep',
+    // Moved from 'deep' to 'initial' so Neptune is guaranteed to load before the
+    // discrete navigation reaches the Mars → Neptune transition (microfase 7).
+    loadingGroup: 'initial',
     focusStart:   0.68,
     approachStart: 0.68,
     settleStart:   0.72,
@@ -359,21 +367,30 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     modelPath: '/assets/solar/models/uranus.glb',
     // RIGHT lane (+X). Camera hold pose is on the left.
     position: [22, -1.0, -328],
-    scale: 1.3,
+    // New 3MB GLB: normScale=0.001, dominant axis = 2000 native units.
+    // scale=9.0 → sphere world radius = 441.1 × 0.001 × 9.0 ≈ 3.97u
+    //           → ring  world radius  = 1000  × 0.001 × 9.0 = 9.0u
+    scale: 9.0,
     normalizedRadiusTarget: 1,
-    fallbackRadius: 1.3,
+    // fallbackRadius in NORMALISED space.
+    // SuspenseFallbackSphere/FallbackSphere: effective world radius = fallbackRadius × scale.
+    // 1.0 × 9.0 = 9.0u — clearly visible teal sphere while GLB loads.
+    fallbackRadius: 1.0,
     accentColor: '#80CBC4',
-    loadingGroup: 'deep',
+    loadingGroup: 'initial',
     focusStart:   0.80,
     approachStart: 0.80,
     settleStart:   0.84,
     departStart:   0.88,
     focusEnd:     0.91,
-    cameraOffsetX: -12.0,
-    cameraOffsetY: 2.0,
-    cameraOffsetZ: 16.0,
-    lookAtOffsetX: -5.0,
-    lookAtOffsetY: 0.3,
+    // Offsets derived from URANUS_SHOT: cam=[16,-1,-319.5], look=[22,-1,-328], pos=[22,-1,-328].
+    // cameraOffset = cam - pos = [-6, 0, 8.5]
+    // lookAtOffset = look - pos = [0, 0, 0]
+    cameraOffsetX: -6.0,
+    cameraOffsetY: 0.0,
+    cameraOffsetZ: 8.5,
+    lookAtOffsetX: 0.0,
+    lookAtOffsetY: 0.0,
     lookAtOffsetZ: 0.0,
     rotationSpeed: -0.07,
   },

@@ -93,9 +93,13 @@ export type CameraPhaseId =
   | 'moon-hold'
   | 'mars-approach'
   | 'mars-hold'
+  | 'neptune-approach'
+  | 'neptune-hold'
+  | 'uranus-approach'
+  | 'uranus-hold'
   | 'transit'
 
-export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold' | 'moon-hold' | 'mars-hold'
+export type ShotPhaseId = 'sun' | 'transition' | 'mercury-hold' | 'venus-hold' | 'earth-hold' | 'moon-hold' | 'mars-hold' | 'neptune-hold' | 'uranus-hold'
 
 // ── Focus node ─────────────────────────────────────────────────────────────────
 
@@ -202,12 +206,14 @@ export function CameraRig({
   const lastShotPhaseRef = useRef<ShotPhaseId>('sun')
 
   // Cached shot poses (computed once, stable across frames)
-  const sunPose   = getShotPose('sun')
-  const mercPose  = getShotPose('mercury')
-  const venusPose = getShotPose('venus')
-  const earthPose = getShotPose('earth')
-  const moonPose  = getShotPose('moon')
-  const marsPose  = getShotPose('mars')
+  const sunPose     = getShotPose('sun')
+  const mercPose    = getShotPose('mercury')
+  const venusPose   = getShotPose('venus')
+  const earthPose   = getShotPose('earth')
+  const moonPose    = getShotPose('moon')
+  const marsPose    = getShotPose('mars')
+  const neptunePose = getShotPose('neptune')
+  const uranusPose  = getShotPose('uranus')
 
   useFrame((state, delta) => {
     const cam = state.camera
@@ -240,6 +246,8 @@ export function CameraRig({
       discreteCurrentShotId === 'earth'   ||
       discreteCurrentShotId === 'moon'    ||
       discreteCurrentShotId === 'mars'    ||
+      discreteCurrentShotId === 'neptune' ||
+      discreteCurrentShotId === 'uranus'  ||
       discreteIsTransitioning
 
     if (isOnDiscretePath) {
@@ -251,8 +259,8 @@ export function CameraRig({
         const raw = discreteTransitionTRef.current
         const next = Math.min(1, raw + delta * TRANSITION_SPEED)
         discreteTransitionTRef.current = next
-
-        // Eased t — drives the lerp directly, no additional damp lag
+        
+        // Eased t — drives the lerp directly, no additional damp lag.
         const t = easeInOutCubic(next)
 
         // Resolve FROM and TO poses based on the transition direction.
@@ -262,10 +270,30 @@ export function CameraRig({
         let fromLook: THREE.Vector3
         let toLook:   THREE.Vector3
 
-        if (discreteTargetShotId === 'mars') {
-          // moon → mars
-          fromCam  = moonPose.cam;  toCam  = marsPose.cam
-          fromLook = moonPose.look; toLook = marsPose.look
+        if (discreteTargetShotId === 'uranus') {
+          // neptune → uranus
+          fromCam  = neptunePose.cam;  toCam  = uranusPose.cam
+          fromLook = neptunePose.look; toLook = uranusPose.look
+        } else if (discreteTargetShotId === 'neptune') {
+          // mars → neptune  OR  uranus → neptune
+          if (discreteCurrentShotId === 'uranus') {
+            fromCam  = uranusPose.cam;  toCam  = neptunePose.cam
+            fromLook = uranusPose.look; toLook = neptunePose.look
+          } else {
+            // mars → neptune
+            fromCam  = marsPose.cam;  toCam  = neptunePose.cam
+            fromLook = marsPose.look; toLook = neptunePose.look
+          }
+        } else if (discreteTargetShotId === 'mars') {
+          // moon → mars  OR  neptune → mars
+          if (discreteCurrentShotId === 'neptune') {
+            fromCam  = neptunePose.cam;  toCam  = marsPose.cam
+            fromLook = neptunePose.look; toLook = marsPose.look
+          } else {
+            // moon → mars
+            fromCam  = moonPose.cam;  toCam  = marsPose.cam
+            fromLook = moonPose.look; toLook = marsPose.look
+          }
         } else if (discreteTargetShotId === 'moon') {
           // earth → moon  OR  mars → moon
           if (discreteCurrentShotId === 'mars') {
@@ -333,6 +361,8 @@ export function CameraRig({
         if (import.meta.env.DEV) {
           if (onPhaseChange) {
             const id: CameraPhaseId =
+              discreteTargetShotId === 'uranus'  ? 'uranus-approach'  :
+              discreteTargetShotId === 'neptune' ? 'neptune-approach' :
               discreteTargetShotId === 'mars'    ? 'mars-approach'    :
               discreteTargetShotId === 'moon'    ? 'moon-approach'    :
               discreteTargetShotId === 'earth'   ? 'earth-approach'   :
@@ -347,6 +377,40 @@ export function CameraRig({
         }
 
         return  // camera already applied above — skip the damp block at the end
+
+      } else if (discreteCurrentShotId === 'uranus') {
+        // Idle at Uranus hold pose — snappy damp, same as other planets
+        desiredPos.current.copy(uranusPose.cam)
+        desiredLat.current.copy(uranusPose.look)
+        posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'uranus-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'uranus-hold'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
+
+      } else if (discreteCurrentShotId === 'neptune') {
+        // Idle at Neptune hold pose — snappy damp, same as other planets
+        desiredPos.current.copy(neptunePose.cam)
+        desiredLat.current.copy(neptunePose.look)
+        posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
+
+        if (import.meta.env.DEV) {
+          if (onPhaseChange) {
+            const id: CameraPhaseId = 'neptune-hold'
+            if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
+          }
+          if (onShotPhaseChange) {
+            const sp: ShotPhaseId = 'neptune-hold'
+            if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+          }
+        }
 
       } else if (discreteCurrentShotId === 'mars') {
         // Idle at Mars hold pose — snappy damp, same as other planets

@@ -78,8 +78,17 @@ export function DebugHUD({
   discreteTransitionDirection,
   discreteWheelIntent,
 }: DebugHUDProps) {
-  const totalPlanets = PLANET_REGISTRY.length
-  const placeholderCount = totalPlanets - glbLoaded - glbFailed
+  // Rendered planets excludes blackhole and uranus (uranus uses procedural mesh, not GLB pipeline).
+  const renderedPlanetCount = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus').length
+  // Clamp to 0 — glbLoaded can temporarily exceed renderedPlanetCount during async batches.
+  const placeholderCount = Math.max(0, renderedPlanetCount - glbLoaded - glbFailed)
+
+  // Detect contradiction between legacy and discrete systems (for warning display).
+  const discreteActive = discreteCurrentShotId != null
+  const legacyContradicts =
+    discreteActive &&
+    currentShotId != null &&
+    currentShotId !== discreteCurrentShotId
 
   return (
     <div
@@ -135,41 +144,33 @@ export function DebugHUD({
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
           </td></tr>
 
-          {/* Legacy scroll-based shot navigation */}
-          <Row label="currentShot"  value={currentShotId ?? '—'} />
-          <Row label="nextShot"     value={nextShotId    ?? '—'} />
-          <Row
-            label="shotPhase"
-            value={shotPhase ?? '—'}
-            warn={shotPhase === 'mercury-hold'}
-          />
-          <Row label="shotProgress" value={shotProgress != null ? shotProgress.toFixed(3) : '—'} />
-
-          {/* Divider */}
-          <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+          {/* ── DISCRETE — fuente de verdad activa ── */}
+          <tr><td colSpan={2} style={{ color: '#4ade80', fontWeight: 700, paddingBottom: '0.15rem', fontSize: '10px', letterSpacing: '0.08em' }}>
+            DISCRETE (active — controls camera)
           </td></tr>
-
-          {/* Discrete Sun ↔ Mercury navigation */}
           <Row
-            label="d.currentShot"
+            label="currentShot"
             value={discreteCurrentShotId ?? '—'}
           />
           <Row
-            label="d.targetShot"
+            label="targetShot"
             value={discreteTargetShotId != null ? discreteTargetShotId : 'idle'}
           />
           <Row
-            label="d.transitioning"
+            label="transitioning"
             value={discreteIsTransitioning != null ? String(discreteIsTransitioning) : '—'}
             warn={discreteIsTransitioning}
           />
           <Row
-            label="d.direction"
+            label="direction"
             value={discreteTransitionDirection ?? 'none'}
           />
           <Row
-            label="d.wheelIntent"
+            label="shotPhase"
+            value={shotPhase ?? '—'}
+          />
+          <Row
+            label="wheelIntent"
             value={discreteWheelIntent != null ? discreteWheelIntent.toFixed(0) : '—'}
           />
 
@@ -178,10 +179,28 @@ export function DebugHUD({
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
           </td></tr>
 
+          {/* ── LEGACY — solo referencia, no controla cámara ── */}
+          <tr><td colSpan={2} style={{ color: '#64748b', fontWeight: 700, paddingBottom: '0.15rem', fontSize: '10px', letterSpacing: '0.08em' }}>
+            LEGACY (scroll-driven — bypassed)
+          </td></tr>
+          {legacyContradicts && (
+            <tr><td colSpan={2} style={{ color: '#f87171', fontWeight: 700, fontSize: '10px' }}>
+              ⚠ legacy contradicts discrete
+            </td></tr>
+          )}
+          <Row label="l.currentShot"  value={currentShotId ?? '—'} />
+          <Row label="l.nextShot"     value={nextShotId    ?? '—'} />
+          <Row label="l.shotProgress" value={shotProgress != null ? shotProgress.toFixed(3) : '—'} />
+
+          {/* Divider */}
+          <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }} />
+          </td></tr>
+
           {/* Planet loading */}
           <Row label="activeGroups" value={[...activeGroups].join(', ')} />
-          <Row label="planets (placeholder)" value={String(placeholderCount)} />
-          <Row label="GLB loaded" value={String(glbLoaded)} />
+          <Row label="planets (placeholder)" value={String(placeholderCount)} warn={placeholderCount < 0} />
+          <Row label="GLB loaded" value={`${glbLoaded} / ${renderedPlanetCount}`} />
           <Row label="GLB failed" value={String(glbFailed)} warn={glbFailed > 0} />
 
           {/* Divider */}

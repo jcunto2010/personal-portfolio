@@ -20,9 +20,9 @@
 import { Component, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import type * as THREE from 'three'
-import { useGLTF } from '@react-three/drei'
-import { getNextPlanetById, getStableActivePlanet, PLANET_REGISTRY } from './planetRegistry'
+import * as THREE from 'three'
+import { useGLTF, useTexture } from '@react-three/drei'
+import { getStableActivePlanet, PLANET_REGISTRY } from './planetRegistry'
 import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
 import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
@@ -102,6 +102,106 @@ function StarField() {
 }
 
 
+// ── Uranus material patch ─────────────────────────────────────────────────────
+//
+// Forces doubleSided=true on every material in the Uranus GLB so rings are
+// always visible regardless of camera angle.
+
+function UranusDoubleSidedPatch() {
+  const { scene } = useGLTF('/assets/solar/models/uranus.glb')
+  useEffect(() => {
+    scene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh
+        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+        mats.forEach((mat) => {
+          if (mat && (mat as THREE.MeshStandardMaterial).isMeshStandardMaterial) {
+            ;(mat as THREE.MeshStandardMaterial).side = THREE.DoubleSide
+            ;(mat as THREE.MeshStandardMaterial).needsUpdate = true
+          }
+        })
+      }
+    })
+  }, [scene])
+  return null
+}
+
+// ── Uranus textured mesh ───────────────────────────────────────────────────────
+//
+// Uses textures extracted directly from uranus.glb:
+//   tex0.jpg  → sphere baseColor  (material "material")
+//   tex1.png  → clouds baseColor  (material "material_1", BLEND)
+//   tex2.jpg  → clouds normalMap  (material "material_1")
+//
+// Uranus position: [22, -1, -328]  (matches planetRegistry + shotConfig)
+// Sphere world radius: 4.0u
+
+const URANUS_POS: [number, number, number] = [22, -1.0, -328]
+const URANUS_SPHERE_R = 4.0
+
+function UranusTexturedInner({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
+  const [sphereMap, cloudsMap, cloudsNormal] = useTexture([
+    '/assets/solar/textures/uranus/tex0.jpg',
+    '/assets/solar/textures/uranus/tex1.png',
+    '/assets/solar/textures/uranus/tex2.jpg',
+  ])
+
+  if (!visible) return null
+
+  return (
+    <group position={URANUS_POS}>
+      {/* ── Planet body — textured sphere from GLB material "material" ── */}
+      <mesh
+        frustumCulled={false}
+        onClick={(e) => { e.stopPropagation(); onClick?.() }}
+      >
+        <sphereGeometry args={[URANUS_SPHERE_R, 128, 128]} />
+        <meshStandardMaterial
+          map={sphereMap}
+          roughness={0.70}
+          metalness={0.0}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* ── Cloud layer — GLB material "material_1" (BLEND, normalMap) ── */}
+      <mesh frustumCulled={false}>
+        <sphereGeometry args={[URANUS_SPHERE_R * 1.012, 128, 128]} />
+        <meshStandardMaterial
+          map={cloudsMap}
+          normalMap={cloudsNormal}
+          roughness={0.94}
+          metalness={0.0}
+          transparent
+          opacity={0.55}
+          alphaTest={0.01}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  )
+}
+
+function UranusGuaranteedMesh({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
+  if (!visible) return null
+  return (
+    <Suspense fallback={
+      <group position={URANUS_POS}>
+        <mesh
+          frustumCulled={false}
+          onClick={(e) => { e.stopPropagation(); onClick?.() }}
+        >
+          <sphereGeometry args={[URANUS_SPHERE_R, 64, 64]} />
+          <meshStandardMaterial color="#7ececa" emissive="#1a7a7a" emissiveIntensity={0.25} roughness={0.55} />
+        </mesh>
+      </group>
+    }>
+      <UranusTexturedInner visible={visible} onClick={onClick} />
+    </Suspense>
+  )
+}
+
 // ── Lighting rig ──────────────────────────────────────────────────────────────
 
 function LightingRig({ safe = false }: { safe?: boolean }) {
@@ -122,6 +222,10 @@ function LightingRig({ safe = false }: { safe?: boolean }) {
       <pointLight position={[0, 0, 0]} intensity={3} distance={30} decay={2} color="#FFA726" />
       {/* Deep-field fill — illuminates Earth and beyond without affecting Sun zone */}
       <directionalLight position={[-5, 10, -100]} intensity={1.8} color="#fff8f0" castShadow={false} />
+      {/* Neptune fill — localized point light to ensure legibility at z=-275 */}
+      <pointLight position={[-20, 8, -260]} intensity={4.5} distance={80} decay={1.8} color="#7986cb" />
+      {/* Uranus fill — ultra-local to guarantee legibility without affecting earlier planets */}
+      <pointLight position={[22, 2, -328]} intensity={12.0} distance={55} decay={2.0} color="#80cbc4" />
     </>
   )
 }
@@ -325,6 +429,29 @@ export function SolarScene({
     onTransitionComplete: onDiscreteTransitionComplete,
   } = useDiscreteShotNavigation(scrollContainerRef)
 
+  // ── Discrete path: lock scroll container at scrollTop=0 ──────────────────────
+  // The discrete system controls ALL shots (sun → uranus). While it is active,
+  // the legacy scroll-progress must stay at 0 so useShotNavigation never reports
+  // a contradictory currentShot. We do this by clamping scrollTop to 0 on every
+  // scroll event that leaks through (e.g. small wheel movements below the intent
+  // threshold, or programmatic scrolls).
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const lockScroll = () => {
+      if (el.scrollTop !== 0) el.scrollTop = 0
+    }
+    el.addEventListener('scroll', lockScroll, { passive: true })
+    return () => el.removeEventListener('scroll', lockScroll)
+  }, [scrollContainerRef])
+
+  // Blackhole excluded always. Uranus excluded from GLB pipeline — the high-quality
+  // procedural mesh (UranusGuaranteedMesh) replaces the low-poly GLB (2143 verts).
+  const RENDERED_PLANETS = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus')
+  const BLACKHOLE_VISIBLE = false
+  const URANUS_VISIBLE =
+    discreteCurrentShotId === 'uranus' || discreteTargetShotId === 'uranus'
+
   const [activePlanet, setActivePlanet] = useState<PlanetConfig | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
   const [isFinaleActive, setIsFinaleActive] = useState(false)
@@ -341,8 +468,9 @@ export function SolarScene({
   const [cameraPhase, setCameraPhase]     = useState<CameraPhaseId>('intro')
   const [shotPhase, setShotPhase]         = useState<ShotPhaseId>('sun')
   // Gate: how many GLBs in the 'initial' group need to load before we start the journey.
-  // The Sun is 50 MB so we wait for it specifically before the CameraRig moves.
-  const initialGroupSize = PLANET_REGISTRY.filter((p) => p.loadingGroup === 'initial').length
+  // Must use RENDERED_PLANETS (excludes blackhole + uranus) — uranus uses a procedural
+  // mesh and never fires onGlbLoaded, so counting it would stall the gate forever.
+  const initialGroupSize = RENDERED_PLANETS.filter((p) => p.loadingGroup === 'initial').length
   const [journeyReady, setJourneyReady]   = useState(IS_SAFE) // safe mode skips GLB gate
 
   // Read canvas/camera state via onCreated — no useThree needed outside Canvas
@@ -374,7 +502,6 @@ export function SolarScene({
   }, [scrollProgress])
 
   const activeJourneyPlanet = getStableActivePlanet(scrollProgress, activeJourneyPlanetId)
-  const nextJourneyPlanet = getNextPlanetById(activeJourneyPlanet.id)
 
   useEffect(() => {
     const shouldActivate   = !isFinaleActive && scrollProgress >= FINALE_THRESHOLD
@@ -444,6 +571,26 @@ export function SolarScene({
                 />
               )}
 
+              {/* Uranus material patch — forces doubleSided on all ring materials */}
+              {!IS_SAFE && (
+                <Suspense fallback={null}>
+                  <UranusDoubleSidedPatch />
+                </Suspense>
+              )}
+
+              {/* Uranus guaranteed mesh — always visible, no GLB dependency */}
+              <UranusGuaranteedMesh
+                visible={
+                  discreteCurrentShotId === 'uranus' ||
+                  discreteTargetShotId   === 'uranus' ||
+                  (discreteCurrentShotId === 'neptune' && discreteIsTransitioning)
+                }
+                onClick={() => {
+                  const cfg = PLANET_REGISTRY.find((p) => p.id === 'uranus')
+                  if (cfg) setActivePlanet(cfg)
+                }}
+              />
+
               {/* Lighting */}
               <LightingRig safe={IS_SAFE} />
 
@@ -451,7 +598,7 @@ export function SolarScene({
               <StarField />
 
               {/* Safe mode: procedural spheres only, no Suspense, no GLBs. */}
-              {IS_SAFE && PLANET_REGISTRY.map((config) => (
+              {IS_SAFE && RENDERED_PLANETS.map((config) => (
                 <SafeSphere key={config.id} config={config} />
               ))}
 
@@ -464,7 +611,7 @@ export function SolarScene({
                * Runtime evidence showed `Html` from drei was still the crash
                * source, so immersive mode now avoids any Canvas-attached DOM.
                */}
-              {!IS_SAFE && PLANET_REGISTRY.map((config) => (
+              {!IS_SAFE && RENDERED_PLANETS.map((config) => (
                 <Suspense
                   key={config.id}
                   fallback={<SuspenseFallbackSphere config={config} />}
@@ -495,8 +642,10 @@ export function SolarScene({
         </div>
       </div>
 
-      {/* Loading gate — shown until initial GLBs are ready */}
-      {!journeyReady && !IS_SAFE && (
+      {/* Loading gate — shown until initial GLBs are ready.
+          Suppressed when the discrete system is already past 'sun': the user
+          navigated here before (hot-reload scenario), GLBs loaded previously. */}
+      {!journeyReady && !IS_SAFE && discreteCurrentShotId === 'sun' && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 500,
           display: 'flex', flexDirection: 'column',
@@ -573,18 +722,20 @@ export function SolarScene({
           letterSpacing: '0.04em',
           lineHeight: '1.7',
         }}>
-          <div>activePlanetId={activeJourneyPlanet.id} [{activeJourneyPlanet.focusStart.toFixed(2)}–{activeJourneyPlanet.focusEnd.toFixed(2)}]</div>
-          <div>currentPhase={cameraPhase}</div>
-          <div>next={nextJourneyPlanet?.id ?? 'none'} | scroll={scrollProgress.toFixed(3)}</div>
-          <div style={{ borderTop: '1px solid rgba(147,197,253,0.2)', marginTop: '0.3rem', paddingTop: '0.3rem' }}>
-            currentShot={currentShot.id} | nextShot={nextShot?.id ?? 'none'}
+          {/* ── DISCRETE (fuente de verdad activa) ── */}
+          <div style={{ color: '#4ade80' }}>◈ DISCRETE (active)</div>
+          <div>currentShot={discreteCurrentShotId}</div>
+          <div>targetShot={discreteTargetShotId ?? 'idle'}</div>
+          <div>transitioning={String(discreteIsTransitioning)} | dir={discreteTransitionDir ?? 'none'}</div>
+          <div>shotPhase={shotPhase} | cameraPhase={cameraPhase}</div>
+          <div>intent={discreteWheelIntent.toFixed(0)}</div>
+          <div>uranusVisible={URANUS_VISIBLE ? 'yes' : 'no'} | blackholeVisible={BLACKHOLE_VISIBLE ? 'yes' : 'no'}</div>
+          {/* ── LEGACY (solo referencia, no controla cámara) ── */}
+          <div style={{ borderTop: '1px solid rgba(147,197,253,0.2)', marginTop: '0.3rem', paddingTop: '0.3rem', color: '#64748b' }}>
+            [LEGACY — no controla cámara]
           </div>
-          <div>shotPhase={shotPhase}</div>
-          <div>shotProgress={shotProgress.toFixed(3)}</div>
-          <div style={{ borderTop: '1px solid rgba(147,197,253,0.2)', marginTop: '0.3rem', paddingTop: '0.3rem' }}>
-            discrete: {discreteCurrentShotId} → {discreteTargetShotId ?? 'idle'} | transitioning={String(discreteIsTransitioning)}
-          </div>
-          <div>dir={discreteTransitionDir ?? 'none'} | intent={discreteWheelIntent.toFixed(0)}</div>
+          <div style={{ color: '#64748b' }}>scroll={scrollProgress.toFixed(3)} | activePlanet={activeJourneyPlanet.id}</div>
+          <div style={{ color: '#64748b' }}>legacyShot={currentShot.id} | legacyNext={nextShot?.id ?? 'none'}</div>
         </div>
       )}
 
