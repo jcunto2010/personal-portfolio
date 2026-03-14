@@ -14,7 +14,7 @@ import type { LoadingGroup } from './planetRegistry'
 import { PLANET_REGISTRY } from './planetRegistry'
 import type { ShotId } from './shotConfig'
 import type { ShotPhaseId } from './CameraRig'
-import type { DiscreteShotId, TransitionDirection } from './useDiscreteShotNavigation'
+import type { BlackholeCinematicPhase, BlackholeResetPhase, DiscreteShotId, TransitionDirection } from './useDiscreteShotNavigation'
 
 export interface DebugHUDProps {
   mode: string
@@ -40,6 +40,14 @@ export interface DebugHUDProps {
   discreteIsTransitioning?:      boolean
   discreteTransitionDirection?:  TransitionDirection | null
   discreteWheelIntent?:          number
+  // Blackhole cinematic
+  isBlackholeCinematic?:         boolean
+  blackholeCinematicPhase?:      BlackholeCinematicPhase
+  blackholeCinematicT?:          number
+  // Blackhole reset cinematic
+  isBlackholeResetting?:         boolean
+  blackholeResetPhase?:          BlackholeResetPhase
+  blackholeResetT?:              number
 }
 
 function Row({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
@@ -77,6 +85,12 @@ export function DebugHUD({
   discreteIsTransitioning,
   discreteTransitionDirection,
   discreteWheelIntent,
+  isBlackholeCinematic,
+  blackholeCinematicPhase,
+  blackholeCinematicT,
+  isBlackholeResetting,
+  blackholeResetPhase,
+  blackholeResetT,
 }: DebugHUDProps) {
   // Rendered planets excludes blackhole and uranus (uranus uses procedural mesh, not GLB pipeline).
   const renderedPlanetCount = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus').length
@@ -173,6 +187,40 @@ export function DebugHUD({
             label="wheelIntent"
             value={discreteWheelIntent != null ? discreteWheelIntent.toFixed(0) : '—'}
           />
+          <Row
+            label="bhCinematic"
+            value={isBlackholeCinematic != null ? String(isBlackholeCinematic) : '—'}
+            warn={isBlackholeCinematic}
+          />
+          {isBlackholeCinematic && (
+            <>
+              <Row
+                label="bhCinPhase"
+                value={blackholeCinematicPhase ?? '—'}
+              />
+              <Row
+                label="bhCinT"
+                value={blackholeCinematicT != null ? blackholeCinematicT.toFixed(3) : '—'}
+              />
+            </>
+          )}
+          {isBlackholeResetting && (
+            <>
+              <Row
+                label="bhReset"
+                value="true"
+                warn
+              />
+              <Row
+                label="bhResetPhase"
+                value={blackholeResetPhase ?? '—'}
+              />
+              <Row
+                label="bhResetT"
+                value={blackholeResetT != null ? blackholeResetT.toFixed(3) : '—'}
+              />
+            </>
+          )}
 
           {/* Divider */}
           <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>

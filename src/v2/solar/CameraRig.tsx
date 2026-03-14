@@ -47,7 +47,7 @@ import {
 } from './planetRegistry'
 import type { ShotId } from './shotConfig'
 import { getShotById, SHOT_MAP } from './shotConfig'
-import type { DiscreteShotId } from './useDiscreteShotNavigation'
+import type { BlackholeCinematicPhase, BlackholeResetPhase, DiscreteShotId } from './useDiscreteShotNavigation'
 import type { RefObject } from 'react'
 
 // ── Damp coefficients ──────────────────────────────────────────────────────────
@@ -57,10 +57,10 @@ const DAMP_DEPART    = 3.5
 const DAMP_LOOK_AT   = 4.5
 const DAMP_INTRO     = 2.5
 
-const INTRO_DURATION = 2.0   // seconds
+const INTRO_DURATION = 3.5   // seconds
 
 // Intro start position — DO NOT CHANGE (preserves the Sun intro sweep).
-const INTRO_START = new THREE.Vector3(18, 14, 22)
+const INTRO_START = new THREE.Vector3(36, 28, 44)
 
 /**
  * Speed at which transitionT advances per second.
@@ -70,12 +70,42 @@ const INTRO_START = new THREE.Vector3(18, 14, 22)
 const TRANSITION_SPEED = 0.6
 
 /**
- * Neptune ↔ Uranus transition is the largest lateral displacement in the
- * journey (~33u in X). A slower speed gives the camera time to arc through
- * the space instead of snapping, making it feel like a deliberate sweep.
- * 0.35 → completes in ~2.86 s.
+ * Venus ↔ Earth transition arcs around Venus; a slower speed makes the arc
+ * feel smooth instead of abrupt. 0.35 → completes in ~2.86 s.
  */
-const TRANSITION_SPEED_NEPTUNE_URANUS = 0.35
+const TRANSITION_SPEED_VENUS_EARTH = 0.35
+
+/**
+ * Waypoint for Venus ↔ Earth transition: camera arcs around Venus instead of
+ * passing through it. Placed to the RIGHT of Venus (x > 16) and FORWARD
+ * (z > -100, closer to camera) so the path goes forward first, then sweeps
+ * left to Earth, never crossing the planet at [16, -1.2, -100].
+ */
+const VENUS_EARTH_ARC_WAYPOINT = new THREE.Vector3(28, 0.5, -88)
+
+/**
+ * Speed for the Uranus → Blackhole cinematic transition.
+ * 0.135 → total duration ~7.4 s (departure ~0.9s + warp ~4.7s + reveal ~1.8s).
+ * Warp phase prolonged so WarpStarfield is visible for ~4.7 s.
+ */
+const CINEMATIC_SPEED = 0.135
+
+/**
+ * Speed for the Blackhole reset cinematic (enter blackhole → Sun).
+ * 0.5 → total duration ~2 s (dive ~0.9s, consume ~0.74s, reappear ~0.36s).
+ */
+const RESET_CINEMATIC_SPEED = 0.5
+
+// Reset cinematic phase boundaries [0..1]
+const RESET_DIVE_END    = 0.45   // dive: camera push toward blackhole
+const RESET_CONSUME_END  = 0.82   // consume: dark hold; reappear: intro sweep to Sun + fade out
+// Reappear: same duration as intro sweep (INTRO_DURATION)
+const RESET_REAPPEAR_SPEED = (1 - RESET_CONSUME_END) / INTRO_DURATION
+
+// Sub-phase boundaries for the cinematic transition [0..1]
+const CINEMATIC_DEPARTURE_END = 0.12  // 0.00 → 0.12  (~0.9s) — short turn to void
+const CINEMATIC_WARP_END      = 0.76  // 0.12 → 0.76  (~4.7s)
+// reveal: 0.76 → 1.00                               (~1.8s) — long deceleration
 
 // ── Easing ────────────────────────────────────────────────────────────────────
 
@@ -83,6 +113,14 @@ function easeInOutCubic(t: number): number {
   return t < 0.5
     ? 4 * t * t * t
     : 1 - Math.pow(-2 * t + 2, 3) / 2
+}
+
+function easeInCubic(t: number): number {
+  return t * t * t
+}
+
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3)
 }
 
 // ── Phase identifier (exported for debug HUD) ─────────────────────────────────
@@ -107,6 +145,12 @@ export type CameraPhaseId =
   | 'uranus-hold'
   | 'blackhole-approach'
   | 'blackhole-hold'
+  | 'blackhole-cinematic-departure'
+  | 'blackhole-cinematic-warp'
+  | 'blackhole-cinematic-reveal'
+  | 'blackhole-reset-dive'
+  | 'blackhole-reset-consume'
+  | 'blackhole-reset-reappear'
   | 'reset-loop'
   | 'transit'
 
@@ -180,13 +224,31 @@ export interface CameraRigProps extends CameraRigShotProps {
   /** True while the reset loop (blackhole → sun) is executing */
   discreteIsResetting?:      boolean
   discreteTransitionTRef?:   RefObject<number>
+  /** Ref — read to consider transition active same-frame (avoids 1–2 frame delay until state updates) */
+  discreteIsTransitioningRef?: RefObject<boolean>
+  /** Ref — target shot during transition when state has not updated yet */
+  discreteTargetShotIdRef?:   RefObject<DiscreteShotId | null>
+  /** Ref — current shot during transition when state has not updated yet */
+  discreteCurrentShotIdRef?:  RefObject<DiscreteShotId>
   onDiscreteTransitionComplete?: () => void
+  // Blackhole cinematic transition
+  isBlackholeCinematic?:            boolean
+  /** Ref — read same-frame so the cinematic branch runs on the first frame (avoids 1-frame lag) */
+  isBlackholeCinematicRef?:         RefObject<boolean>
+  blackholeCinematicTRef?:          RefObject<number>
+  onBlackholeCinematicComplete?:    () => void
+  onBlackholeCinematicPhaseChange?: (phase: BlackholeCinematicPhase) => void
+  // Blackhole reset cinematic (enter blackhole → then Sun)
+  isBlackholeResetting?:            boolean
+  blackholeResetTRef?:              RefObject<number>
+  onBlackholeResetComplete?:        () => void
+  onBlackholeResetPhaseChange?:     (phase: BlackholeResetPhase) => void
 }
 
 // ── Helper: get shot pose vectors from SHOT_MAP ───────────────────────────────
 
 function getShotPose(id: DiscreteShotId): { cam: THREE.Vector3; look: THREE.Vector3 } {
-  const shot = SHOT_MAP.get(id as import('./shotConfig').ShotId)
+  const shot = SHOT_MAP.get(id as ShotId)
   if (!shot) {
     if (import.meta.env.DEV) {
       console.error(`[CameraRig] getShotPose: no shot found for id="${id}". SHOT_MAP keys:`, [...SHOT_MAP.keys()])
@@ -220,7 +282,21 @@ export function CameraRig({
   discreteIsTransitioning  = false,
   discreteIsResetting      = false,
   discreteTransitionTRef,
+  discreteIsTransitioningRef,
+  discreteTargetShotIdRef,
+  discreteCurrentShotIdRef,
   onDiscreteTransitionComplete,
+  // Blackhole cinematic
+  isBlackholeCinematic             = false,
+  isBlackholeCinematicRef,
+  blackholeCinematicTRef,
+  onBlackholeCinematicComplete,
+  onBlackholeCinematicPhaseChange,
+  // Blackhole reset cinematic
+  isBlackholeResetting             = false,
+  blackholeResetTRef,
+  onBlackholeResetComplete,
+  onBlackholeResetPhaseChange,
 }: CameraRigProps) {
   const sunNode        = createFocusNodeById('sun')
   const desiredPos     = useRef(sunNode.camera.clone())
@@ -229,6 +305,21 @@ export function CameraRig({
   const mountTimeRef   = useRef<number | null>(null)
   const lastPhaseRef   = useRef<CameraPhaseId>('intro')
   const lastShotPhaseRef = useRef<ShotPhaseId>('sun')
+
+  // Cinematic: track last reported phase to avoid redundant setState calls
+  const lastCinematicPhaseRef = useRef<BlackholeCinematicPhase>('departure')
+
+  // Cinematic refs — computed once at the start of each cinematic run (raw === 0).
+  // voidLook: where the camera looks during departure (left + deep void).
+  // warpDir:  unit vector from Uranus cam toward Blackhole cam (straight-line travel).
+  // warpEndPos / warpEndLook: camera state at the moment warp ends (start of reveal).
+  const voidLookRef    = useRef(new THREE.Vector3())
+  const warpDirRef     = useRef(new THREE.Vector3())
+  const warpEndPosRef  = useRef(new THREE.Vector3())
+  const warpEndLookRef = useRef(new THREE.Vector3())
+
+  // Reset cinematic: track last reported phase to avoid redundant setState
+  const lastResetPhaseRef = useRef<BlackholeResetPhase>('dive')
 
   // Cached shot poses (computed once, stable across frames)
   const sunPose       = getShotPose('sun')
@@ -265,6 +356,7 @@ export function CameraRig({
     //
     // Exceptions: the Sun intro sweep still uses introT (preserved verbatim).
 
+    const inBlackholeCinematic = isBlackholeCinematic || isBlackholeCinematicRef?.current === true
     const isOnDiscretePath =
       discreteCurrentShotId === 'sun'       ||
       discreteCurrentShotId === 'mercury'   ||
@@ -276,24 +368,248 @@ export function CameraRig({
       discreteCurrentShotId === 'uranus'    ||
       discreteCurrentShotId === 'blackhole' ||
       discreteIsTransitioning               ||
-      discreteIsResetting
+      discreteIsResetting                   ||
+      inBlackholeCinematic                 ||
+      isBlackholeResetting
 
     if (isOnDiscretePath) {
 
       let posDamp = DAMP_HOLD
 
-      if (discreteIsTransitioning && discreteTransitionTRef) {
-        // Advance transitionT — use a slower speed for the Neptune↔Uranus arc
-        // because it has the largest lateral displacement (~33u in X).
-        const isNeptuneUranus =
-          (discreteCurrentShotId === 'neptune' && discreteTargetShotId === 'uranus') ||
-          (discreteCurrentShotId === 'uranus'  && discreteTargetShotId === 'neptune')
-        const speed = isNeptuneUranus ? TRANSITION_SPEED_NEPTUNE_URANUS : TRANSITION_SPEED
+      // ── Blackhole cinematic transition (Uranus → Blackhole) ───────────────
+      //
+      // Three narrative phases:
+      //   A) departure (0.00→0.20): camera stays near Uranus, lookAt rotates LEFT
+      //      toward the void — the "turn away" moment.
+      //   B) warp     (0.20→0.85): camera accelerates in a straight line toward
+      //      Blackhole, lookAt tracks the travel direction (not BH yet).
+      //      Overlay shows speed-of-light streaks.
+      //   C) reveal   (0.85→1.00): camera decelerates into the exact blackholePose.
+      //      Streaks fade, Blackhole appears.
+      if (inBlackholeCinematic && blackholeCinematicTRef) {
+        // Advance cinematic T
+        const raw  = blackholeCinematicTRef.current
+        const next = Math.min(1, raw + delta * CINEMATIC_SPEED)
+        blackholeCinematicTRef.current = next
+
+        // ── One-time setup at the very first frame (raw === 0) ────────────
+        if (raw === 0) {
+          // voidLook: far LEFT and DEEP so Uranus is fully off-frame by end of departure.
+          // Uranus at [22, -1, -328]; cam at [16, -1, -319.5]. Aggressive offset so
+          // the camera looks at empty void with no planet in view.
+          voidLookRef.current
+            .copy(uranusPose.cam)
+            .add(new THREE.Vector3(-50, 0, -70))
+
+          // warpDir: normalised direction from Uranus cam to Blackhole cam.
+          // The camera travels along this axis during warp.
+          warpDirRef.current
+            .subVectors(blackholePose.cam, uranusPose.cam)
+            .normalize()
+        }
+
+        let cinPhase: BlackholeCinematicPhase
+        let camPos: THREE.Vector3
+        let lookPos: THREE.Vector3
+
+        if (next < CINEMATIC_DEPARTURE_END) {
+          // ── Phase A — Departure ──────────────────────────────────────────
+          // Position: nearly static at Uranus cam (very slight forward drift).
+          // LookAt: rotates from uranusPose.look → voidLook (easeInOutCubic).
+          cinPhase = 'departure'
+          const localT = easeInOutCubic(next / CINEMATIC_DEPARTURE_END)
+
+          // Tiny forward nudge so the camera doesn't feel completely frozen
+          const nudge = localT * 1.5
+          camPos = new THREE.Vector3()
+            .copy(uranusPose.cam)
+            .addScaledVector(warpDirRef.current, nudge)
+
+          lookPos = new THREE.Vector3().lerpVectors(
+            uranusPose.look,
+            voidLookRef.current,
+            localT,
+          )
+
+        } else if (next < CINEMATIC_WARP_END) {
+          // ── Phase B — Warp ───────────────────────────────────────────────
+          // Position: straight-line travel from Uranus cam toward Blackhole cam.
+          //   Uses easeInCubic so the camera accelerates hard at the start.
+          // LookAt: always points ahead along the travel direction (not at BH).
+          //   This keeps the "tunnel" feel — the destination is not yet revealed.
+          cinPhase = 'warp'
+          const warpLocalT = (next - CINEMATIC_DEPARTURE_END) /
+                             (CINEMATIC_WARP_END - CINEMATIC_DEPARTURE_END)
+          const easedT = easeInCubic(warpLocalT)
+
+          // Travel only 30% of the distance during warp; the remaining 70% is for reveal.
+          // This keeps the Blackhole far away during warp (not yet visible) and
+          // gives the reveal phase a long deceleration arc — the camera rushes in
+          // from far away and brakes dramatically into the final shot.
+          const totalDist = uranusPose.cam.distanceTo(blackholePose.cam)
+          const travelDist = totalDist * 0.30 * easedT
+
+          camPos = new THREE.Vector3()
+            .copy(uranusPose.cam)
+            .addScaledVector(warpDirRef.current, travelDist)
+
+          // LookAt: current position + warpDir × 50u (far ahead in the tunnel)
+          lookPos = new THREE.Vector3()
+            .copy(camPos)
+            .addScaledVector(warpDirRef.current, 50)
+
+          // Store warp-end state so reveal can start from here seamlessly
+          warpEndPosRef.current.copy(camPos)
+          warpEndLookRef.current.copy(lookPos)
+
+        } else {
+          // ── Phase C — Reveal ─────────────────────────────────────────────
+          // Position: lerp from warpEndPos → exact blackholePose.cam (easeOutCubic).
+          // LookAt: lerp from warpEndLook → blackholePose.look (easeOutCubic).
+          // The camera decelerates dramatically as Blackhole fills the frame.
+          cinPhase = 'reveal'
+          const revLocalT = (next - CINEMATIC_WARP_END) / (1.0 - CINEMATIC_WARP_END)
+          const easedT = easeOutCubic(revLocalT)
+
+          camPos = new THREE.Vector3().lerpVectors(
+            warpEndPosRef.current,
+            blackholePose.cam,
+            easedT,
+          )
+          lookPos = new THREE.Vector3().lerpVectors(
+            warpEndLookRef.current,
+            blackholePose.look,
+            easedT,
+          )
+        }
+
+        // Apply camera directly — no damp lag during cinematic
+        cam.position.copy(camPos)
+        lookAtSmoothed.current.copy(lookPos)
+        cam.lookAt(lookAtSmoothed.current)
+
+        // Keep desiredPos/desiredLat in sync for the hold phase that follows
+        desiredPos.current.copy(cam.position)
+        desiredLat.current.copy(lookAtSmoothed.current)
+
+        // Report phase change to React (for HUD) — only when phase changes
+        if (cinPhase !== lastCinematicPhaseRef.current) {
+          lastCinematicPhaseRef.current = cinPhase
+          onBlackholeCinematicPhaseChange?.(cinPhase)
+        }
+
+        // Debug phase label
+        if (import.meta.env.DEV && onPhaseChange) {
+          const phaseId: CameraPhaseId =
+            cinPhase === 'departure' ? 'blackhole-cinematic-departure' :
+            cinPhase === 'warp'      ? 'blackhole-cinematic-warp'      :
+                                       'blackhole-cinematic-reveal'
+          if (phaseId !== lastPhaseRef.current) { lastPhaseRef.current = phaseId; onPhaseChange(phaseId) }
+        }
+        if (import.meta.env.DEV && onShotPhaseChange) {
+          const sp: ShotPhaseId = 'transition'
+          if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+        }
+
+        // Complete
+        if (next >= 1) {
+          onBlackholeCinematicComplete?.()
+        }
+
+        return  // camera already applied — skip rest
+      }
+
+      // ── Blackhole reset cinematic (Blackhole hold → enter simulation → Sun) ─
+      // dive: camera pushes toward blackhole center; consume: dark hold; reappear: cut to Sun, overlay fades.
+      if (isBlackholeResetting && blackholeResetTRef) {
+        const raw  = blackholeResetTRef.current
+        const speed = raw < RESET_CONSUME_END ? RESET_CINEMATIC_SPEED : RESET_REAPPEAR_SPEED
+        const next = Math.min(1, raw + delta * speed)
+        blackholeResetTRef.current = next
+
+        let resetPhase: BlackholeResetPhase
+        let camPos: THREE.Vector3
+        let lookPos: THREE.Vector3
+
+        if (next < RESET_DIVE_END) {
+          // ── Dive: camera moves from blackhole hold pose toward blackhole center ─
+          resetPhase = 'dive'
+          const localT = easeInCubic(next / RESET_DIVE_END)
+          // Move position 95% of the way toward lookAt so the sphere dominates the frame
+          camPos = new THREE.Vector3().lerpVectors(
+            blackholePose.cam,
+            blackholePose.look,
+            0.95 * localT,
+          )
+          lookPos = blackholePose.look.clone()
+
+        } else if (next < RESET_CONSUME_END) {
+          // ── Consume: hold at extreme close, black sphere fills frame ─
+          resetPhase = 'consume'
+          camPos = new THREE.Vector3().lerpVectors(
+            blackholePose.cam,
+            blackholePose.look,
+            0.95,
+          )
+          lookPos = blackholePose.look.clone()
+
+        } else {
+          // ── Reappear: same intro sweep (INTRO_START → sun hold); overlay fades out ─
+          resetPhase = 'reappear'
+          const localT = (next - RESET_CONSUME_END) / (1 - RESET_CONSUME_END)
+          const reintroT = THREE.MathUtils.clamp(
+            THREE.MathUtils.smootherstep(localT, 0, 1),
+            0,
+            1,
+          )
+          camPos = new THREE.Vector3().lerpVectors(INTRO_START, sunPose.cam, reintroT)
+          lookPos = sunPose.look.clone()
+        }
+
+        cam.position.copy(camPos)
+        lookAtSmoothed.current.copy(lookPos)
+        cam.lookAt(lookAtSmoothed.current)
+        desiredPos.current.copy(cam.position)
+        desiredLat.current.copy(lookAtSmoothed.current)
+
+        if (resetPhase !== lastResetPhaseRef.current) {
+          lastResetPhaseRef.current = resetPhase
+          onBlackholeResetPhaseChange?.(resetPhase)
+        }
+        if (import.meta.env.DEV && onPhaseChange) {
+          const phaseId: CameraPhaseId =
+            resetPhase === 'dive'     ? 'blackhole-reset-dive'     :
+            resetPhase === 'consume'  ? 'blackhole-reset-consume'  :
+                                        'blackhole-reset-reappear'
+          if (phaseId !== lastPhaseRef.current) { lastPhaseRef.current = phaseId; onPhaseChange(phaseId) }
+        }
+        if (import.meta.env.DEV && onShotPhaseChange) {
+          const sp: ShotPhaseId = 'transition'
+          if (sp !== lastShotPhaseRef.current) { lastShotPhaseRef.current = sp; onShotPhaseChange(sp) }
+        }
+
+        if (next >= 1) {
+          onBlackholeResetComplete?.()
+        }
+
+        return
+      }
+
+      const effectiveTransitioning = discreteIsTransitioning || discreteIsTransitioningRef?.current
+      const effectiveTarget = discreteTargetShotId ?? discreteTargetShotIdRef?.current ?? null
+      const effectiveCurrent = discreteCurrentShotId ?? discreteCurrentShotIdRef?.current ?? discreteCurrentShotId
+      // Do not run normal transition when blackhole cinematic is active (ref set); avoids completing Uranus→Blackhole in one frame.
+      if (effectiveTransitioning && !inBlackholeCinematic && discreteTransitionTRef && effectiveTarget !== null) {
+        // Advance transitionT — same speed for all except Venus↔Earth (arc).
+        const isVenusEarth =
+          (effectiveCurrent === 'venus' && effectiveTarget === 'earth') ||
+          (effectiveCurrent === 'earth' && effectiveTarget === 'venus')
+        const speed = isVenusEarth ? TRANSITION_SPEED_VENUS_EARTH : TRANSITION_SPEED
         const raw = discreteTransitionTRef.current
         const next = Math.min(1, raw + delta * speed)
         discreteTransitionTRef.current = next
         
-        // Eased t — drives the lerp directly, no additional damp lag.
+        // Eased t — same curve for all transitions (including Neptune↔Uranus).
         const t = easeInOutCubic(next)
 
         // Resolve FROM and TO poses based on the transition direction.
@@ -303,13 +619,13 @@ export function CameraRig({
         let fromLook: THREE.Vector3
         let toLook:   THREE.Vector3
 
-        if (discreteTargetShotId === 'blackhole') {
+        if (effectiveTarget === 'blackhole') {
           // uranus → blackhole
           fromCam  = uranusPose.cam;    toCam  = blackholePose.cam
           fromLook = uranusPose.look;   toLook = blackholePose.look
-        } else if (discreteTargetShotId === 'uranus') {
+        } else if (effectiveTarget === 'uranus') {
           // neptune → uranus  OR  blackhole → uranus
-          if (discreteCurrentShotId === 'blackhole') {
+          if (effectiveCurrent === 'blackhole') {
             fromCam  = blackholePose.cam;  toCam  = uranusPose.cam
             fromLook = blackholePose.look; toLook = uranusPose.look
           } else {
@@ -317,9 +633,9 @@ export function CameraRig({
             fromCam  = neptunePose.cam;  toCam  = uranusPose.cam
             fromLook = neptunePose.look; toLook = uranusPose.look
           }
-        } else if (discreteTargetShotId === 'neptune') {
+        } else if (effectiveTarget === 'neptune') {
           // mars → neptune  OR  uranus → neptune
-          if (discreteCurrentShotId === 'uranus') {
+          if (effectiveCurrent === 'uranus') {
             fromCam  = uranusPose.cam;  toCam  = neptunePose.cam
             fromLook = uranusPose.look; toLook = neptunePose.look
           } else {
@@ -327,9 +643,9 @@ export function CameraRig({
             fromCam  = marsPose.cam;  toCam  = neptunePose.cam
             fromLook = marsPose.look; toLook = neptunePose.look
           }
-        } else if (discreteTargetShotId === 'mars') {
+        } else if (effectiveTarget === 'mars') {
           // moon → mars  OR  neptune → mars
-          if (discreteCurrentShotId === 'neptune') {
+          if (effectiveCurrent === 'neptune') {
             fromCam  = neptunePose.cam;  toCam  = marsPose.cam
             fromLook = neptunePose.look; toLook = marsPose.look
           } else {
@@ -337,9 +653,9 @@ export function CameraRig({
             fromCam  = moonPose.cam;  toCam  = marsPose.cam
             fromLook = moonPose.look; toLook = marsPose.look
           }
-        } else if (discreteTargetShotId === 'moon') {
+        } else if (effectiveTarget === 'moon') {
           // earth → moon  OR  mars → moon
-          if (discreteCurrentShotId === 'mars') {
+          if (effectiveCurrent === 'mars') {
             fromCam  = marsPose.cam;  toCam  = moonPose.cam
             fromLook = marsPose.look; toLook = moonPose.look
           } else {
@@ -347,9 +663,9 @@ export function CameraRig({
             fromCam  = earthPose.cam;  toCam  = moonPose.cam
             fromLook = earthPose.look; toLook = moonPose.look
           }
-        } else if (discreteTargetShotId === 'earth') {
+        } else if (effectiveTarget === 'earth') {
           // venus → earth  OR  moon → earth
-          if (discreteCurrentShotId === 'moon') {
+          if (effectiveCurrent === 'moon') {
             fromCam  = moonPose.cam;  toCam  = earthPose.cam
             fromLook = moonPose.look; toLook = earthPose.look
           } else {
@@ -357,9 +673,9 @@ export function CameraRig({
             fromCam  = venusPose.cam;  toCam  = earthPose.cam
             fromLook = venusPose.look; toLook = earthPose.look
           }
-        } else if (discreteTargetShotId === 'venus') {
+        } else if (effectiveTarget === 'venus') {
           // mercury → venus  OR  earth → venus
-          if (discreteCurrentShotId === 'earth') {
+          if (effectiveCurrent === 'earth') {
             fromCam  = earthPose.cam;  toCam  = venusPose.cam
             fromLook = earthPose.look; toLook = venusPose.look
           } else {
@@ -367,7 +683,7 @@ export function CameraRig({
             fromCam  = mercPose.cam;  toCam  = venusPose.cam
             fromLook = mercPose.look; toLook = venusPose.look
           }
-        } else if (discreteTargetShotId === 'mercury') {
+        } else if (effectiveTarget === 'mercury') {
           // sun → mercury  OR  venus → mercury
           if (discreteCurrentShotId === 'venus') {
             fromCam  = venusPose.cam;  toCam  = mercPose.cam
@@ -377,20 +693,34 @@ export function CameraRig({
             fromCam  = sunPose.cam;  toCam  = mercPose.cam
             fromLook = sunPose.look; toLook = mercPose.look
           }
-        } else if (discreteTargetShotId === 'sun' || discreteIsResetting) {
+        } else if (effectiveTarget === 'sun' && effectiveCurrent === 'mercury' && !discreteIsResetting) {
+          // mercury → sun (inverse of sun → mercury)
+          fromCam  = mercPose.cam;  toCam  = sunPose.cam
+          fromLook = mercPose.look; toLook = sunPose.look
+        } else if (effectiveTarget === 'sun' || discreteIsResetting) {
           // reset loop: blackhole → sun
           fromCam  = blackholePose.cam;  toCam  = sunPose.cam
           fromLook = blackholePose.look; toLook = sunPose.look
         } else {
-          // mercury → sun  OR  fallback
+          // fallback (e.g. mercury → sun if logic ever diverges)
           fromCam  = mercPose.cam;  toCam  = sunPose.cam
           fromLook = mercPose.look; toLook = sunPose.look
+        }
+
+        // Venus ↔ Earth: arc around Venus instead of passing through it.
+        if (isVenusEarth) {
+          const curve =
+            effectiveTarget === 'earth'
+              ? new THREE.QuadraticBezierCurve3(venusPose.cam, VENUS_EARTH_ARC_WAYPOINT, earthPose.cam)
+              : new THREE.QuadraticBezierCurve3(earthPose.cam, VENUS_EARTH_ARC_WAYPOINT, venusPose.cam)
+          cam.position.copy(curve.getPoint(t))
+        } else {
+          cam.position.lerpVectors(fromCam, toCam, t)
         }
 
         // Direct assignment — easeInOutCubic already provides smooth motion.
         // No damp here: damp would lag behind and leave the camera off-pose
         // after the transition ends.
-        cam.position.lerpVectors(fromCam, toCam, t)
         lookAtSmoothed.current.lerpVectors(fromLook, toLook, t)
         cam.lookAt(lookAtSmoothed.current)
 
@@ -409,13 +739,13 @@ export function CameraRig({
           if (onPhaseChange) {
             const id: CameraPhaseId =
               discreteIsResetting                    ? 'reset-loop'         :
-              discreteTargetShotId === 'blackhole'   ? 'blackhole-approach' :
-              discreteTargetShotId === 'uranus'      ? 'uranus-approach'    :
-              discreteTargetShotId === 'neptune'     ? 'neptune-approach'   :
-              discreteTargetShotId === 'mars'        ? 'mars-approach'      :
-              discreteTargetShotId === 'moon'        ? 'moon-approach'      :
-              discreteTargetShotId === 'earth'       ? 'earth-approach'     :
-              discreteTargetShotId === 'venus'       ? 'venus-approach'     :
+              effectiveTarget === 'blackhole'   ? 'blackhole-approach' :
+              effectiveTarget === 'uranus'      ? 'uranus-approach'    :
+              effectiveTarget === 'neptune'     ? 'neptune-approach'   :
+              effectiveTarget === 'mars'        ? 'mars-approach'      :
+              effectiveTarget === 'moon'        ? 'moon-approach'      :
+              effectiveTarget === 'earth'       ? 'earth-approach'     :
+              effectiveTarget === 'venus'       ? 'venus-approach'     :
               'mercury-approach'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
           }

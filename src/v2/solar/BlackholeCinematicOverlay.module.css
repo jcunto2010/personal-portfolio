@@ -1,0 +1,64 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Blackhole Cinematic Overlay — tunnel vignette only.
+   The hyperspace star effect is now handled by WarpStarfield (InstancedMesh
+   inside the Canvas). This file only provides the edge vignette that gives
+   the "flying through a tube" feel during the warp phase.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9000;
+  background: transparent;
+}
+
+/* ── Tunnel vignette + core glow ──
+   Darkens the edges of the screen during warp to simulate a tunnel.
+   A faint blue glow at the center reinforces the hyperspace feel.        */
+.tunnel {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 25% 25% at 50% 50%,
+      rgba(160, 200, 255, 0.12) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 80% 80% at 50% 50%,
+      transparent 0%,
+      transparent 30%,
+      rgba(0, 0, 10, 0.55) 60%,
+      rgba(0, 0, 18, 0.97) 100%
+    );
+  opacity: var(--tunnel-opacity, 0);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* Reset cinematic: full-screen darkening (absorbed-by-blackhole feel) */
+.resetDark {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.92) 60%,
+    rgba(0, 0, 0, 0.98) 100%
+  );
+  opacity: var(--reset-dark-opacity, 0);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+/* Reset cinematic: white flash at start of reappear (exit tunnel feel) */
+.resetFlash {
+  position: absolute;
+  inset: 0;
+  background: #fffaf5;
+  opacity: var(--reset-flash-opacity, 0);
+  pointer-events: none;
+  will-change: opacity;
+}

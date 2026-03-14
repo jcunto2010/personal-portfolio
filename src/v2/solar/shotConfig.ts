@@ -101,7 +101,7 @@ const SUN_SHOT: ShotConfig = {
   exitStart:            0.12,  // same as departStart
   cameraPosition: [4.0, 0.5,  4.5],  // sun.position + cameraOffset{X,Y,Z}
   lookAt:         [3.5, 0.0,  0.0],  // sun.position + lookAtOffset{X,Y,Z}
-  introStart:     [18,  14,  22],    // INTRO_START from CameraRig.tsx — DO NOT CHANGE
+  introStart:     [36,  28,  44],    // INTRO_START from CameraRig.tsx — DO NOT CHANGE
 }
 
 // ── Mercury shot ──────────────────────────────────────────────────────────────

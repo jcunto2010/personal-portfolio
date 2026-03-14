@@ -49,6 +49,12 @@ import type { RefObject } from 'react'
 export type DiscreteShotId = 'sun' | 'mercury' | 'venus' | 'earth' | 'moon' | 'mars' | 'neptune' | 'uranus' | 'blackhole'
 export type TransitionDirection = 'forward' | 'backward'
 
+/** Sub-phases of the Uranus → Blackhole cinematic transition */
+export type BlackholeCinematicPhase = 'departure' | 'warp' | 'reveal'
+
+/** Sub-phases of the Blackhole reset cinematic (enter blackhole → then reset to Sun). */
+export type BlackholeResetPhase = 'dive' | 'consume' | 'reappear'
+
 export interface DiscreteShotState {
   currentShotId:       DiscreteShotId
   targetShotId:        DiscreteShotId | null
@@ -59,8 +65,40 @@ export interface DiscreteShotState {
   wheelIntent:         number   // live accumulator value, for debug HUD
   /** Mutable ref — CameraRig reads this every frame and advances it */
   transitionTRef:      RefObject<number>
+  /** Ref — CameraRig can read this to consider transition active same-frame (avoids 1–2 frame delay) */
+  isTransitioningRef?: RefObject<boolean>
+  /** Ref — target shot during transition; use when state has not updated yet */
+  targetShotIdRef?:   RefObject<DiscreteShotId | null>
+  /** Ref — current shot during transition; use when state has not updated yet */
+  currentShotIdRef?:  RefObject<DiscreteShotId>
   /** Called by CameraRig when transitionT reaches 1 */
   onTransitionComplete: () => void
+
+  // ── Blackhole cinematic transition (Uranus → Blackhole only) ──────────────
+  /** True while the special cinematic Uranus → Blackhole transition is active */
+  isBlackholeCinematic:     boolean
+  /** Ref — CameraRig can read this same-frame so the cinematic branch runs on the first frame */
+  isBlackholeCinematicRef?: RefObject<boolean>
+  /** Current sub-phase of the cinematic transition */
+  blackholeCinematicPhase:  BlackholeCinematicPhase
+  /** Mutable ref [0..1] — CameraRig advances this each frame during cinematic */
+  blackholeCinematicTRef:   RefObject<number>
+  /** Called by CameraRig when the cinematic transition completes */
+  onBlackholeCinematicComplete: () => void
+  /** Called by CameraRig each frame to update the phase label (React state, for HUD) */
+  onBlackholeCinematicPhaseChange: (phase: BlackholeCinematicPhase) => void
+
+  // ── Blackhole reset cinematic (Blackhole hold → enter simulation → Sun) ─────
+  /** True while the "enter blackhole" reset cinematic is running */
+  isBlackholeResetting:     boolean
+  /** Current sub-phase: dive (camera push in), consume (dark hold), reappear (cut to Sun). */
+  blackholeResetPhase:      BlackholeResetPhase
+  /** Mutable ref [0..1] — CameraRig advances this each frame during reset cinematic */
+  blackholeResetTRef:       RefObject<number>
+  /** Called by CameraRig when the reset cinematic completes; then currentShotId = 'sun'. */
+  onBlackholeResetComplete: () => void
+  /** Called by CameraRig each frame to update the phase label (React state, for HUD). */
+  onBlackholeResetPhaseChange: (phase: BlackholeResetPhase) => void
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -114,6 +152,17 @@ export function useDiscreteShotNavigation(
   const [transitionDir,   setTransitionDir]    = useState<TransitionDirection | null>(null)
   const [wheelIntent,     setWheelIntent]      = useState(0)
 
+  // ── Blackhole cinematic state ─────────────────────────────────────────────
+  const [isBlackholeCinematic,    setIsBlackholeCinematic]    = useState(false)
+  const [blackholeCinematicPhase, setBlackholeCinematicPhase] = useState<BlackholeCinematicPhase>('departure')
+  const blackholeCinematicTRef    = useRef<number>(0)
+  const isBlackholeCinematicRef   = useRef(false)
+
+  // ── Blackhole reset cinematic state ──────────────────────────────────────
+  const [isBlackholeResetting,    setIsBlackholeResetting]    = useState(false)
+  const [blackholeResetPhase,     setBlackholeResetPhase]     = useState<BlackholeResetPhase>('dive')
+  const blackholeResetTRef        = useRef<number>(0)
+
   // Mutable refs — CameraRig reads transitionT every frame without re-renders
   const transitionTRef       = useRef<number>(0)
   const isTransitioningRef   = useRef(false)
@@ -138,21 +187,79 @@ export function useDiscreteShotNavigation(
   }, [])
 
   /**
-   * Reset loop: transition from blackhole back to sun.
-   * Uses the same transitionT mechanism but sets isResetting=true so
-   * CameraRig can distinguish a reset from a normal backward transition.
+   * Cinematic Uranus → Blackhole transition.
+   * Sets isBlackholeCinematic=true and locks input via isTransitioningRef.
+   * CameraRig drives blackholeCinematicTRef [0..1] and calls onBlackholeCinematicComplete.
    */
-  const startResetLoop = useCallback(() => {
-    transitionTRef.current = 0
-    isTransitioningRef.current = true
-    isResettingRef.current = true
-    currentShotIdRef.current = 'blackhole'
-    targetShotIdRef.current = 'sun'
+  const startBlackholeCinematic = useCallback(() => {
+    blackholeCinematicTRef.current = 0
+    transitionTRef.current = 0       // prevent normal-transition block from completing in one frame
+    isBlackholeCinematicRef.current = true
+    isTransitioningRef.current = true   // blocks wheel input
+    currentShotIdRef.current = 'uranus'
+    targetShotIdRef.current = 'blackhole'
 
-    setTargetShotId('sun')
-    setTransitionDir('backward')
+    setIsBlackholeCinematic(true)
+    setBlackholeCinematicPhase('departure')
+    setTargetShotId('blackhole')
+    setTransitionDir('forward')
     setIsTransitioning(true)
-    setIsResetting(true)
+  }, [])
+
+  const onBlackholeCinematicComplete = useCallback(() => {
+    isBlackholeCinematicRef.current = false
+    isTransitioningRef.current = false
+    blackholeCinematicTRef.current = 1
+    currentShotIdRef.current = 'blackhole'
+    targetShotIdRef.current = null
+
+    setIsBlackholeCinematic(false)
+    setBlackholeCinematicPhase('departure')
+    setCurrentShotId('blackhole')
+    setTargetShotId(null)
+    setIsTransitioning(false)
+    setTransitionDir(null)
+  }, [])
+
+  // Expose a setter so CameraRig can update the phase label reactively
+  const updateBlackholeCinematicPhase = useCallback((phase: BlackholeCinematicPhase) => {
+    setBlackholeCinematicPhase(phase)
+  }, [])
+
+  /**
+   * Blackhole reset cinematic: enter-blackhole simulation, then reset to Sun.
+   * Triggered from blackhole shot on wheel down. Blocks input until complete.
+   * On complete, onBlackholeResetComplete sets currentShotId = 'sun' (no EntryGate, no audio/mode reset).
+   */
+  const startBlackholeResetCinematic = useCallback(() => {
+    blackholeResetTRef.current = 0
+    isTransitioningRef.current = true
+    currentShotIdRef.current = 'blackhole'
+    targetShotIdRef.current = null
+
+    setIsBlackholeResetting(true)
+    setBlackholeResetPhase('dive')
+    setTargetShotId(null)
+    setTransitionDir(null)
+    setIsTransitioning(true)
+  }, [])
+
+  const onBlackholeResetComplete = useCallback(() => {
+    isTransitioningRef.current = false
+    blackholeResetTRef.current = 1
+    currentShotIdRef.current = 'sun'
+    targetShotIdRef.current = null
+
+    setCurrentShotId('sun')
+    setTargetShotId(null)
+    setIsBlackholeResetting(false)
+    setBlackholeResetPhase('dive')
+    setIsTransitioning(false)
+    setTransitionDir(null)
+  }, [])
+
+  const updateBlackholeResetPhase = useCallback((phase: BlackholeResetPhase) => {
+    setBlackholeResetPhase(phase)
   }, [])
 
   const onTransitionComplete = useCallback(() => {
@@ -202,15 +309,20 @@ export function useDiscreteShotNavigation(
           intentAccRef.current = 0
           setWheelIntent(0)
           if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-          startTransition(curr, next)
+          // Special cinematic transition for Uranus → Blackhole
+          if (curr === 'uranus' && next === 'blackhole') {
+            startBlackholeCinematic()
+          } else {
+            startTransition(curr, next)
+          }
           return
         } else if (curr === 'blackhole') {
-          // No next shot from blackhole → trigger reset loop to Sun
+          // No next shot from blackhole → trigger enter-blackhole cinematic, then reset to Sun
           e.preventDefault()
           intentAccRef.current = 0
           setWheelIntent(0)
           if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-          startResetLoop()
+          startBlackholeResetCinematic()
           return
         }
       }
@@ -235,7 +347,7 @@ export function useDiscreteShotNavigation(
     // passive:false so we can call preventDefault during discrete transitions
     el.addEventListener('wheel', handleWheel, { passive: false })
     return () => el.removeEventListener('wheel', handleWheel)
-  }, [scrollContainerRef, startTransition, startResetLoop])
+  }, [scrollContainerRef, startTransition, startBlackholeResetCinematic, startBlackholeCinematic])
 
   return {
     currentShotId,
@@ -245,6 +357,22 @@ export function useDiscreteShotNavigation(
     transitionDirection: transitionDir,
     wheelIntent,
     transitionTRef,
+    isTransitioningRef,
+    targetShotIdRef,
+    currentShotIdRef,
     onTransitionComplete,
+    // Blackhole cinematic
+    isBlackholeCinematic,
+    isBlackholeCinematicRef,
+    blackholeCinematicPhase,
+    blackholeCinematicTRef,
+    onBlackholeCinematicComplete,
+    onBlackholeCinematicPhaseChange: updateBlackholeCinematicPhase,
+    // Blackhole reset cinematic
+    isBlackholeResetting,
+    blackholeResetPhase,
+    blackholeResetTRef,
+    onBlackholeResetComplete,
+    onBlackholeResetPhaseChange: updateBlackholeResetPhase,
   }
 }

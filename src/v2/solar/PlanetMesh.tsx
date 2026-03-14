@@ -36,19 +36,9 @@ interface FallbackSphereProps {
 
 function FallbackSphere({ radius, color, position, baseScale, hitRadius, onClick }: FallbackSphereProps) {
   const [hovered, setHovered] = useState(false)
-  const groupRef = useRef<THREE.Group>(null)
-  const currentScale = useRef(baseScale)
-
-  useFrame(() => {
-    if (!groupRef.current) return
-    const target = hovered ? baseScale * HOVER_SCALE_FACTOR : baseScale
-    currentScale.current = THREE.MathUtils.lerp(currentScale.current, target, LERP_SPEED)
-    groupRef.current.scale.setScalar(currentScale.current)
-  })
 
   return (
     <group
-      ref={groupRef}
       position={position}
       scale={baseScale}
       frustumCulled={false}
@@ -223,7 +213,7 @@ export function PlanetMesh({ config, activeGroups, onPlanetClick, onGlbLoaded }:
         normalizedRadiusTarget={config.normalizedRadiusTarget}
         hitRadius={hitRadius}
         rotationSpeed={config.rotationSpeed}
-        enableHoverScale={config.id !== 'sun'}
+        enableHoverScale={false}
         onClick={handleClick}
         onLoaded={onGlbLoaded}
       />

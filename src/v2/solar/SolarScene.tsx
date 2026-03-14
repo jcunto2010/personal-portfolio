@@ -18,8 +18,9 @@
  */
 
 import { Component, Suspense, useCallback, useEffect, useRef, useState } from 'react'
-import type { ReactNode } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { createPortal } from 'react-dom'
+import type { ReactNode, RefObject } from 'react'
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { useGLTF, useTexture } from '@react-three/drei'
@@ -33,9 +34,35 @@ import { useScrollProgress } from '../lib/useScrollProgress'
 import { useShotNavigation } from './useShotNavigation'
 import { useDiscreteShotNavigation } from './useDiscreteShotNavigation'
 import { DebugHUD } from './DebugHUD'
+import { BlackholeCinematicOverlay } from './BlackholeCinematicOverlay'
+import { WarpStarfield } from './WarpStarfield'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
 import { disableFrustumCulling } from './glbNormalization'
 import styles from './SolarScene.module.css'
+
+// ── Cinematic T reader — RAF-based ref→state bridge for DOM overlay ───────────
+//
+// Reads a mutable ref value each animation frame and exposes it as React state.
+// Only runs (and re-renders) while `active` is true, so it has zero cost at rest.
+
+function useCinematicT(ref: RefObject<number>, active: boolean): number {
+  const [t, setT] = useState(0)
+  useEffect(() => {
+    if (!active) {
+      // Reset via RAF to avoid synchronous setState in effect body
+      const id = requestAnimationFrame(() => setT(0))
+      return () => cancelAnimationFrame(id)
+    }
+    let rafId: number
+    const tick = () => {
+      setT(ref.current ?? 0)
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
+  }, [ref, active])
+  return t
+}
 
 // ── Debug / safe mode detection ───────────────────────────────────────────────
 
@@ -58,7 +85,7 @@ const FINALE_THRESHOLD     = 0.90
 const MID_LOAD_DELAY_MS    = 2000
 // Matches INTRO_START in CameraRig — CameraRig snaps to this on frame 1.
 // Matches INTRO_START in CameraRig.tsx — CameraRig snaps to this on frame 1.
-const INITIAL_CAMERA_POSITION: [number, number, number] = [18.0, 14.0, 22.0]
+const INITIAL_CAMERA_POSITION: [number, number, number] = [36.0, 28.0, 44.0]
 const SCROLL_TRAVEL_VH = 700
 
 // ── Stars background ───────────────────────────────────────────────────────────
@@ -82,13 +109,38 @@ function buildStarGeometry(): { positions: Float32Array; colors: Float32Array } 
 
 const STAR_GEOMETRY_DATA = buildStarGeometry()
 
+/** Canvas texture: soft circular point (radial gradient) so stars render as circles, not squares. */
+function createCirclePointTexture(): THREE.CanvasTexture {
+  const size = 64
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')!
+  const cx = size / 2
+  const cy = size / 2
+  const r = cx - 1
+  const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
+  gradient.addColorStop(0, 'rgba(255,255,255,1)')
+  gradient.addColorStop(0.4, 'rgba(255,255,255,0.9)')
+  gradient.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, size, size)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping
+  texture.minFilter = THREE.LinearFilter
+  texture.magFilter = THREE.LinearFilter
+  return texture
+}
+
+const CIRCLE_POINT_TEXTURE = createCirclePointTexture()
+
 function StarField() {
   const pointsRef = useRef<THREE.Points>(null)
   const { positions, colors } = STAR_GEOMETRY_DATA
 
   useFrame((_, delta) => {
     if (pointsRef.current) {
-      pointsRef.current.rotation.y += delta * 0.002
+      pointsRef.current.rotation.y += delta * 0.00015
     }
   })
 
@@ -98,7 +150,15 @@ function StarField() {
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         <bufferAttribute attach="attributes-color"    args={[colors, 3]} />
       </bufferGeometry>
-      <pointsMaterial size={0.15} vertexColors transparent opacity={0.85} sizeAttenuation />
+      <pointsMaterial
+        map={CIRCLE_POINT_TEXTURE}
+        size={0.15}
+        vertexColors
+        transparent
+        opacity={0.85}
+        sizeAttenuation
+        depthWrite={false}
+      />
     </points>
   )
 }
@@ -158,12 +218,24 @@ function UranusDoubleSidedPatch() {
 const URANUS_POS: [number, number, number] = [22, -1.0, -328]
 const URANUS_SPHERE_R = 4.0
 
+const URANUS_TEXTURE_URLS = [
+  '/assets/solar/textures/uranus/tex0.jpg',
+  '/assets/solar/textures/uranus/tex1.png',
+  '/assets/solar/textures/uranus/tex2.jpg',
+] as const
+
+/** Preloads Uranus textures (and GLB) when at Neptune so the first Neptune→Uranus transition is smooth. */
+function UranusTexturePreload({ active }: { active: boolean }) {
+  useEffect(() => {
+    if (!active) return
+    useLoader.preload(THREE.TextureLoader, [...URANUS_TEXTURE_URLS])
+    useGLTF.preload('/assets/solar/models/uranus.glb')
+  }, [active])
+  return null
+}
+
 function UranusTexturedInner({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
-  const [sphereMap, cloudsMap, cloudsNormal] = useTexture([
-    '/assets/solar/textures/uranus/tex0.jpg',
-    '/assets/solar/textures/uranus/tex1.png',
-    '/assets/solar/textures/uranus/tex2.jpg',
-  ])
+  const [sphereMap, cloudsMap, cloudsNormal] = useTexture([...URANUS_TEXTURE_URLS])
 
   if (!visible) return null
 
@@ -608,8 +680,28 @@ export function SolarScene({
     transitionDirection: discreteTransitionDir,
     wheelIntent:         discreteWheelIntent,
     transitionTRef:      discreteTransitionTRef,
+    isTransitioningRef:  discreteIsTransitioningRef,
+    targetShotIdRef:     discreteTargetShotIdRef,
+    currentShotIdRef:   discreteCurrentShotIdRef,
     onTransitionComplete: onDiscreteTransitionComplete,
+    // Blackhole cinematic (Uranus → Blackhole)
+    isBlackholeCinematic,
+    isBlackholeCinematicRef,
+    blackholeCinematicPhase,
+    blackholeCinematicTRef,
+    onBlackholeCinematicComplete,
+    onBlackholeCinematicPhaseChange,
+    // Blackhole reset cinematic (Blackhole → enter → Sun)
+    isBlackholeResetting,
+    blackholeResetPhase,
+    blackholeResetTRef,
+    onBlackholeResetComplete,
+    onBlackholeResetPhaseChange,
   } = useDiscreteShotNavigation(scrollContainerRef)
+
+  // Read cinematic T each frame for the DOM overlay (only active during cinematic)
+  const cinematicT = useCinematicT(blackholeCinematicTRef, isBlackholeCinematic)
+  const resetCinematicT = useCinematicT(blackholeResetTRef, isBlackholeResetting)
 
   // ── Discrete path: lock scroll container at scrollTop=0 ──────────────────────
   // The discrete system controls ALL shots (sun → uranus). While it is active,
@@ -648,17 +740,24 @@ export function SolarScene({
   // Blackhole: rendered via BlackholeGuaranteedMesh below, only when its shot is active.
   const RENDERED_PLANETS = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus')
 
-  // Blackhole is visible ONLY when it is the current or target shot.
-  // During the reset loop, discreteCurrentShotId is still 'blackhole' until
-  // the transition completes, so this condition covers that case too.
+  // Blackhole GLB visibility rules:
+  //   - Normal navigation: show when it is the current or target shot.
+  //   - During the Blackhole cinematic: the targetShotId is 'blackhole' from
+  //     the very first frame, so we MUST suppress the targetShotId condition
+  //     while the cinematic is running. The GLB is only activated once the
+  //     reveal phase is well underway (t > 0.90) so it never bleeds through
+  //     the fade-to-black overlay.
   const BLACKHOLE_VISIBLE =
-    discreteCurrentShotId === 'blackhole' ||
-    discreteTargetShotId   === 'blackhole'
+    (discreteCurrentShotId === 'blackhole' ||
+      (!isBlackholeCinematic && discreteTargetShotId === 'blackhole') ||
+      (isBlackholeCinematic && blackholeCinematicPhase === 'reveal' && cinematicT > 0.78)) &&
+    !(isBlackholeResetting && blackholeResetPhase === 'reappear')
 
   const URANUS_VISIBLE =
-    discreteCurrentShotId === 'uranus' ||
-    discreteTargetShotId   === 'uranus' ||
-    (discreteCurrentShotId === 'neptune' && discreteIsTransitioning)
+    !isBlackholeCinematic &&
+    (discreteCurrentShotId === 'uranus' ||
+      discreteTargetShotId   === 'uranus' ||
+      (discreteCurrentShotId === 'neptune' && discreteIsTransitioning))
 
   const [activePlanet, setActivePlanet] = useState<PlanetConfig | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
@@ -782,9 +881,31 @@ export function SolarScene({
                   discreteIsTransitioning={discreteIsTransitioning}
                   discreteIsResetting={discreteIsResetting}
                   discreteTransitionTRef={discreteTransitionTRef}
+                  discreteIsTransitioningRef={discreteIsTransitioningRef}
+                  discreteTargetShotIdRef={discreteTargetShotIdRef}
+                  discreteCurrentShotIdRef={discreteCurrentShotIdRef}
                   onDiscreteTransitionComplete={onDiscreteTransitionComplete}
+                  isBlackholeCinematic={isBlackholeCinematic}
+                  isBlackholeCinematicRef={isBlackholeCinematicRef}
+                  blackholeCinematicTRef={blackholeCinematicTRef}
+                  onBlackholeCinematicComplete={onBlackholeCinematicComplete}
+                  onBlackholeCinematicPhaseChange={onBlackholeCinematicPhaseChange}
+                  isBlackholeResetting={isBlackholeResetting}
+                  blackholeResetTRef={blackholeResetTRef}
+                  onBlackholeResetComplete={onBlackholeResetComplete}
+                  onBlackholeResetPhaseChange={onBlackholeResetPhaseChange}
                 />
               )}
+
+              {/* Warp starfield — InstancedMesh hyperspace effect (Uranus→Blackhole only) */}
+              <WarpStarfield
+                isBlackholeCinematic={isBlackholeCinematic}
+                blackholeCinematicTRef={blackholeCinematicTRef}
+                phase={blackholeCinematicPhase}
+                isBlackholeResetting={isBlackholeResetting}
+                blackholeResetTRef={blackholeResetTRef}
+                blackholeResetPhase={blackholeResetPhase}
+              />
 
               {/* Uranus material patch — forces doubleSided on all ring materials */}
               {!IS_SAFE && (
@@ -793,12 +914,18 @@ export function SolarScene({
                 </Suspense>
               )}
 
-              {/* Uranus guaranteed mesh — always visible, no GLB dependency */}
+              {/* Preload Uranus textures + GLB when at Neptune so first Neptune→Uranus transition is smooth */}
+              <UranusTexturePreload
+                active={discreteCurrentShotId === 'neptune' || discreteTargetShotId === 'uranus'}
+              />
+
+              {/* Uranus guaranteed mesh — hidden during blackhole cinematic so it never appears in frame */}
               <UranusGuaranteedMesh
                 visible={
-                  discreteCurrentShotId === 'uranus' ||
-                  discreteTargetShotId   === 'uranus' ||
-                  (discreteCurrentShotId === 'neptune' && discreteIsTransitioning)
+                  !isBlackholeCinematic &&
+                  (discreteCurrentShotId === 'uranus' ||
+                    discreteTargetShotId   === 'uranus' ||
+                    (discreteCurrentShotId === 'neptune' && discreteIsTransitioning))
                 }
                 onClick={() => {
                   const cfg = PLANET_REGISTRY.find((p) => p.id === 'uranus')
@@ -867,6 +994,41 @@ export function SolarScene({
                 </Suspense>
               ))}
             </Canvas>
+
+            {/* Cinematic fade-to-black — covers the 3D scene during departure only.
+                WarpStarfield is INSIDE the Canvas, so we must keep this overlay
+                transparent during warp (blackOpacity = 0) or the starfield is hidden.
+                departure: fades from 0→1 (scene darkens as camera turns away)
+                warp:      stays at 0 so Canvas (and WarpStarfield) is visible
+                reveal:    fades from 0→1→0 so Blackhole emerges from darkness */}
+            {isBlackholeCinematic && (() => {
+              let blackOpacity = 0
+              const t = cinematicT
+              if (blackholeCinematicPhase === 'departure') {
+                blackOpacity = t / 0.12
+              } else if (blackholeCinematicPhase === 'warp') {
+                blackOpacity = 0
+              } else {
+                // reveal: 0.76→1.00 in global t, local [0..1]
+                const revLocal = (t - 0.76) / 0.24
+                blackOpacity = Math.max(0, 1 - revLocal)
+              }
+              return (
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: '#000',
+                    opacity: blackOpacity,
+                    pointerEvents: 'none',
+                    zIndex: 100,
+                  }}
+                />
+              )
+            })()}
+
+            {/* BlackholeCinematicOverlay is rendered via portal — see below */}
           </div>
         </div>
       </div>
@@ -956,6 +1118,16 @@ export function SolarScene({
           <div>currentShot={discreteCurrentShotId}</div>
           <div>targetShot={discreteTargetShotId ?? 'idle'}</div>
           <div>transitioning={String(discreteIsTransitioning)} | dir={discreteTransitionDir ?? 'none'}</div>
+          {isBlackholeCinematic && (
+            <div style={{ color: '#c084fc' }}>
+              bhCinematic=true | phase={blackholeCinematicPhase} | t={cinematicT.toFixed(3)}
+            </div>
+          )}
+          {isBlackholeResetting && (
+            <div style={{ color: '#fb923c' }}>
+              bhReset=true | phase={blackholeResetPhase} | t={resetCinematicT.toFixed(3)}
+            </div>
+          )}
           <div style={{ color: discreteIsResetting ? '#f87171' : undefined }}>
             resetting={String(discreteIsResetting)}
           </div>
@@ -994,7 +1166,29 @@ export function SolarScene({
           discreteIsTransitioning={discreteIsTransitioning}
           discreteTransitionDirection={discreteTransitionDir}
           discreteWheelIntent={discreteWheelIntent}
+          isBlackholeCinematic={isBlackholeCinematic}
+          blackholeCinematicPhase={blackholeCinematicPhase}
+          blackholeCinematicT={cinematicT}
+          isBlackholeResetting={isBlackholeResetting}
+          blackholeResetPhase={blackholeResetPhase}
+          blackholeResetT={resetCinematicT}
         />
+      )}
+
+      {/* Warp overlay rendered via portal directly into document.body so it
+          is guaranteed to be outside every stacking context (solarSceneRoot,
+          stickyCanvas, R3F wrapper divs). position:fixed + z-index:9000 then
+          works unconditionally against the true viewport. */}
+      {createPortal(
+        <BlackholeCinematicOverlay
+          activeArrival={isBlackholeCinematic}
+          cinematicT={cinematicT}
+          phase={blackholeCinematicPhase}
+          activeReset={isBlackholeResetting}
+          resetT={resetCinematicT}
+          resetPhase={blackholeResetPhase}
+        />,
+        document.body,
       )}
     </div>
   )
