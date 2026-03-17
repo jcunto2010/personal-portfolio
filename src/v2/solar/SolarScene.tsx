@@ -644,6 +644,8 @@ export interface SolarSceneProps {
   entered?: boolean
   audioEnabled?: boolean
   audioDiagnostics?: AudioDiagnostics
+  /** Called when initial GLBs are loaded and the journey is ready. Used by shell to hide loading overlay. */
+  onReady?: () => void
 }
 
 const DEFAULT_AUDIO_DIAG: AudioDiagnostics = {
@@ -662,6 +664,7 @@ export function SolarScene({
   entered = true,
   audioEnabled = false,
   audioDiagnostics = DEFAULT_AUDIO_DIAG,
+  onReady,
 }: SolarSceneProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const scrollProgress = useScrollProgress(scrollContainerRef)
@@ -823,6 +826,11 @@ export function SolarScene({
     const handle = window.setTimeout(() => setIsFinaleActive(shouldActivate), 0)
     return () => window.clearTimeout(handle)
   }, [scrollProgress, isFinaleActive])
+
+  // Notify shell when initial assets are loaded so it can hide the Space loading overlay.
+  useEffect(() => {
+    if (journeyReady && onReady) onReady()
+  }, [journeyReady, onReady])
 
   return (
     <div className={styles.solarSceneRoot}>
@@ -1033,10 +1041,9 @@ export function SolarScene({
         </div>
       </div>
 
-      {/* Loading gate — shown until initial GLBs are ready.
-          Suppressed when the discrete system is already past 'sun': the user
-          navigated here before (hot-reload scenario), GLBs loaded previously. */}
-      {!journeyReady && !IS_SAFE && discreteCurrentShotId === 'sun' && (
+      {/* Loading gate — shown until initial GLBs are ready. Hidden when shell
+          provides onReady (shell shows Space loading overlay instead). */}
+      {!journeyReady && !IS_SAFE && !onReady && discreteCurrentShotId === 'sun' && (
         <div style={{
           position: 'absolute', inset: 0, zIndex: 500,
           display: 'flex', flexDirection: 'column',

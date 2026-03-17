@@ -1,138 +1,199 @@
-/**
- * EntryGate — Phase 1
- *
- * Full-viewport overlay rendered before the main experience.
- * Lets the user choose:
- *   - Immersive mode  (3D solar scene — future phases)
- *   - Non-immersive mode (editorial layout — available now)
- *   - Background audio on / off
- *   - Fullscreen (recommended for immersive mode)
- *
- * The component reads initial state from AppModeContext (which hydrates
- * from localStorage), so returning visitors see their last preference.
- *
- * On "Enter", the gate calls onEnter() — the parent decides whether to
- * unmount the overlay and which sub-experience to render.
- *
- * Audio is NOT loaded here. The audioEnabled flag is set in context so
- * useAudioShell (mounted in HomeV2) can start playback after the gate
- * closes and the user is inside the experience.
- */
-
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { motion } from 'framer-motion'
+import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5'
 import { useAppMode, type AppMode } from '../../lib/appModeContext'
 import styles from './EntryGate.module.css'
 
 interface EntryGateProps {
   onEnter: () => void
+  /** When true, content appears immediately without animations (e.g. when returning from a mode). */
+  skipAnimations?: boolean
 }
 
-export function EntryGate({ onEnter }: EntryGateProps) {
+const STAR_COUNT = 150
+
+function useStarfield() {
+  return useMemo(() => {
+    return Array.from({ length: STAR_COUNT }, () => ({
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      baseOpacity: Math.random() * 0.7 + 0.3,
+      dimOpacity: Math.random() * 0.2,
+      flickerOpacity: Math.random() * 0.7 + 0.3,
+      duration: Math.random() * 4 + 2,
+    }))
+  }, [])
+}
+
+export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   const { mode, audioEnabled, setMode, setAudioEnabled, requestFullscreen, isFullscreen } =
     useAppMode()
-
-  // Local state mirrors context so changes are applied only on "Enter".
   const [localMode, setLocalMode] = useState<AppMode>(mode)
   const [localAudio, setLocalAudio] = useState<boolean>(audioEnabled)
+  const stars = useStarfield()
 
-  async function handleEnter() {
-    // Persist final selections.
-    setMode(localMode)
+  const noAnim = skipAnimations
+    ? { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } }
+    : {}
+
+  async function commitSelection(nextMode: AppMode) {
+    setMode(nextMode)
     setAudioEnabled(localAudio)
-
-    // If user hasn't already gone fullscreen and chose immersive, request it.
-    // Fullscreen must be called from a direct user gesture — this click qualifies.
-    if (localMode === 'immersive' && !isFullscreen) {
+    if (nextMode === 'immersive' && !isFullscreen) {
       await requestFullscreen()
     }
-
     onEnter()
   }
 
-  async function handleFullscreenToggle() {
-    await requestFullscreen()
+  async function handleImmersiveMode() {
+    setLocalMode('immersive')
+    await commitSelection('immersive')
+  }
+
+  async function handleStaticMode() {
+    setLocalMode('non-immersive')
+    await commitSelection('non-immersive')
   }
 
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Portfolio entry">
-      <div className={styles.card}>
-        <p className={styles.eyebrow}>Portfolio V2</p>
-        <h1 className={styles.title}>Jonathan Cunto Díaz</h1>
-        <p className={styles.subtitle}>
-          Choose your experience before entering.
-        </p>
+    <div
+      className={styles.overlay}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Portfolio entry"
+    >
+      <div className={styles.starfield}>
+        {stars.map((star, i) => (
+          <motion.div
+            key={i}
+            className={styles.star}
+            style={{
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+            }}
+            initial={{ opacity: skipAnimations ? star.baseOpacity : 0 }}
+            animate={{ opacity: star.baseOpacity }}
+            transition={skipAnimations ? { duration: 0 } : { duration: 1.2, delay: i * 0.04 }}
+          />
+        ))}
+      </div>
 
-        {/* ── Mode selection ────────────────────────────── */}
-        <div className={styles.modeSection} role="group" aria-labelledby="mode-label">
-          <span id="mode-label" className={styles.sectionLabel}>Experience mode</span>
-          <div className={styles.modeGrid}>
-            <button
-              type="button"
-              className={`${styles.modeBtn} ${localMode === 'immersive' ? styles.selected : ''}`}
-              onClick={() => setLocalMode('immersive')}
-              aria-pressed={localMode === 'immersive'}
+      <div className={styles.introContent}>
+        <div className={styles.introTitleBlock}>
+          <div className={styles.introTitleInner}>
+            <motion.h1
+              className={styles.introH1}
+              initial={noAnim.initial ?? { opacity: 0 }}
+              animate={noAnim.animate ?? { opacity: 1 }}
+              transition={noAnim.transition ?? { duration: 1.2 }}
             >
-              <span className={styles.modeIcon} aria-hidden="true">🪐</span>
-              <span className={styles.modeName}>Immersive</span>
-              <span className={styles.modeDesc}>3D solar system + ambient audio</span>
-            </button>
-
-            <button
-              type="button"
-              className={`${styles.modeBtn} ${localMode === 'non-immersive' ? styles.selected : ''}`}
-              onClick={() => setLocalMode('non-immersive')}
-              aria-pressed={localMode === 'non-immersive'}
-            >
-              <span className={styles.modeIcon} aria-hidden="true">📄</span>
-              <span className={styles.modeName}>Classic</span>
-              <span className={styles.modeDesc}>Editorial layout, no heavy 3D</span>
-            </button>
+              Hi, I&apos;m <span className={styles.introName}>Jonathan</span>
+            </motion.h1>
+            <motion.div
+              className={styles.introDivider}
+              initial={noAnim.initial ?? { opacity: 0 }}
+              animate={noAnim.animate ?? { opacity: 1 }}
+              transition={noAnim.transition ?? { duration: 1.5, delay: 2.5 }}
+            />
           </div>
+          <motion.p
+            className={styles.introRole}
+            initial={noAnim.initial ?? { opacity: 0 }}
+            animate={noAnim.animate ?? { opacity: 1 }}
+            transition={noAnim.transition ?? { duration: 1.5, delay: 4 }}
+          >
+            Frontend Developer & Creative Technologist
+          </motion.p>
+          <motion.p
+            className={styles.introDesc}
+            initial={noAnim.initial ?? { opacity: 0 }}
+            animate={noAnim.animate ?? { opacity: 1 }}
+            transition={noAnim.transition ?? { duration: 1.5, delay: 5.5 }}
+          >
+            Crafting digital experiences that blend technology with artistry.
+            <br />
+            Choose your preferred way to explore my work.
+          </motion.p>
         </div>
 
-        {/* ── Audio toggle ──────────────────────────────── */}
-        <div className={styles.audioSection}>
+        <motion.div
+          className={styles.introButtons}
+          initial={noAnim.initial ?? { opacity: 0 }}
+          animate={noAnim.animate ?? { opacity: 1 }}
+          transition={noAnim.transition ?? { duration: 1.5, delay: 7.5 }}
+          role="group"
+          aria-label="Select experience mode"
+        >
           <button
             type="button"
-            className={`${styles.audioToggle} ${localAudio ? styles.audioOn : ''}`}
-            onClick={() => setLocalAudio((v) => !v)}
-            aria-pressed={localAudio}
-            aria-label={localAudio ? 'Background audio enabled — click to disable' : 'Background audio disabled — click to enable'}
+            className={styles.introBtnImmersive}
+            onClick={handleImmersiveMode}
+            aria-pressed={localMode === 'immersive'}
           >
-            <span className={styles.audioLeft}>
-              <span className={styles.audioLabel}>
-                {localAudio ? '♪ Audio enabled' : '♪ Audio off'}
-              </span>
-              <span className={styles.audioHint}>
-                {localAudio
-                  ? 'Ambient music will play when you enter'
-                  : 'No audio will be loaded or played'}
-              </span>
-            </span>
-            <span className={styles.audioIndicator} aria-hidden="true" />
+            <div className={styles.introBtnImmersiveSweep} aria-hidden="true" />
+            <div className={styles.introBtnImmersiveInner}>
+              <div className={styles.introBtnImmersiveText}>
+                <div className={styles.introBtnImmersiveRow}>
+                  <span className={styles.introBtnImmersiveLabel}>Immersive Mode</span>
+                  <span className={styles.introBtnImmersiveBadge}>Recommended</span>
+                </div>
+                <span className={styles.introBtnImmersiveSub}>
+                  Full screen experience with ambient sound
+                </span>
+              </div>
+              <button
+                type="button"
+                className={styles.introAudioToggle}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLocalAudio((prev) => !prev)
+                }}
+                aria-pressed={localAudio}
+                aria-label={
+                  localAudio
+                    ? 'Background audio enabled — click to disable'
+                    : 'Background audio disabled — click to enable'
+                }
+              >
+                {localAudio ? (
+                  <IoVolumeHigh size={20} style={{ color: '#00D9A3' }} />
+                ) : (
+                  <IoVolumeMute size={20} style={{ color: 'rgba(255,255,255,0.4)' }} />
+                )}
+              </button>
+            </div>
           </button>
-        </div>
 
-        {/* ── Fullscreen hint ───────────────────────────── */}
-        <button
-          type="button"
-          className={`${styles.fullscreenHint} ${isFullscreen ? styles.fullscreenActive : ''}`}
-          onClick={handleFullscreenToggle}
-          aria-label={isFullscreen ? 'Fullscreen active' : 'Click to request fullscreen (recommended for immersive mode)'}
-        >
-          <span aria-hidden="true">{isFullscreen ? '⛶' : '⛶'}</span>
-          {isFullscreen ? 'Fullscreen active' : 'Fullscreen recommended for immersive mode'}
-        </button>
-
-        {/* ── Enter ─────────────────────────────────────── */}
-        <button
-          type="button"
-          className={styles.enterBtn}
-          onClick={handleEnter}
-        >
-          Enter →
-        </button>
+          <button
+            type="button"
+            className={styles.introBtnStatic}
+            onClick={handleStaticMode}
+            aria-pressed={localMode === 'non-immersive'}
+          >
+            <div className={styles.introBtnStaticText}>
+              <span className={styles.introBtnStaticLabel}>Static Mode</span>
+              <span className={styles.introBtnStaticSub}>
+                Minimalist experience with quality content
+              </span>
+            </div>
+          </button>
+        </motion.div>
       </div>
+
+      <motion.div
+        className={`${styles.introCorner} ${styles.introCornerTopLeft}`}
+        initial={noAnim.initial ?? { opacity: 0 }}
+        animate={noAnim.animate ?? { opacity: 1 }}
+        transition={noAnim.transition ?? { duration: 1.5, delay: 9.5 }}
+        aria-hidden="true"
+      />
+      <motion.div
+        className={`${styles.introCorner} ${styles.introCornerBottomRight}`}
+        initial={noAnim.initial ?? { opacity: 0 }}
+        animate={noAnim.animate ?? { opacity: 1 }}
+        transition={noAnim.transition ?? { duration: 1.5, delay: 9.5 }}
+        aria-hidden="true"
+      />
     </div>
   )
 }

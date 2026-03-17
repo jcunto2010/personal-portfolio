@@ -48,9 +48,11 @@ import type { ReactNode } from 'react'
 import { AppModeProvider, useAppMode } from '../../lib/appModeContext'
 import { useAudioShell } from '../../lib/useAudioShell'
 import { EntryGate } from '../../components/EntryGate/EntryGate'
+import { LoadingGate } from '../../components/LoadingGate/LoadingGate'
 import { NonImmersiveHome } from '../../components/NonImmersiveHome/NonImmersiveHome'
+import { SpaceLoadingScreen } from '../../components/SpaceLoadingScreen/SpaceLoadingScreen'
 import HomeV2 from './HomeV2'
-import styles from './HomeV2Shell.module.css'
+import { useJourneyLoader } from '../../lib/useJourneyLoader'
 
 // ── Lazy SolarScene — WebGL bundle only loaded in immersive mode ───────────────
 
@@ -174,17 +176,38 @@ function HomeV2Inner() {
   const { mode, audioEnabled } = useAppMode()
   const audio = useAudioShell()
 
-  const [entered, setEntered] = useState(false)
+  type EntryPhase = 'select' | 'loading' | 'ready'
+  const [entryPhase, setEntryPhase] = useState<EntryPhase>('select')
+  const [immersiveSceneReady, setImmersiveSceneReady] = useState(false)
+  const [hasEnteredOnce, setHasEnteredOnce] = useState(false)
+
+  const journeyLoader = useJourneyLoader(mode)
+
+  // Orquesta la transición select → loading → ready
+  useEffect(() => {
+    if (entryPhase === 'loading') {
+      journeyLoader.start()
+    }
+    if (entryPhase === 'select') {
+      journeyLoader.reset()
+    }
+  }, [entryPhase, journeyLoader])
+
+  useEffect(() => {
+    if (entryPhase === 'loading' && journeyLoader.status === 'ready') {
+      setEntryPhase('ready')
+    }
+  }, [entryPhase, journeyLoader.status])
 
   // Start / stop audio in response to audioEnabled + entered state.
   useEffect(() => {
-    if (entered && audioEnabled) {
+    if (entryPhase === 'ready' && audioEnabled) {
       audio.play()
     } else {
       audio.pause()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entered, audioEnabled])
+  }, [entryPhase, audioEnabled])
 
   // Stop audio when unmounting (navigation away from Home).
   useEffect(() => {
@@ -193,36 +216,121 @@ function HomeV2Inner() {
   }, [])
 
   function handleEnter() {
-    setEntered(true)
+    setHasEnteredOnce(true)
+    setEntryPhase('loading')
   }
 
   function handleSwitchMode() {
     audio.stop()
-    setEntered(false)
+    setEntryPhase('select')
+    setImmersiveSceneReady(false)
+    journeyLoader.reset()
   }
+
+  // Reset immersive scene ready when entering loading so overlay shows until onReady.
+  useEffect(() => {
+    if (entryPhase === 'loading' && mode === 'immersive') {
+      setImmersiveSceneReady(false)
+    }
+  }, [entryPhase, mode])
 
   return (
     <>
-      {!entered && <EntryGate onEnter={handleEnter} />}
+      {entryPhase === 'select' && (
+        <EntryGate onEnter={handleEnter} skipAnimations={hasEnteredOnce} />
+      )}
 
-      {entered && mode === 'non-immersive' && (
+      {entryPhase === 'loading' && mode === 'immersive' && (
+        <>
+          <SpaceLoadingScreen />
+          {journeyLoader.status === 'error' && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 9999,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '1.5rem',
+                padding: '2rem',
+                background: 'rgba(0,0,0,0.85)',
+              }}
+              role="alert"
+            >
+              <p style={{ color: '#fecaca', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
+                {journeyLoader.error}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setEntryPhase('select')
+                  journeyLoader.reset()
+                }}
+                style={{
+                  padding: '0.5rem 1.25rem',
+                  borderRadius: '999px',
+                  border: '1px solid rgba(248,250,252,0.3)',
+                  background: 'rgba(255,255,255,0.08)',
+                  color: '#e2e8f0',
+                  fontFamily: 'monospace',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                }}
+              >
+                ← Volver a la selección
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {entryPhase === 'loading' && mode === 'non-immersive' && (
+        <LoadingGate
+          mode={mode}
+          loader={journeyLoader}
+          onBack={() => {
+            setEntryPhase('select')
+            journeyLoader.reset()
+          }}
+        />
+      )}
+
+      {entryPhase === 'ready' && mode === 'non-immersive' && (
         <NonImmersiveHome onSwitchMode={handleSwitchMode}>
           <HomeV2 />
         </NonImmersiveHome>
       )}
 
-      {entered && mode === 'immersive' && (
-        <ImmersiveErrorBoundary onReset={handleSwitchMode}>
-          <Suspense fallback={<div className={styles.solarSceneLoading} aria-hidden="true" />}>
-            <LazySolarScene
-              onSwitchMode={handleSwitchMode}
-              mode={mode}
-              entered={entered}
-              audioEnabled={audioEnabled}
-              audioDiagnostics={audio.diagnostics}
-            />
-          </Suspense>
-        </ImmersiveErrorBoundary>
+      {entryPhase === 'ready' && mode === 'immersive' && (
+        <>
+          <ImmersiveErrorBoundary onReset={handleSwitchMode}>
+            <Suspense fallback={<SpaceLoadingScreen />}>
+              <LazySolarScene
+                onSwitchMode={handleSwitchMode}
+                mode={mode}
+                entered={entryPhase === 'ready'}
+                audioEnabled={audioEnabled}
+                audioDiagnostics={audio.diagnostics}
+                onReady={() => setImmersiveSceneReady(true)}
+              />
+            </Suspense>
+          </ImmersiveErrorBoundary>
+          {!immersiveSceneReady && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 99999,
+                pointerEvents: 'auto',
+              }}
+              aria-hidden="true"
+            >
+              <SpaceLoadingScreen />
+            </div>
+          )}
+        </>
       )}
     </>
   )
