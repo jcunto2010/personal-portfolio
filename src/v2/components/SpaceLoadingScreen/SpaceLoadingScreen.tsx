@@ -1,12 +1,34 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import styles from './SpaceLoadingScreen.module.css'
 
 export function SpaceLoadingScreen() {
+  const stars = useMemo(() => {
+    return Array.from({ length: 100 }, () => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      size: `${Math.random() * 2 + 0.5}px`,
+      duration: 3 + Math.random() * 4,
+      delay: Math.random() * 3,
+      maxOpacity: 0.65 + Math.random() * 0.25,
+    }))
+  }, [])
+
+  const shootingStars = useMemo(() => {
+    return Array.from({ length: 2 }, (_, i) => ({
+      key: `shooting-${i}`,
+      left: `${20 + i * 40}%`,
+      top: `${10 + i * 30}%`,
+      delay: i * 6 + 2,
+    }))
+  }, [])
+
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
+        // Must be fully opaque so the 3D scene never bleeds through underneath.
         backgroundColor: '#000000',
         display: 'flex',
         alignItems: 'center',
@@ -15,27 +37,39 @@ export function SpaceLoadingScreen() {
         zIndex: 99999,
       }}
     >
+      {/* Subtle vignette/glow (kept separate so base background stays opaque) */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'radial-gradient(ellipse at center, rgba(56, 189, 248, 0.10) 0%, rgba(13, 133, 112, 0.08) 28%, rgba(0, 0, 0, 1) 72%)',
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Subtle stars - matching the intro */}
       <div style={{ position: 'absolute', inset: 0 }}>
-        {[...Array(100)].map((_, i) => (
+        {stars.map((s, i) => (
           <motion.div
             key={i}
             style={{
               position: 'absolute',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 2 + 0.5}px`,
-              height: `${Math.random() * 2 + 0.5}px`,
+              left: s.left,
+              top: s.top,
+              width: s.size,
+              height: s.size,
               backgroundColor: 'white',
               borderRadius: '9999px',
             }}
             animate={{
-              opacity: [0.3, 0.8, 0.3],
+              opacity: [0.2, s.maxOpacity, 0.2],
             }}
             transition={{
-              duration: 3 + Math.random() * 4,
+              duration: s.duration,
               repeat: Infinity,
-              delay: Math.random() * 3,
+              delay: s.delay,
               ease: 'easeInOut',
             }}
           />
@@ -45,6 +79,19 @@ export function SpaceLoadingScreen() {
       {/* Central loading spinner */}
       <div style={{ position: 'relative', zIndex: 10 }}>
         <div style={{ position: 'relative', width: '10rem', height: '10rem' }}>
+          {/* Soft halo behind rings */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: -28,
+              borderRadius: '9999px',
+              background:
+                'radial-gradient(circle, rgba(56, 189, 248, 0.14) 0%, rgba(13, 133, 112, 0.10) 35%, transparent 70%)',
+              filter: 'blur(10px)',
+              pointerEvents: 'none',
+            }}
+          />
+
           {/* Outer spinner ring — CSS animation for smooth 60fps */}
           <div
             className={styles.spinnerOuter}
@@ -57,6 +104,7 @@ export function SpaceLoadingScreen() {
               borderColor: 'rgb(31 41 55)',
               borderTopColor: '#0D8570',
               borderRightColor: '#0D8570',
+              filter: 'drop-shadow(0 0 10px rgba(13, 133, 112, 0.35))',
             }}
           />
 
@@ -70,8 +118,9 @@ export function SpaceLoadingScreen() {
               borderWidth: 2,
               borderStyle: 'solid',
               borderColor: 'rgb(17 24 39)',
-              borderBottomColor: '#0D8570',
-              borderLeftColor: '#0D8570',
+              borderBottomColor: '#38BDF8',
+              borderLeftColor: '#38BDF8',
+              filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.45))',
             }}
           />
 
@@ -92,14 +141,15 @@ export function SpaceLoadingScreen() {
                 height: 64,
                 borderRadius: '9999px',
                 background:
-                  'radial-gradient(circle, rgba(13, 133, 112, 0.5) 0%, rgba(13, 133, 112, 0.2) 40%, transparent 70%)',
+                  'radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(13, 133, 112, 0.26) 35%, transparent 70%)',
+                filter: 'blur(6px)',
+                willChange: 'transform',
               }}
               animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.7, 1, 0.7],
+                scale: [1, 1.18, 1],
               }}
               transition={{
-                duration: 2,
+                duration: 2.2,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
@@ -113,15 +163,15 @@ export function SpaceLoadingScreen() {
                 height: 40,
                 borderRadius: '9999px',
                 background:
-                  'radial-gradient(circle, rgba(13, 133, 112, 0.7) 0%, rgba(13, 133, 112, 0.3) 50%, transparent 80%)',
-                filter: 'blur(4px)',
+                  'radial-gradient(circle, rgba(56, 189, 248, 0.42) 0%, rgba(13, 133, 112, 0.28) 55%, transparent 80%)',
+                filter: 'blur(5px)',
+                willChange: 'transform',
               }}
               animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.8, 1, 0.8],
+                scale: [1, 1.12, 1],
               }}
               transition={{
-                duration: 1.5,
+                duration: 1.8,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
@@ -135,15 +185,15 @@ export function SpaceLoadingScreen() {
                 height: 24,
                 borderRadius: '9999px',
                 background:
-                  'radial-gradient(circle, rgba(13, 133, 112, 0.95) 0%, rgba(13, 133, 112, 0.6) 50%, transparent 70%)',
-                filter: 'blur(2px)',
+                  'radial-gradient(circle, rgba(56, 189, 248, 0.85) 0%, rgba(13, 133, 112, 0.55) 55%, transparent 72%)',
+                filter: 'blur(3px)',
+                willChange: 'transform',
               }}
               animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.9, 1, 0.9],
+                scale: [1, 1.08, 1],
               }}
               transition={{
-                duration: 1,
+                duration: 1.4,
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
@@ -158,7 +208,7 @@ export function SpaceLoadingScreen() {
                 position: 'relative',
                 backgroundColor: '#0D8570',
                 boxShadow:
-                  '0 0 12px rgba(13, 133, 112, 1), 0 0 24px rgba(13, 133, 112, 0.7), 0 0 40px rgba(13, 133, 112, 0.4)',
+                  '0 0 14px rgba(56, 189, 248, 0.75), 0 0 18px rgba(13, 133, 112, 1), 0 0 34px rgba(13, 133, 112, 0.75), 0 0 52px rgba(13, 133, 112, 0.35)',
               }}
               animate={{
                 scale: [1, 1.15, 1],
@@ -175,16 +225,16 @@ export function SpaceLoadingScreen() {
       </div>
 
       {/* Occasional shooting star */}
-      {[...Array(2)].map((_, i) => (
+      {shootingStars.map((s) => (
         <motion.div
-          key={`shooting-${i}`}
+          key={s.key}
           style={{
             position: 'absolute',
             width: 2,
             height: 2,
             borderRadius: '9999px',
-            left: `${20 + i * 40}%`,
-            top: `${10 + i * 30}%`,
+            left: s.left,
+            top: s.top,
             backgroundColor: '#0D8570',
             boxShadow:
               '0 0 8px rgba(13, 133, 112, 0.6), -30px 0 20px rgba(13, 133, 112, 0.2)',
@@ -197,7 +247,7 @@ export function SpaceLoadingScreen() {
           transition={{
             duration: 2.5,
             repeat: Infinity,
-            delay: i * 6 + 2,
+            delay: s.delay,
             ease: 'easeOut',
             repeatDelay: 8,
           }}

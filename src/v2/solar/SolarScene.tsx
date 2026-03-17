@@ -28,6 +28,7 @@ import { getStableActivePlanet, PLANET_REGISTRY } from './planetRegistry'
 import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
 import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
+import { SunInfoPanel } from './SunInfoPanel'
 import { CameraRig } from './CameraRig'
 import type { CameraPhaseId, ShotPhaseId } from './CameraRig'
 import { useScrollProgress } from '../lib/useScrollProgress'
@@ -763,6 +764,15 @@ export function SolarScene({
       (discreteCurrentShotId === 'neptune' && discreteIsTransitioning))
 
   const [activePlanet, setActivePlanet] = useState<PlanetConfig | null>(null)
+  const [sunPanelVisible, setSunPanelVisible] = useState(false)
+  const sunPanelManuallyClosedRef = useRef(false)
+  const sunHoldTimerRef = useRef<number | null>(null)
+  const [mercuryPanelVisible, setMercuryPanelVisible] = useState(false)
+  const mercuryPanelManuallyClosedRef = useRef(false)
+  const mercuryHoldTimerRef = useRef<number | null>(null)
+  const [venusPanelVisible, setVenusPanelVisible] = useState(false)
+  const venusPanelManuallyClosedRef = useRef(false)
+  const venusHoldTimerRef = useRef<number | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
   const [isFinaleActive, setIsFinaleActive] = useState(false)
 
@@ -832,6 +842,156 @@ export function SolarScene({
     if (journeyReady && onReady) onReady()
   }, [journeyReady, onReady])
 
+  // Sun panel visibility contract:
+  // - Only appears in `sun-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (sunHoldTimerRef.current) {
+      window.clearTimeout(sunHoldTimerRef.current)
+      sunHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'sun-hold') {
+      setSunPanelVisible(false)
+      return
+    }
+
+    // On entering hold, reset manual close so it can appear again.
+    sunPanelManuallyClosedRef.current = false
+    sunHoldTimerRef.current = window.setTimeout(() => {
+      if (!sunPanelManuallyClosedRef.current) {
+        setSunPanelVisible(true)
+      }
+      sunHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (sunHoldTimerRef.current) {
+        window.clearTimeout(sunHoldTimerRef.current)
+        sunHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Mercury panel visibility contract:
+  // - Only appears in `mercury-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (mercuryHoldTimerRef.current) {
+      window.clearTimeout(mercuryHoldTimerRef.current)
+      mercuryHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'mercury-hold') {
+      setMercuryPanelVisible(false)
+      return
+    }
+
+    mercuryPanelManuallyClosedRef.current = false
+    mercuryHoldTimerRef.current = window.setTimeout(() => {
+      if (!mercuryPanelManuallyClosedRef.current) {
+        setMercuryPanelVisible(true)
+      }
+      mercuryHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (mercuryHoldTimerRef.current) {
+        window.clearTimeout(mercuryHoldTimerRef.current)
+        mercuryHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Venus panel visibility contract:
+  // - Only appears in `venus-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (venusHoldTimerRef.current) {
+      window.clearTimeout(venusHoldTimerRef.current)
+      venusHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'venus-hold') {
+      setVenusPanelVisible(false)
+      return
+    }
+
+    venusPanelManuallyClosedRef.current = false
+    venusHoldTimerRef.current = window.setTimeout(() => {
+      if (!venusPanelManuallyClosedRef.current) {
+        setVenusPanelVisible(true)
+      }
+      venusHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (venusHoldTimerRef.current) {
+        window.clearTimeout(venusHoldTimerRef.current)
+        venusHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  function handlePlanetClick(config: PlanetConfig) {
+    if (config.id === 'sun') {
+      // Toggle is only meaningful in sun-hold.
+      if (cameraPhase !== 'sun-hold') return
+      const nextClosed = !sunPanelManuallyClosedRef.current
+      sunPanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (sunHoldTimerRef.current) {
+          window.clearTimeout(sunHoldTimerRef.current)
+          sunHoldTimerRef.current = null
+        }
+        setSunPanelVisible(false)
+      } else {
+        setSunPanelVisible(true)
+      }
+      return
+    }
+    if (config.id === 'mercury') {
+      // Toggle is only meaningful in mercury-hold.
+      if (cameraPhase !== 'mercury-hold') return
+      const nextClosed = !mercuryPanelManuallyClosedRef.current
+      mercuryPanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (mercuryHoldTimerRef.current) {
+          window.clearTimeout(mercuryHoldTimerRef.current)
+          mercuryHoldTimerRef.current = null
+        }
+        setMercuryPanelVisible(false)
+      } else {
+        setMercuryPanelVisible(true)
+      }
+      return
+    }
+    if (config.id === 'venus') {
+      // Toggle is only meaningful in venus-hold.
+      if (cameraPhase !== 'venus-hold') return
+      const nextClosed = !venusPanelManuallyClosedRef.current
+      venusPanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (venusHoldTimerRef.current) {
+          window.clearTimeout(venusHoldTimerRef.current)
+          venusHoldTimerRef.current = null
+        }
+        setVenusPanelVisible(false)
+      } else {
+        setVenusPanelVisible(true)
+      }
+      return
+    }
+    setActivePlanet(config)
+  }
+
+  const sunConfig = PLANET_REGISTRY.find((p) => p.id === 'sun')!
+  const mercuryConfig = PLANET_REGISTRY.find((p) => p.id === 'mercury')!
+  const venusConfig = PLANET_REGISTRY.find((p) => p.id === 'venus')!
+
   return (
     <div className={styles.solarSceneRoot}>
 
@@ -879,7 +1039,7 @@ export function SolarScene({
                 <CameraRig
                   progress={journeyReady ? scrollProgress : 0}
                   activePlanetId={activeJourneyPlanetId}
-                  onPhaseChange={IS_DEBUG ? setCameraPhase : undefined}
+                  onPhaseChange={setCameraPhase}
                   onShotPhaseChange={IS_DEBUG ? setShotPhase : undefined}
                   currentShotId={currentShot.id}
                   nextShotId={nextShot?.id}
@@ -985,7 +1145,7 @@ export function SolarScene({
                     <PlanetMesh
                       config={config}
                       activeGroups={activeGroups}
-                      onPlanetClick={(c) => setActivePlanet(c)}
+                      onPlanetClick={handlePlanetClick}
                       onGlbLoaded={() => {
                         if (glbLoadedIdsRef.current.has(config.id)) return
                         glbLoadedIdsRef.current.add(config.id)
@@ -1040,6 +1200,52 @@ export function SolarScene({
           </div>
         </div>
       </div>
+
+      {/* Sun info panel — uses the empty half of the Sun frame */}
+      <SunInfoPanel
+        config={sunConfig}
+        open={sunPanelVisible && cameraPhase === 'sun-hold'}
+        align="right"
+        phaseInfo="This is the starting point: a quick snapshot of who I am and how this portfolio works. Each planet is a chapter — scroll to continue."
+        onClose={() => {
+          sunPanelManuallyClosedRef.current = true
+          if (sunHoldTimerRef.current) {
+            window.clearTimeout(sunHoldTimerRef.current)
+            sunHoldTimerRef.current = null
+          }
+          setSunPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={mercuryConfig}
+        open={mercuryPanelVisible && cameraPhase === 'mercury-hold'}
+        align="left"
+        phaseInfo="Mercury is where I talk skills and core stack: TypeScript, React, Node.js, and the tooling that lets me ship fast without sacrificing quality. Small planet, high velocity."
+        onClose={() => {
+          mercuryPanelManuallyClosedRef.current = true
+          if (mercuryHoldTimerRef.current) {
+            window.clearTimeout(mercuryHoldTimerRef.current)
+            mercuryHoldTimerRef.current = null
+          }
+          setMercuryPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={venusConfig}
+        open={venusPanelVisible && cameraPhase === 'venus-hold'}
+        align="right"
+        phaseInfo="This phase is about craft: how the experience is built (React, Three.js, performance-minded loading, and a UI language consistent with the intro)."
+        onClose={() => {
+          venusPanelManuallyClosedRef.current = true
+          if (venusHoldTimerRef.current) {
+            window.clearTimeout(venusHoldTimerRef.current)
+            venusHoldTimerRef.current = null
+          }
+          setVenusPanelVisible(false)
+        }}
+      />
 
       {/* Loading gate — shown until initial GLBs are ready. Hidden when shell
           provides onReady (shell shows Space loading overlay instead). */}
@@ -1098,7 +1304,10 @@ export function SolarScene({
         </div>
       )}
 
-      {activePlanet && (
+      {activePlanet &&
+        activePlanet.id !== 'sun' &&
+        activePlanet.id !== 'mercury' &&
+        activePlanet.id !== 'venus' && (
         <PlanetOverlay config={activePlanet} onClose={() => setActivePlanet(null)} />
       )}
 
