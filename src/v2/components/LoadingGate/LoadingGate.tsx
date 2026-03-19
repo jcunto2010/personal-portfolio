@@ -16,7 +16,7 @@ export function LoadingGate({ mode, loader, onBack }: LoadingGateProps) {
       <div className={styles.card}>
         <div>
           <div
-            className={`${styles.modeBadge} ${!isImmersive ? styles.modeBadgeStatic : ''}`}
+            className={`${styles.modeBadge} ${!isImmersive ? styles.modeBadgeClassic : ''}`}
             aria-hidden="true"
           >
             <span>{isImmersive ? 'Immersive' : 'Classic'}</span>
@@ -75,7 +75,7 @@ export function LoadingGate({ mode, loader, onBack }: LoadingGateProps) {
           <p className={styles.hint}>
             {isImmersive
               ? 'Puedes seguir ajustando volumen y fullscreen una vez dentro.'
-              : 'Cuando esté listo, entrarás al portfolio estático.'}
+              : 'Cuando esté listo, entrarás al portfolio clásico.'}
           </p>
         </div>
       </div>

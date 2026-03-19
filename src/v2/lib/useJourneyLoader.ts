@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import type { AppMode } from './appModeContext'
+import { projectsV2 } from '../data/projects.v2'
 
 export type JourneyStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -24,11 +25,38 @@ export interface JourneyLoaderController extends JourneyLoaderSnapshot {
 }
 
 let immersiveBundleLoaded = false
+let classicAssetsLoaded = false
 
 async function preloadImmersiveBundle(): Promise<void> {
   if (immersiveBundleLoaded) return
   await import('../solar/SolarScene')
   immersiveBundleLoaded = true
+}
+
+function preloadImage(src: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve()
+    img.onerror = () => resolve()
+    img.src = src
+  })
+}
+
+async function preloadClassicAssets(): Promise<void> {
+  if (classicAssetsLoaded) return
+
+  const heroImage =
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=900&h=1200&fit=crop&crop=faces&auto=format&q=80'
+
+  const projectImages = projectsV2.flatMap((project) => [
+    project.coverImage,
+    ...(project.thumbnails?.map((t) => t.src) ?? []),
+  ])
+
+  const uniqueSources = Array.from(new Set([heroImage, ...projectImages]))
+  await Promise.all(uniqueSources.map((src) => preloadImage(src)))
+
+  classicAssetsLoaded = true
 }
 
 export function useJourneyLoader(mode: AppMode): JourneyLoaderController {
@@ -39,32 +67,44 @@ export function useJourneyLoader(mode: AppMode): JourneyLoaderController {
     setError(null)
 
     if (mode === 'non-immersive') {
-      // Non-immersive mode has no heavy GLB / WebGL bundle. We still go
-      // through a formal "loading" phase so the flow is consistent.
       setStatus('loading')
+      const minDelayMs = 700
+      const startedAt = performance.now()
 
-      // Promote to ready on the next animation frame to avoid layout jank.
-      if (typeof window !== 'undefined' && 'requestAnimationFrame' in window) {
-        window.requestAnimationFrame(() => {
+      preloadClassicAssets()
+        .then(() => {
+          const elapsed = performance.now() - startedAt
+          const waitMs = Math.max(0, minDelayMs - elapsed)
+          window.setTimeout(() => setStatus('ready'), waitMs)
+        })
+        .catch(() => {
+          // If some image fails, still allow entry; remaining images lazy-load.
           setStatus('ready')
         })
-      } else {
-        setStatus('ready')
-      }
       return
     }
 
-    // Immersive mode: wait for the SolarScene bundle to be fetched and evaluated.
-    setStatus('loading')
-    preloadImmersiveBundle()
-      .then(() => {
+    if (mode === 'immersive') {
+      setStatus('loading')
+      preloadImmersiveBundle()
+        .then(() => {
+          setStatus('ready')
+        })
+        .catch((err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err)
+          setError(msg)
+          setStatus('error')
+        })
+      return
+    }
+
+    if (typeof window !== 'undefined' && 'requestAnimationFrame' in window) {
+      window.requestAnimationFrame(() => {
         setStatus('ready')
       })
-      .catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : String(err)
-        setError(msg)
-        setStatus('error')
-      })
+    } else {
+      setStatus('ready')
+    }
   }, [mode])
 
   const reset = useCallback(() => {
@@ -94,7 +134,7 @@ export function useJourneyLoader(mode: AppMode): JourneyLoaderController {
               ? 'No se pudo inicializar el modo inmersivo.'
               : undefined
         : status === 'loading'
-          ? 'Inicializando layout editorial y tipografías.'
+          ? 'Precargando recursos visuales del modo clásico.'
           : undefined,
     // For ahora no tenemos un contador granular fuera de SolarScene; usamos
     // estados discretos que dependen de carga real (bundle / frame).

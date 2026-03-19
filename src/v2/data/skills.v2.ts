@@ -25,12 +25,15 @@ export const skillsV2: SkillV2[] = [
   { name: 'Next.js',      category: 'framework', iconKey: 'nextjs' },
   { name: 'Flutter',      category: 'framework', iconKey: 'flutter' },
   { name: 'Tailwind CSS', category: 'framework', iconKey: 'tailwindcss' },
+  { name: 'Framer Motion', category: 'framework', iconKey: 'framermotion' },
   { name: 'Vite',         category: 'framework', iconKey: 'vite' },
 
   // Tools & Platforms
   { name: 'Firebase',   category: 'tool', iconKey: 'firebase' },
   { name: 'Supabase',   category: 'tool', iconKey: 'supabase' },
   { name: 'PostgreSQL', category: 'tool', iconKey: 'postgresql' },
+  { name: 'Figma',      category: 'tool', iconKey: 'figma' },
+  { name: 'Rive',       category: 'tool', iconKey: 'rive' },
   { name: 'Git',        category: 'tool', iconKey: 'git' },
   { name: 'GitHub',     category: 'tool', iconKey: 'github' },
   { name: 'Node.js',    category: 'tool', iconKey: 'nodejs' },

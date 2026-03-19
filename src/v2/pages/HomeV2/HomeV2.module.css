@@ -399,6 +399,14 @@
   border-radius: 2px;
 }
 
+.expProjectBtn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
 /* ── Chapter: Work ──────────────────────────────────── */
 
 .chapterWork {

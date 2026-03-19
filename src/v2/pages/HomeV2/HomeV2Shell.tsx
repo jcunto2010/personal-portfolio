@@ -48,7 +48,6 @@ import type { ReactNode } from 'react'
 import { AppModeProvider, useAppMode } from '../../lib/appModeContext'
 import { useAudioShell } from '../../lib/useAudioShell'
 import { EntryGate } from '../../components/EntryGate/EntryGate'
-import { LoadingGate } from '../../components/LoadingGate/LoadingGate'
 import { NonImmersiveHome } from '../../components/NonImmersiveHome/NonImmersiveHome'
 import { SpaceLoadingScreen } from '../../components/SpaceLoadingScreen/SpaceLoadingScreen'
 import HomeV2 from './HomeV2'
@@ -287,14 +286,42 @@ function HomeV2Inner() {
       )}
 
       {entryPhase === 'loading' && mode === 'non-immersive' && (
-        <LoadingGate
-          mode={mode}
-          loader={journeyLoader}
-          onBack={() => {
-            setEntryPhase('select')
-            journeyLoader.reset()
-          }}
-        />
+        <>
+          <SpaceLoadingScreen />
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+              padding: '2rem',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setEntryPhase('select')
+                journeyLoader.reset()
+              }}
+              style={{
+                pointerEvents: 'auto',
+                padding: '0.5rem 1.25rem',
+                borderRadius: '999px',
+                border: '1px solid rgba(248,250,252,0.3)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#e2e8f0',
+                fontFamily: 'monospace',
+                fontSize: '13px',
+                cursor: 'pointer',
+              }}
+            >
+              ← Volver a la selección
+            </button>
+          </div>
+        </>
       )}
 
       {entryPhase === 'ready' && mode === 'non-immersive' && (

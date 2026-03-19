@@ -51,8 +51,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         immersiveSub: 'Experiencia en pantalla completa con sonido ambiental',
         audioAriaOn: 'Audio de fondo activado — haz clic para desactivarlo',
         audioAriaOff: 'Audio de fondo desactivado — haz clic para activarlo',
-        staticLabel: 'Modo Estático',
-        staticSub: 'Experiencia minimalista con contenido de calidad',
+        classicLabel: 'Modo clásico',
+        classicSub: 'Experiencia editorial enfocada en contenido',
       }
     : {
         ariaEntry: 'Portfolio entry',
@@ -68,8 +68,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         immersiveSub: 'Full screen experience with ambient sound',
         audioAriaOn: 'Background audio enabled — click to disable',
         audioAriaOff: 'Background audio disabled — click to enable',
-        staticLabel: 'Static Mode',
-        staticSub: 'Minimalist experience with quality content',
+        classicLabel: 'Classic mode',
+        classicSub: 'Editorial experience focused on content',
       }
 
   const noAnim = skipAnimations
@@ -90,7 +90,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     await commitSelection('immersive')
   }
 
-  async function handleStaticMode() {
+  async function handleClassicMode() {
     setLocalMode('non-immersive')
     await commitSelection('non-immersive')
   }
@@ -214,14 +214,14 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
 
           <button
             type="button"
-            className={styles.introBtnStatic}
-            onClick={handleStaticMode}
+            className={styles.introBtnClassic}
+            onClick={handleClassicMode}
             aria-pressed={localMode === 'non-immersive'}
           >
-            <div className={styles.introBtnStaticText}>
-              <span className={styles.introBtnStaticLabel}>{ui.staticLabel}</span>
-              <span className={styles.introBtnStaticSub}>
-                {ui.staticSub}
+            <div className={styles.introBtnClassicText}>
+              <span className={styles.introBtnClassicLabel}>{ui.classicLabel}</span>
+              <span className={styles.introBtnClassicSub}>
+                {ui.classicSub}
               </span>
             </div>
           </button>

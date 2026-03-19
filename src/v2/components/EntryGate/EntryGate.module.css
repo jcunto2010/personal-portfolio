@@ -181,7 +181,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-.introBtnStatic {
+.introBtnClassic {
   padding: 1.25rem 2.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
@@ -192,29 +192,29 @@
   transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
-.introBtnStatic:hover {
+.introBtnClassic:hover {
   border-color: rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.9);
   transform: scale(1.03);
 }
 
-.introBtnStatic:active {
+.introBtnClassic:active {
   transform: scale(0.97);
 }
 
-.introBtnStaticText {
+.introBtnClassicText {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.25rem;
 }
 
-.introBtnStaticLabel {
+.introBtnClassicLabel {
   font-size: 0.875rem;
   letter-spacing: 0.025em;
 }
 
-.introBtnStaticSub {
+.introBtnClassicSub {
   font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.4);
 }
