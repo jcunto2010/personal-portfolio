@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5'
 import { useAppMode, type AppMode } from '../../lib/appModeContext'
+import { LanguageSwitcher } from '../LanguageSwitcher/LanguageSwitcher'
+import { useLocale } from '../../lib/localeContext'
 import styles from './EntryGate.module.css'
 
 interface EntryGateProps {
@@ -28,9 +30,47 @@ function useStarfield() {
 export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   const { mode, audioEnabled, setMode, setAudioEnabled, requestFullscreen, isFullscreen } =
     useAppMode()
+  const { locale } = useLocale()
   const [localMode, setLocalMode] = useState<AppMode>(mode)
   const [localAudio, setLocalAudio] = useState<boolean>(audioEnabled)
   const stars = useStarfield()
+
+  const isEs = locale === 'es'
+  const ui = isEs
+    ? {
+        ariaEntry: 'Entrada al portafolio',
+        introTitlePrefix: 'Hola, mi nombre es',
+        introName: 'Jonathan Cunto Diaz',
+        introRole: 'Frontend Developer',
+        introDesc1:
+          'Creo aplicaciones web hermosas, responsivas y fáciles de usar usando tecnologías modernas como React, TypeScript y Tailwind CSS. Apasionado por el código limpio y experiencias de usuario excepcionales.',
+        introDesc2: '',
+        introButtonsGroup: 'Selecciona el modo de experiencia',
+        immersiveLabel: 'Modo Inmersivo',
+        recommended: 'Recomendado',
+        immersiveSub: 'Experiencia en pantalla completa con sonido ambiental',
+        audioAriaOn: 'Audio de fondo activado — haz clic para desactivarlo',
+        audioAriaOff: 'Audio de fondo desactivado — haz clic para activarlo',
+        staticLabel: 'Modo Estático',
+        staticSub: 'Experiencia minimalista con contenido de calidad',
+      }
+    : {
+        ariaEntry: 'Portfolio entry',
+        introTitlePrefix: 'Hi, my name is',
+        introName: 'Jonathan Cunto Diaz',
+        introRole: 'Frontend Developer',
+        introDesc1:
+          'I create beautiful, responsive, and user-friendly web applications using modern technologies like React, TypeScript, and Tailwind CSS. Passionate about clean code and exceptional user experiences.',
+        introDesc2: '',
+        introButtonsGroup: 'Select experience mode',
+        immersiveLabel: 'Immersive Mode',
+        recommended: 'Recommended',
+        immersiveSub: 'Full screen experience with ambient sound',
+        audioAriaOn: 'Background audio enabled — click to disable',
+        audioAriaOff: 'Background audio disabled — click to enable',
+        staticLabel: 'Static Mode',
+        staticSub: 'Minimalist experience with quality content',
+      }
 
   const noAnim = skipAnimations
     ? { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } }
@@ -60,7 +100,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
       className={styles.overlay}
       role="dialog"
       aria-modal="true"
-      aria-label="Portfolio entry"
+      aria-label={ui.ariaEntry}
     >
       <div className={styles.starfield}>
         {stars.map((star, i) => (
@@ -78,6 +118,10 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         ))}
       </div>
 
+      <div className={styles.languageSwitcherWrap}>
+        <LanguageSwitcher />
+      </div>
+
       <div className={styles.introContent}>
         <div className={styles.introTitleBlock}>
           <div className={styles.introTitleInner}>
@@ -87,7 +131,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
               animate={noAnim.animate ?? { opacity: 1 }}
               transition={noAnim.transition ?? { duration: 1.2 }}
             >
-              Hi, I&apos;m <span className={styles.introName}>Jonathan</span>
+              {ui.introTitlePrefix} <span className={styles.introName}>{ui.introName}</span>
             </motion.h1>
             <motion.div
               className={styles.introDivider}
@@ -102,7 +146,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             animate={noAnim.animate ?? { opacity: 1 }}
             transition={noAnim.transition ?? { duration: 1.5, delay: 4 }}
           >
-            Frontend Developer & Creative Technologist
+            {ui.introRole}
           </motion.p>
           <motion.p
             className={styles.introDesc}
@@ -110,9 +154,13 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             animate={noAnim.animate ?? { opacity: 1 }}
             transition={noAnim.transition ?? { duration: 1.5, delay: 5.5 }}
           >
-            Crafting digital experiences that blend technology with artistry.
-            <br />
-            Choose your preferred way to explore my work.
+            {ui.introDesc1}
+            {ui.introDesc2 ? (
+              <>
+                <br />
+                {ui.introDesc2}
+              </>
+            ) : null}
           </motion.p>
         </div>
 
@@ -122,7 +170,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           animate={noAnim.animate ?? { opacity: 1 }}
           transition={noAnim.transition ?? { duration: 1.5, delay: 7.5 }}
           role="group"
-          aria-label="Select experience mode"
+          aria-label={ui.introButtonsGroup}
         >
           <button
             type="button"
@@ -134,11 +182,11 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             <div className={styles.introBtnImmersiveInner}>
               <div className={styles.introBtnImmersiveText}>
                 <div className={styles.introBtnImmersiveRow}>
-                  <span className={styles.introBtnImmersiveLabel}>Immersive Mode</span>
-                  <span className={styles.introBtnImmersiveBadge}>Recommended</span>
+                  <span className={styles.introBtnImmersiveLabel}>{ui.immersiveLabel}</span>
+                  <span className={styles.introBtnImmersiveBadge}>{ui.recommended}</span>
                 </div>
                 <span className={styles.introBtnImmersiveSub}>
-                  Full screen experience with ambient sound
+                  {ui.immersiveSub}
                 </span>
               </div>
               <button
@@ -151,8 +199,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
                 aria-pressed={localAudio}
                 aria-label={
                   localAudio
-                    ? 'Background audio enabled — click to disable'
-                    : 'Background audio disabled — click to enable'
+                    ? ui.audioAriaOn
+                    : ui.audioAriaOff
                 }
               >
                 {localAudio ? (
@@ -171,9 +219,9 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             aria-pressed={localMode === 'non-immersive'}
           >
             <div className={styles.introBtnStaticText}>
-              <span className={styles.introBtnStaticLabel}>Static Mode</span>
+              <span className={styles.introBtnStaticLabel}>{ui.staticLabel}</span>
               <span className={styles.introBtnStaticSub}>
-                Minimalist experience with quality content
+                {ui.staticSub}
               </span>
             </div>
           </button>

@@ -20,8 +20,10 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { PlanetConfig } from './planetRegistry'
-import { PLANET_CONTENT } from './planetContent'
+import { getPlanetContent } from './planetContent'
 import styles from './PlanetOverlay.module.css'
+import { useLocale } from '../lib/localeContext'
+import { getPlanetSectionLabel } from './planetSectionLabel'
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ export interface PlanetOverlayProps {
 export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const labelId = `planet-overlay-title-${config.id}`
+  const { locale } = useLocale()
 
   // Focus close button on mount
   useEffect(() => {
@@ -48,7 +51,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
-  const content = PLANET_CONTENT[config.id] ?? {
+  const content = getPlanetContent(config.id, locale) ?? {
     body: [`${config.label} — ${config.section}`],
   }
 
@@ -79,7 +82,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
             <h2 id={labelId} className={styles.planetName}>
               {config.label}
             </h2>
-            <p className={styles.sectionLabel}>{config.section}</p>
+            <p className={styles.sectionLabel}>{getPlanetSectionLabel(config.id, locale)}</p>
           </div>
 
           <button

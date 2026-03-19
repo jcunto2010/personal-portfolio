@@ -20,6 +20,12 @@ export interface ProjectV2 {
   demoUrl?: string
   githubUrl?: string
   featured: boolean
+  descriptionEs?: string
+  highlights?: string[]
+  highlightsEs?: string[]
+  thumbnails?: { src: string; alt: string }[]
+  codeSnippetEn?: string
+  codeSnippetEs?: string
 }
 
 export const projectsV2: ProjectV2[] = [
@@ -42,6 +48,49 @@ export const projectsV2: ProjectV2[] = [
     year: '2024',
     githubUrl: 'https://github.com/jcunto2010/reservo_ai',
     featured: true,
+    descriptionEs:
+      'Reservo.AI es una aplicación Flutter multiplataforma diseñada para revolucionar la reserva de citas. Impulsada por Google Gemini, permite conversaciones naturales para reservar, ofrece sugerencias inteligentes y envía recordatorios personalizados.',
+    highlights: [
+      'Real-time AI chat powered by Google Gemini',
+      'Biometric authentication (Face ID / Fingerprint)',
+      'Smart push notifications with personalized reminders',
+      'Cross-platform experience (iOS & Android)',
+      'Rive-powered onboarding animations',
+    ],
+    highlightsEs: [
+      'Chat de IA en tiempo real con Google Gemini',
+      'Autenticación biométrica (Face ID / huella)',
+      'Notificaciones push inteligentes con recordatorios personalizados',
+      'Experiencia multiplataforma (iOS y Android)',
+      'Onboarding con animaciones Rive',
+    ],
+    thumbnails: [
+      { src: '/assets/projects/reservo/home.png', alt: 'Reservo.AI — pantalla Home' },
+      { src: '/assets/projects/reservo/calendar.png', alt: 'Reservo.AI — vista calendario' },
+      { src: '/assets/projects/reservo/shop.png', alt: 'Reservo.AI — selección de tiendas' },
+    ],
+    codeSnippetEn:
+      `const steps = [
+  { id: '1', label: 'Launch & Auth' },
+  { id: '2', label: 'Main Dashboard' },
+  { id: '3', label: 'Core Navigation' },
+  { id: '4', label: 'AI Assistant' },
+  { id: '5', label: 'Booking Flow' },
+  { id: '6', label: 'Confirmation' },
+]
+
+<FlowStepper accentColor="violet" steps={steps} />`,
+    codeSnippetEs:
+      `const steps = [
+  { id: '1', label: 'Launch & Auth' },
+  { id: '2', label: 'Main Dashboard' },
+  { id: '3', label: 'Core Navigation' },
+  { id: '4', label: 'AI Assistant' },
+  { id: '5', label: 'Booking Flow' },
+  { id: '6', label: 'Confirmation' },
+]
+
+<FlowStepper accentColor="violet" steps={steps} />`,
   },
   {
     slug: 'startupconnect',
@@ -61,6 +110,49 @@ export const projectsV2: ProjectV2[] = [
     year: '2025',
     githubUrl: 'https://github.com/jcunto2010/Entrepeneur_app',
     featured: true,
+    descriptionEs:
+      'StartupConnect es una plataforma de networking profesional mobile-first que combina el estilo de LinkedIn con mecánicas de swipe tipo Tinder para crear conexiones relevantes entre emprendedores, inversores y mentores.',
+    highlights: [
+      'Swipe-to-match (Tinder-style cards)',
+      'LinkedIn-style social feed for community updates',
+      'Public & private community rooms',
+      'Real-time 1:1 and group chat',
+      'Smart matching algorithm',
+    ],
+    highlightsEs: [
+      'Swipe-to-match (tarjetas estilo Tinder)',
+      'Feed social estilo LinkedIn para actualizaciones de la comunidad',
+      'Salas de la comunidad públicas y privadas',
+      'Chat en tiempo real 1:1 y grupal',
+      'Algoritmo de matching inteligente',
+    ],
+    thumbnails: [
+      { src: '/assets/projects/startupconnect/login.png', alt: 'StartupConnect — inicio de sesión' },
+      { src: '/assets/projects/startupconnect/feed.png', alt: 'StartupConnect — feed de la comunidad' },
+      { src: '/assets/projects/startupconnect/matching.png', alt: 'StartupConnect — pantalla de matching' },
+    ],
+    codeSnippetEn:
+      `const steps = [
+  { id: '1', label: 'Onboarding' },
+  { id: '2', label: 'Discovery Hub' },
+  { id: '3', label: 'Swipe to Match' },
+  { id: '4', label: 'Social Engagement' },
+  { id: '5', label: 'Real-time Chat' },
+  { id: '6', label: 'Ecosystem Growth' },
+]
+
+<FlowStepper accentColor="blue" steps={steps} />`,
+    codeSnippetEs:
+      `const steps = [
+  { id: '1', label: 'Onboarding' },
+  { id: '2', label: 'Discovery Hub' },
+  { id: '3', label: 'Swipe to Match' },
+  { id: '4', label: 'Social Engagement' },
+  { id: '5', label: 'Real-time Chat' },
+  { id: '6', label: 'Ecosystem Growth' },
+]
+
+<FlowStepper accentColor="blue" steps={steps} />`,
   },
 ]
 

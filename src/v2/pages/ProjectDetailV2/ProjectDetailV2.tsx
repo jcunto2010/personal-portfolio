@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { getProjectBySlug } from '../../data/projects.v2'
+import { useLocale } from '../../lib/localeContext'
 import styles from './ProjectDetailV2.module.css'
 
 /**
@@ -38,7 +39,7 @@ interface ProjectCaseStudy {
   additionalSections?: CaseStudySection[]
 }
 
-const caseStudies: Record<string, ProjectCaseStudy> = {
+const caseStudiesEn: Record<string, ProjectCaseStudy> = {
   'reservo-ai': {
     category: 'Mobile Application',
     overview:
@@ -105,21 +106,140 @@ const caseStudies: Record<string, ProjectCaseStudy> = {
   },
 }
 
+const caseStudiesEs: Record<string, ProjectCaseStudy> = {
+  'reservo-ai': {
+    category: 'Aplicación móvil',
+    overview:
+      'Reservo.AI es una aplicación Flutter multiplataforma pensada para revolucionar la reserva de citas. Impulsada por Google Gemini, permite reservas conversacionales, sugerencias inteligentes y recordatorios personalizados.',
+    challenge:
+      'Reservar citas a través de distintas industrias suele ser un proceso fragmentado y manual. Los usuarios tienen dificultades para encontrar disponibilidad, comunicarse con los negocios y llevar el control de las reservas próximas entre varias apps.',
+    solution:
+      'Construimos una app Flutter multiplataforma (iOS y Android) con un asistente de IA integrado impulsado por Google Gemini. La IA gestiona conversaciones de reserva en lenguaje natural, sugiere negocios relevantes y envía recordatorios personalizados. La autenticación biométrica (Face ID / huella) y el onboarding animado con Rive crean una experiencia pulida y premium desde el primer lanzamiento.',
+    role: 'Líder de Desarrollo Mobile & Fundador/a',
+    capabilities: [
+      { label: 'Chat de IA en tiempo real (Google Gemini)' },
+      { label: 'Autenticación biométrica' },
+      { label: 'Notificaciones push inteligentes' },
+      { label: 'Multiplataforma (iOS y Android)' },
+      { label: 'Animaciones con Rive' },
+      { label: 'Onboarding animado con Lottie' },
+    ],
+    userFlowSteps: [
+      { label: 'Inicio y acceso', description: 'El usuario comienza con una pantalla splash y se autentica con SignUp o Login.' },
+      { label: 'Panel principal', description: 'Centro de navegación para acceder a todas las funciones principales de la app.' },
+      { label: 'Navegación central', description: 'Acceso a Home, Settings y gestión de Profile.' },
+      { label: 'Asistente de IA', description: 'Interactúa con Google Gemini para reservar citas de forma conversacional.' },
+      { label: 'Flujo de reservas', description: 'Busca negocios, selecciona servicios y elige un horario disponible.' },
+      { label: 'Confirmación', description: 'Revisa los detalles y confirma la reserva con recordatorios automatizados.' },
+    ],
+    screens: [
+      { name: 'Home', image: '/assets/projects/reservo/home.png' },
+      { name: 'Selección de tiendas', image: '/assets/projects/reservo/shop.png' },
+      { name: 'Calendario', image: '/assets/projects/reservo/calendar.png' },
+      { name: 'Resumen de reserva', image: '/assets/projects/reservo/book summary.png' },
+    ],
+  },
+  'startupconnect': {
+    category: 'Plataforma de networking profesional',
+    overview:
+      'StartupConnect combina networking profesional estilo LinkedIn con mecánicas de swipe inspiradas en Tinder para crear conexiones significativas entre emprendedores, inversores y mentores.',
+    challenge:
+      'El ecosistema startup carece de una forma eficiente para que founders, inversores y mentores se descubran entre sí. Las plataformas existentes son demasiado formales (LinkedIn) o no ofrecen la capa de descubrimiento necesaria para conexiones en etapas tempranas.',
+    solution:
+      'Creamos una web app mobile-first con React y TypeScript que introduce matching basado en swipe para profesionales del mundo startup. Un algoritmo inteligente considera tipo de usuario, industria, ubicación, rango de inversión, experiencia y disponibilidad para mostrar conexiones relevantes. Se complementa con un feed social para la interacción de la comunidad y un chat en tiempo real para comunicación directa.',
+    role: 'Fundador y Desarrollador Front-End',
+    capabilities: [
+      { label: 'Swipe-to-match (tarjetas estilo Tinder)' },
+      { label: 'Feed social (estilo LinkedIn)' },
+      { label: 'Salas de la comunidad (públicas y privadas)' },
+      { label: 'Chat individual y grupal en tiempo real' },
+      { label: 'Algoritmo de matching inteligente' },
+      { label: 'Onboarding multi-paso' },
+    ],
+    userFlowSteps: [
+      { label: 'Onboarding', description: 'Lanza la plataforma y completa un flujo de registro de varios pasos.' },
+      { label: 'Centro de descubrimiento', description: 'Accede a la navegación principal para descubrir startups, mentores o inversores.' },
+      { label: 'Swipe to Match', description: 'Card-stack interactivo para encontrar potenciales partners según el algoritmo de matching.' },
+      { label: 'Engagement social', description: 'Revisa el feed de la comunidad, comparte actualizaciones y celebra hitos.' },
+      { label: 'Chat en tiempo real', description: 'Conecta al instante mediante mensajes privados o salas grupales.' },
+      { label: 'Crecimiento del ecosistema', description: 'Gestiona conexiones, actualiza perfiles y haz crecer tu red.' },
+    ],
+    screens: [
+      { name: 'Inicio de sesión', image: '/assets/projects/startupconnect/login.png' },
+      { name: 'Feed', image: '/assets/projects/startupconnect/feed.png' },
+      { name: 'Matching', image: '/assets/projects/startupconnect/matching.png' },
+      { name: 'Salas de la comunidad', image: '/assets/projects/startupconnect/community rooms.png' },
+    ],
+  },
+}
+
 export default function ProjectDetailV2() {
+  const { locale } = useLocale()
+  const isEs = locale === 'es'
+  const ui = locale === 'es'
+    ? {
+        notFoundHeading: 'Proyecto no encontrado',
+        notFoundText: 'Ningún proyecto coincide con el slug ',
+        backToProjects: 'Volver a proyectos',
+        breadcrumbHome: 'Inicio',
+        breadcrumbProjects: 'Proyectos',
+        roleLabel: 'Rol',
+        yearLabel: 'Año',
+        techAria: 'Tecnologías',
+        githubCta: 'Ver en GitHub ↗',
+        overviewHeading: 'Resumen',
+        challengeHeading: 'Desafío',
+        solutionHeading: 'Solución',
+        myRoleHeading: 'Mi rol',
+        capabilitiesAria: 'Capacidades clave',
+        userFlowHeading: 'Flujo de usuario',
+        userJourneyAria: 'Pasos del recorrido del usuario',
+        appScreensHeading: 'Pantallas de la app',
+        appScreensSubtitle: 'Interfaces clave y flujos de usuario',
+        applicationScreenshotsAria: 'Capturas de la aplicación',
+        allProjects: 'Todos los proyectos',
+        footerNavAria: 'Navegación del caso de estudio',
+      }
+    : {
+        notFoundHeading: 'Project not found',
+        notFoundText: 'No project matches the slug ',
+        backToProjects: 'Back to projects',
+        breadcrumbHome: 'Home',
+        breadcrumbProjects: 'Projects',
+        roleLabel: 'Role',
+        yearLabel: 'Year',
+        techAria: 'Technologies',
+        githubCta: 'View on GitHub ↗',
+        overviewHeading: 'Overview',
+        challengeHeading: 'Challenge',
+        solutionHeading: 'Solution',
+        myRoleHeading: 'My Role',
+        capabilitiesAria: 'Key capabilities',
+        userFlowHeading: 'User Flow',
+        userJourneyAria: 'User journey steps',
+        appScreensHeading: 'App Screens',
+        appScreensSubtitle: 'Key interfaces and user flows',
+        applicationScreenshotsAria: 'Application screenshots',
+        allProjects: 'All projects',
+        footerNavAria: 'Case study navigation',
+      }
+
   const { slug } = useParams<{ slug: string }>()
   const project = slug ? getProjectBySlug(slug) : undefined
+  const caseStudies = locale === 'es' ? caseStudiesEs : caseStudiesEn
   const caseStudy = slug ? caseStudies[slug] : undefined
 
   if (!project) {
     return (
       <div className={styles.page}>
         <div className={styles.notFound}>
-          <h1 className={styles.notFoundHeading}>Project not found</h1>
+          <h1 className={styles.notFoundHeading}>{ui.notFoundHeading}</h1>
           <p className={styles.notFoundText}>
-            No project matches the slug <code>{slug}</code>.
+            {ui.notFoundText}
+            <code>{slug}</code>.
           </p>
           <Link to="/projects" className={styles.backLink}>
-            <span aria-hidden="true">←</span> Back to projects
+            <span aria-hidden="true">←</span> {ui.backToProjects}
           </Link>
         </div>
       </div>
@@ -130,9 +250,9 @@ export default function ProjectDetailV2() {
     <div className={styles.page}>
       {/* Navigation breadcrumb */}
       <nav className={styles.breadcrumb} aria-label="Breadcrumb">
-        <Link to="/" className={styles.breadcrumbLink}>Home</Link>
+        <Link to="/" className={styles.breadcrumbLink}>{ui.breadcrumbHome}</Link>
         <span className={styles.breadcrumbSep} aria-hidden="true">/</span>
-        <Link to="/projects" className={styles.breadcrumbLink}>Projects</Link>
+        <Link to="/projects" className={styles.breadcrumbLink}>{ui.breadcrumbProjects}</Link>
         <span className={styles.breadcrumbSep} aria-hidden="true">/</span>
         <span className={styles.breadcrumbCurrent} aria-current="page">
           {project.title}
@@ -151,16 +271,16 @@ export default function ProjectDetailV2() {
 
           <div className={styles.metaRow}>
             <div className={styles.metaItem}>
-              <p className={styles.metaLabel}>Role</p>
+              <p className={styles.metaLabel}>{ui.roleLabel}</p>
               <p className={styles.metaValue}>{project.role}</p>
             </div>
             <div className={styles.metaItem}>
-              <p className={styles.metaLabel}>Year</p>
+              <p className={styles.metaLabel}>{ui.yearLabel}</p>
               <p className={styles.metaValue}>{project.year}</p>
             </div>
           </div>
 
-          <ul className={styles.techList} aria-label="Technologies">
+          <ul className={styles.techList} aria-label={ui.techAria}>
             {project.technologies.map((t) => (
               <li key={t} className={styles.techPill}>{t}</li>
             ))}
@@ -173,9 +293,13 @@ export default function ProjectDetailV2() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.ctaSecondary}
-                aria-label={`View ${project.title} source code on GitHub`}
+                aria-label={
+                  isEs
+                    ? `Ver el codigo fuente de ${project.title} en GitHub ↗`
+                    : `View ${project.title} source code on GitHub`
+                }
               >
-                View on GitHub ↗
+                {ui.githubCta}
               </a>
             </div>
           )}
@@ -189,27 +313,27 @@ export default function ProjectDetailV2() {
           <>
             {/* Overview */}
             <section className={styles.section} aria-labelledby="cs-overview-heading">
-              <h2 id="cs-overview-heading" className={styles.sectionHeading}>Overview</h2>
+              <h2 id="cs-overview-heading" className={styles.sectionHeading}>{ui.overviewHeading}</h2>
               <p className={styles.sectionBody}>{caseStudy.overview}</p>
             </section>
 
             {/* Challenge */}
             <section className={styles.section} aria-labelledby="cs-challenge-heading">
-              <h2 id="cs-challenge-heading" className={styles.sectionHeading}>Challenge</h2>
+              <h2 id="cs-challenge-heading" className={styles.sectionHeading}>{ui.challengeHeading}</h2>
               <p className={styles.sectionBody}>{caseStudy.challenge}</p>
             </section>
 
             {/* Solution */}
             <section className={styles.section} aria-labelledby="cs-solution-heading">
-              <h2 id="cs-solution-heading" className={styles.sectionHeading}>Solution</h2>
+              <h2 id="cs-solution-heading" className={styles.sectionHeading}>{ui.solutionHeading}</h2>
               <p className={styles.sectionBody}>{caseStudy.solution}</p>
             </section>
 
             {/* Role & Capabilities */}
             <section className={styles.section} aria-labelledby="cs-role-heading">
-              <h2 id="cs-role-heading" className={styles.sectionHeading}>My Role</h2>
+              <h2 id="cs-role-heading" className={styles.sectionHeading}>{ui.myRoleHeading}</h2>
               <p className={`${styles.sectionBody} ${styles.roleTitle}`}>{caseStudy.role}</p>
-              <ul className={styles.capabilitiesList} aria-label="Key capabilities">
+              <ul className={styles.capabilitiesList} aria-label={ui.capabilitiesAria}>
                 {caseStudy.capabilities.map((cap) => (
                   <li key={cap.label} className={styles.capabilityItem}>
                     <span className={styles.capabilityDot} aria-hidden="true" />
@@ -221,8 +345,8 @@ export default function ProjectDetailV2() {
 
             {/* User Flow */}
             <section className={styles.section} aria-labelledby="cs-userflow-heading">
-              <h2 id="cs-userflow-heading" className={styles.sectionHeading}>User Flow</h2>
-              <ol className={styles.flowStepper} aria-label="User journey steps">
+              <h2 id="cs-userflow-heading" className={styles.sectionHeading}>{ui.userFlowHeading}</h2>
+              <ol className={styles.flowStepper} aria-label={ui.userJourneyAria}>
                 {caseStudy.userFlowSteps.map((step, i) => (
                   <li key={step.label} className={styles.flowStep}>
                     <span className={styles.flowStepNumber} aria-hidden="true">
@@ -239,9 +363,9 @@ export default function ProjectDetailV2() {
 
             {/* App Screens — images referenced from existing V1 public assets [NV: confirm paths] */}
             <section className={styles.section} aria-labelledby="cs-screens-heading">
-              <h2 id="cs-screens-heading" className={styles.sectionHeading}>App Screens</h2>
-              <p className={styles.sectionSubtitle}>Key interfaces and user flows</p>
-              <ul className={styles.screensGrid} aria-label="Application screenshots">
+              <h2 id="cs-screens-heading" className={styles.sectionHeading}>{ui.appScreensHeading}</h2>
+              <p className={styles.sectionSubtitle}>{ui.appScreensSubtitle}</p>
+              <ul className={styles.screensGrid} aria-label={ui.applicationScreenshotsAria}>
                 {caseStudy.screens.map((screen) => (
                   <li key={screen.name} className={styles.screenItem}>
                     {/* [NV] Image asset — path from V1 public/assets; confirm copied to V2 public */}
@@ -259,16 +383,16 @@ export default function ProjectDetailV2() {
         ) : (
           /* Fallback: render description from project data if no case study */
           <section className={styles.section} aria-labelledby="cs-overview-heading">
-            <h2 id="cs-overview-heading" className={styles.sectionHeading}>Overview</h2>
+            <h2 id="cs-overview-heading" className={styles.sectionHeading}>{ui.overviewHeading}</h2>
             <p className={styles.sectionBody}>{project.description}</p>
           </section>
         )}
       </main>
 
       {/* Footer nav */}
-      <nav className={styles.footerNav} aria-label="Case study navigation">
+      <nav className={styles.footerNav} aria-label={ui.footerNavAria}>
         <Link to="/projects" className={styles.footerNavLink}>
-          <span aria-hidden="true">←</span> All projects
+          <span aria-hidden="true">←</span> {ui.allProjects}
         </Link>
       </nav>
     </div>

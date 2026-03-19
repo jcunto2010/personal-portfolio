@@ -40,6 +40,8 @@ import { WarpStarfield } from './WarpStarfield'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
 import { disableFrustumCulling } from './glbNormalization'
 import styles from './SolarScene.module.css'
+import { useLocale } from '../lib/localeContext'
+import { getPlanetPhaseInfo } from './planetPhaseInfo'
 
 // ── Cinematic T reader — RAF-based ref→state bridge for DOM overlay ───────────
 //
@@ -75,7 +77,10 @@ function getQueryParam(name: string): boolean {
   }
 }
 
-const IS_DEBUG = import.meta.env.DEV || getQueryParam('debug')
+// Temporal: desactiva el debug HUD (incluye overlay + telemetría asociada).
+// Si quieres volver a activarlo, pon esto en `true`.
+const SHOW_DEBUG_HUD = false
+const IS_DEBUG = SHOW_DEBUG_HUD && (import.meta.env.DEV || getQueryParam('debug'))
 const IS_SAFE  = getQueryParam('safe')
 
 // ── Loading thresholds ─────────────────────────────────────────────────────────
@@ -667,6 +672,7 @@ export function SolarScene({
   audioDiagnostics = DEFAULT_AUDIO_DIAG,
   onReady,
 }: SolarSceneProps) {
+  const { locale } = useLocale()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const scrollProgress = useScrollProgress(scrollContainerRef)
   const activeGroups = useProgressiveLoader(scrollProgress, IS_SAFE)
@@ -773,6 +779,24 @@ export function SolarScene({
   const [venusPanelVisible, setVenusPanelVisible] = useState(false)
   const venusPanelManuallyClosedRef = useRef(false)
   const venusHoldTimerRef = useRef<number | null>(null)
+  const [earthPanelVisible, setEarthPanelVisible] = useState(false)
+  const earthPanelManuallyClosedRef = useRef(false)
+  const earthHoldTimerRef = useRef<number | null>(null)
+  const [moonPanelVisible, setMoonPanelVisible] = useState(false)
+  const moonPanelManuallyClosedRef = useRef(false)
+  const moonHoldTimerRef = useRef<number | null>(null)
+  const [marsPanelVisible, setMarsPanelVisible] = useState(false)
+  const marsPanelManuallyClosedRef = useRef(false)
+  const marsHoldTimerRef = useRef<number | null>(null)
+  const [neptunePanelVisible, setNeptunePanelVisible] = useState(false)
+  const neptunePanelManuallyClosedRef = useRef(false)
+  const neptuneHoldTimerRef = useRef<number | null>(null)
+  const [uranusPanelVisible, setUranusPanelVisible] = useState(false)
+  const uranusPanelManuallyClosedRef = useRef(false)
+  const uranusHoldTimerRef = useRef<number | null>(null)
+  const [blackholePanelVisible, setBlackholePanelVisible] = useState(false)
+  const blackholePanelManuallyClosedRef = useRef(false)
+  const blackholeHoldTimerRef = useRef<number | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
   const [isFinaleActive, setIsFinaleActive] = useState(false)
 
@@ -936,6 +960,192 @@ export function SolarScene({
     }
   }, [cameraPhase])
 
+  // Earth panel visibility contract:
+  // - Only appears in `earth-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (earthHoldTimerRef.current) {
+      window.clearTimeout(earthHoldTimerRef.current)
+      earthHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'earth-hold') {
+      setEarthPanelVisible(false)
+      return
+    }
+
+    earthPanelManuallyClosedRef.current = false
+    earthHoldTimerRef.current = window.setTimeout(() => {
+      if (!earthPanelManuallyClosedRef.current) {
+        setEarthPanelVisible(true)
+      }
+      earthHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (earthHoldTimerRef.current) {
+        window.clearTimeout(earthHoldTimerRef.current)
+        earthHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Moon panel visibility contract:
+  // - Only appears in `moon-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (moonHoldTimerRef.current) {
+      window.clearTimeout(moonHoldTimerRef.current)
+      moonHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'moon-hold') {
+      setMoonPanelVisible(false)
+      return
+    }
+
+    moonPanelManuallyClosedRef.current = false
+    moonHoldTimerRef.current = window.setTimeout(() => {
+      if (!moonPanelManuallyClosedRef.current) {
+        setMoonPanelVisible(true)
+      }
+      moonHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (moonHoldTimerRef.current) {
+        window.clearTimeout(moonHoldTimerRef.current)
+        moonHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Mars panel visibility contract:
+  // - Only appears in `mars-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (marsHoldTimerRef.current) {
+      window.clearTimeout(marsHoldTimerRef.current)
+      marsHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'mars-hold') {
+      setMarsPanelVisible(false)
+      return
+    }
+
+    marsPanelManuallyClosedRef.current = false
+    marsHoldTimerRef.current = window.setTimeout(() => {
+      if (!marsPanelManuallyClosedRef.current) {
+        setMarsPanelVisible(true)
+      }
+      marsHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (marsHoldTimerRef.current) {
+        window.clearTimeout(marsHoldTimerRef.current)
+        marsHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Neptune panel visibility contract:
+  // - Only appears in `neptune-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (neptuneHoldTimerRef.current) {
+      window.clearTimeout(neptuneHoldTimerRef.current)
+      neptuneHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'neptune-hold') {
+      setNeptunePanelVisible(false)
+      return
+    }
+
+    neptunePanelManuallyClosedRef.current = false
+    neptuneHoldTimerRef.current = window.setTimeout(() => {
+      if (!neptunePanelManuallyClosedRef.current) {
+        setNeptunePanelVisible(true)
+      }
+      neptuneHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (neptuneHoldTimerRef.current) {
+        window.clearTimeout(neptuneHoldTimerRef.current)
+        neptuneHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Uranus panel visibility contract:
+  // - Only appears in `uranus-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (uranusHoldTimerRef.current) {
+      window.clearTimeout(uranusHoldTimerRef.current)
+      uranusHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'uranus-hold') {
+      setUranusPanelVisible(false)
+      return
+    }
+
+    uranusPanelManuallyClosedRef.current = false
+    uranusHoldTimerRef.current = window.setTimeout(() => {
+      if (!uranusPanelManuallyClosedRef.current) {
+        setUranusPanelVisible(true)
+      }
+      uranusHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (uranusHoldTimerRef.current) {
+        window.clearTimeout(uranusHoldTimerRef.current)
+        uranusHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
+  // Blackhole panel visibility contract:
+  // - Only appears in `blackhole-hold`
+  // - Shows 1s after entering hold
+  // - Hides immediately when leaving hold
+  useEffect(() => {
+    if (blackholeHoldTimerRef.current) {
+      window.clearTimeout(blackholeHoldTimerRef.current)
+      blackholeHoldTimerRef.current = null
+    }
+
+    if (cameraPhase !== 'blackhole-hold') {
+      setBlackholePanelVisible(false)
+      return
+    }
+
+    blackholePanelManuallyClosedRef.current = false
+    blackholeHoldTimerRef.current = window.setTimeout(() => {
+      if (!blackholePanelManuallyClosedRef.current) {
+        setBlackholePanelVisible(true)
+      }
+      blackholeHoldTimerRef.current = null
+    }, 1000)
+
+    return () => {
+      if (blackholeHoldTimerRef.current) {
+        window.clearTimeout(blackholeHoldTimerRef.current)
+        blackholeHoldTimerRef.current = null
+      }
+    }
+  }, [cameraPhase])
+
   function handlePlanetClick(config: PlanetConfig) {
     if (config.id === 'sun') {
       // Toggle is only meaningful in sun-hold.
@@ -985,12 +1195,82 @@ export function SolarScene({
       }
       return
     }
+    if (config.id === 'earth') {
+      // Toggle is only meaningful in earth-hold.
+      if (cameraPhase !== 'earth-hold') return
+      const nextClosed = !earthPanelManuallyClosedRef.current
+      earthPanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (earthHoldTimerRef.current) {
+          window.clearTimeout(earthHoldTimerRef.current)
+          earthHoldTimerRef.current = null
+        }
+        setEarthPanelVisible(false)
+      } else {
+        setEarthPanelVisible(true)
+      }
+      return
+    }
+    if (config.id === 'moon') {
+      // Toggle is only meaningful in moon-hold.
+      if (cameraPhase !== 'moon-hold') return
+      const nextClosed = !moonPanelManuallyClosedRef.current
+      moonPanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (moonHoldTimerRef.current) {
+          window.clearTimeout(moonHoldTimerRef.current)
+          moonHoldTimerRef.current = null
+        }
+        setMoonPanelVisible(false)
+      } else {
+        setMoonPanelVisible(true)
+      }
+      return
+    }
+    if (config.id === 'mars') {
+      // Toggle is only meaningful in mars-hold.
+      if (cameraPhase !== 'mars-hold') return
+      const nextClosed = !marsPanelManuallyClosedRef.current
+      marsPanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (marsHoldTimerRef.current) {
+          window.clearTimeout(marsHoldTimerRef.current)
+          marsHoldTimerRef.current = null
+        }
+        setMarsPanelVisible(false)
+      } else {
+        setMarsPanelVisible(true)
+      }
+      return
+    }
+    if (config.id === 'neptune') {
+      // Toggle is only meaningful in neptune-hold.
+      if (cameraPhase !== 'neptune-hold') return
+      const nextClosed = !neptunePanelManuallyClosedRef.current
+      neptunePanelManuallyClosedRef.current = nextClosed
+      if (nextClosed) {
+        if (neptuneHoldTimerRef.current) {
+          window.clearTimeout(neptuneHoldTimerRef.current)
+          neptuneHoldTimerRef.current = null
+        }
+        setNeptunePanelVisible(false)
+      } else {
+        setNeptunePanelVisible(true)
+      }
+      return
+    }
     setActivePlanet(config)
   }
 
   const sunConfig = PLANET_REGISTRY.find((p) => p.id === 'sun')!
   const mercuryConfig = PLANET_REGISTRY.find((p) => p.id === 'mercury')!
   const venusConfig = PLANET_REGISTRY.find((p) => p.id === 'venus')!
+  const earthConfig = PLANET_REGISTRY.find((p) => p.id === 'earth')!
+  const moonConfig = PLANET_REGISTRY.find((p) => p.id === 'moon')!
+  const marsConfig = PLANET_REGISTRY.find((p) => p.id === 'mars')!
+  const neptuneConfig = PLANET_REGISTRY.find((p) => p.id === 'neptune')!
+  const uranusConfig = PLANET_REGISTRY.find((p) => p.id === 'uranus')!
+  const blackholeConfig = PLANET_REGISTRY.find((p) => p.id === 'blackhole')!
 
   return (
     <div className={styles.solarSceneRoot}>
@@ -1096,8 +1376,18 @@ export function SolarScene({
                     (discreteCurrentShotId === 'neptune' && discreteIsTransitioning))
                 }
                 onClick={() => {
-                  const cfg = PLANET_REGISTRY.find((p) => p.id === 'uranus')
-                  if (cfg) setActivePlanet(cfg)
+                  if (cameraPhase !== 'uranus-hold') return
+                  const nextClosed = !uranusPanelManuallyClosedRef.current
+                  uranusPanelManuallyClosedRef.current = nextClosed
+                  if (nextClosed) {
+                    if (uranusHoldTimerRef.current) {
+                      window.clearTimeout(uranusHoldTimerRef.current)
+                      uranusHoldTimerRef.current = null
+                    }
+                    setUranusPanelVisible(false)
+                  } else {
+                    setUranusPanelVisible(true)
+                  }
                 }}
               />
 
@@ -1105,8 +1395,18 @@ export function SolarScene({
               <BlackholeGuaranteedMesh
                 visible={BLACKHOLE_VISIBLE}
                 onClick={() => {
-                  const cfg = PLANET_REGISTRY.find((p) => p.id === 'blackhole')
-                  if (cfg) setActivePlanet(cfg)
+                  if (cameraPhase !== 'blackhole-hold') return
+                  const nextClosed = !blackholePanelManuallyClosedRef.current
+                  blackholePanelManuallyClosedRef.current = nextClosed
+                  if (nextClosed) {
+                    if (blackholeHoldTimerRef.current) {
+                      window.clearTimeout(blackholeHoldTimerRef.current)
+                      blackholeHoldTimerRef.current = null
+                    }
+                    setBlackholePanelVisible(false)
+                  } else {
+                    setBlackholePanelVisible(true)
+                  }
                 }}
               />
 
@@ -1206,7 +1506,7 @@ export function SolarScene({
         config={sunConfig}
         open={sunPanelVisible && cameraPhase === 'sun-hold'}
         align="right"
-        phaseInfo="This is the starting point: a quick snapshot of who I am and how this portfolio works. Each planet is a chapter — scroll to continue."
+        phaseInfo={getPlanetPhaseInfo('sun', locale)}
         onClose={() => {
           sunPanelManuallyClosedRef.current = true
           if (sunHoldTimerRef.current) {
@@ -1221,7 +1521,7 @@ export function SolarScene({
         config={mercuryConfig}
         open={mercuryPanelVisible && cameraPhase === 'mercury-hold'}
         align="left"
-        phaseInfo="Mercury is where I talk skills and core stack: TypeScript, React, Node.js, and the tooling that lets me ship fast without sacrificing quality. Small planet, high velocity."
+        phaseInfo={getPlanetPhaseInfo('mercury', locale)}
         onClose={() => {
           mercuryPanelManuallyClosedRef.current = true
           if (mercuryHoldTimerRef.current) {
@@ -1236,7 +1536,7 @@ export function SolarScene({
         config={venusConfig}
         open={venusPanelVisible && cameraPhase === 'venus-hold'}
         align="right"
-        phaseInfo="This phase is about craft: how the experience is built (React, Three.js, performance-minded loading, and a UI language consistent with the intro)."
+        phaseInfo={getPlanetPhaseInfo('venus', locale)}
         onClose={() => {
           venusPanelManuallyClosedRef.current = true
           if (venusHoldTimerRef.current) {
@@ -1244,6 +1544,96 @@ export function SolarScene({
             venusHoldTimerRef.current = null
           }
           setVenusPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={earthConfig}
+        open={earthPanelVisible && cameraPhase === 'earth-hold'}
+        align="left"
+        phaseInfo={getPlanetPhaseInfo('earth', locale)}
+        onClose={() => {
+          earthPanelManuallyClosedRef.current = true
+          if (earthHoldTimerRef.current) {
+            window.clearTimeout(earthHoldTimerRef.current)
+            earthHoldTimerRef.current = null
+          }
+          setEarthPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={moonConfig}
+        open={moonPanelVisible && cameraPhase === 'moon-hold'}
+        align="right"
+        phaseInfo={getPlanetPhaseInfo('moon', locale)}
+        onClose={() => {
+          moonPanelManuallyClosedRef.current = true
+          if (moonHoldTimerRef.current) {
+            window.clearTimeout(moonHoldTimerRef.current)
+            moonHoldTimerRef.current = null
+          }
+          setMoonPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={marsConfig}
+        open={marsPanelVisible && cameraPhase === 'mars-hold'}
+        align="left"
+        phaseInfo={getPlanetPhaseInfo('mars', locale)}
+        onClose={() => {
+          marsPanelManuallyClosedRef.current = true
+          if (marsHoldTimerRef.current) {
+            window.clearTimeout(marsHoldTimerRef.current)
+            marsHoldTimerRef.current = null
+          }
+          setMarsPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={neptuneConfig}
+        open={neptunePanelVisible && cameraPhase === 'neptune-hold'}
+        align="right"
+        phaseInfo={getPlanetPhaseInfo('neptune', locale)}
+        onClose={() => {
+          neptunePanelManuallyClosedRef.current = true
+          if (neptuneHoldTimerRef.current) {
+            window.clearTimeout(neptuneHoldTimerRef.current)
+            neptuneHoldTimerRef.current = null
+          }
+          setNeptunePanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={uranusConfig}
+        open={uranusPanelVisible && cameraPhase === 'uranus-hold'}
+        align="left"
+        phaseInfo={getPlanetPhaseInfo('uranus', locale)}
+        onClose={() => {
+          uranusPanelManuallyClosedRef.current = true
+          if (uranusHoldTimerRef.current) {
+            window.clearTimeout(uranusHoldTimerRef.current)
+            uranusHoldTimerRef.current = null
+          }
+          setUranusPanelVisible(false)
+        }}
+      />
+
+      <SunInfoPanel
+        config={blackholeConfig}
+        open={blackholePanelVisible && cameraPhase === 'blackhole-hold'}
+        align="right"
+        phaseInfo={getPlanetPhaseInfo('blackhole', locale)}
+        onClose={() => {
+          blackholePanelManuallyClosedRef.current = true
+          if (blackholeHoldTimerRef.current) {
+            window.clearTimeout(blackholeHoldTimerRef.current)
+            blackholeHoldTimerRef.current = null
+          }
+          setBlackholePanelVisible(false)
         }}
       />
 
@@ -1307,7 +1697,13 @@ export function SolarScene({
       {activePlanet &&
         activePlanet.id !== 'sun' &&
         activePlanet.id !== 'mercury' &&
-        activePlanet.id !== 'venus' && (
+        activePlanet.id !== 'uranus' &&
+        activePlanet.id !== 'neptune' &&
+        activePlanet.id !== 'mars' &&
+        activePlanet.id !== 'moon' &&
+        activePlanet.id !== 'earth' &&
+        activePlanet.id !== 'venus' &&
+        activePlanet.id !== 'blackhole' && (
         <PlanetOverlay config={activePlanet} onClose={() => setActivePlanet(null)} />
       )}
 

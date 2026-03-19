@@ -99,6 +99,14 @@
   gap: 1rem;
 }
 
+/* Top-right language toggle (intro only, outside immersive mode) */
+.languageSwitcherWrap {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  z-index: 20;
+}
+
 .introBtnImmersive {
   position: relative;
   overflow: hidden;

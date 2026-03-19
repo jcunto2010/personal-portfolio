@@ -8,6 +8,7 @@ import {
   PageFallback,
 } from './router/routes'
 import './tokens/tokens.css'
+import { LocaleProvider } from './lib/localeContext'
 
 /**
  * AppV2 — root of Portfolio V2.
@@ -37,44 +38,46 @@ function V2Layout() {
 
 export default function AppV2() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<V2Layout />}>
-          <Route
-            index
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <LazyHomeV2 />
-              </Suspense>
-            }
-          />
-          <Route
-            path="projects"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <LazyProjectsV2 />
-              </Suspense>
-            }
-          />
-          <Route
-            path="projects/:slug"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <LazyProjectDetailV2 />
-              </Suspense>
-            }
-          />
-          {/* Fase 0 — smoke test temporal. Eliminar tras validar assets. */}
-          <Route
-            path="smoke-test"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <LazySmokeTest />
-              </Suspense>
-            }
-          />
-        </Route>
-      </Routes>
-    </HashRouter>
+    <LocaleProvider>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<V2Layout />}>
+            <Route
+              index
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <LazyHomeV2 />
+                </Suspense>
+              }
+            />
+            <Route
+              path="projects"
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <LazyProjectsV2 />
+                </Suspense>
+              }
+            />
+            <Route
+              path="projects/:slug"
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <LazyProjectDetailV2 />
+                </Suspense>
+              }
+            />
+            {/* Fase 0 — smoke test temporal. Eliminar tras validar assets. */}
+            <Route
+              path="smoke-test"
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <LazySmokeTest />
+                </Suspense>
+              }
+            />
+          </Route>
+        </Routes>
+      </HashRouter>
+    </LocaleProvider>
   )
 }

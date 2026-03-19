@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useScrollContext } from '../../lib/scrollContext'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { useLocale } from '../../lib/localeContext'
 import styles from './TableOfContents.module.css'
 
 export interface TocEntry {
@@ -8,23 +9,32 @@ export interface TocEntry {
   label: string
 }
 
-const CHAPTERS: TocEntry[] = [
-  { id: 'chapter-intro',      label: 'Intro' },
-  { id: 'chapter-about',      label: 'About' },
-  { id: 'chapter-notes',      label: 'Experience' },
-  { id: 'chapter-work',       label: 'Work' },
-  { id: 'chapter-contact',    label: 'Contact' },
-]
-
 export function TableOfContents() {
   const [active, setActive] = useState<string>('')
   const lenisRef = useScrollContext()
   const prefersReduced = useReducedMotion()
+  const { locale } = useLocale()
+
+  const chapters: TocEntry[] = locale === 'es'
+    ? [
+        { id: 'chapter-intro',   label: 'Introducción' },
+        { id: 'chapter-about',   label: 'Acerca de' },
+        { id: 'chapter-notes',   label: 'Experiencia' },
+        { id: 'chapter-work',    label: 'Trabajo' },
+        { id: 'chapter-contact', label: 'Contacto' },
+      ]
+    : [
+        { id: 'chapter-intro',   label: 'Intro' },
+        { id: 'chapter-about',   label: 'About' },
+        { id: 'chapter-notes',   label: 'Experience' },
+        { id: 'chapter-work',    label: 'Work' },
+        { id: 'chapter-contact', label: 'Contact' },
+      ]
 
   useEffect(() => {
     const observers: IntersectionObserver[] = []
 
-    CHAPTERS.forEach(({ id }) => {
+    chapters.forEach(({ id }) => {
       const el = document.getElementById(id)
       if (!el) return
 
@@ -60,10 +70,10 @@ export function TableOfContents() {
   return (
     <nav
       className={styles.toc}
-      aria-label="Page chapters"
+      aria-label={locale === 'es' ? 'Capítulos de la página' : 'Page chapters'}
     >
       <ol className={styles.list} role="list">
-        {CHAPTERS.map(({ id, label }) => (
+        {chapters.map(({ id, label }) => (
           <li key={id} className={styles.item}>
             <button
               type="button"

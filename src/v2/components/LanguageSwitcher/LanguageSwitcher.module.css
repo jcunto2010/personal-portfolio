@@ -1,0 +1,64 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Match EntryGate immersive pill style */
+  position: relative;
+  padding: 0.7rem 1.1rem;
+  background: linear-gradient(
+    to right,
+    rgba(0, 155, 125, 0.25),
+    rgba(0, 217, 163, 0.25)
+  );
+  border: 1px solid rgba(0, 217, 163, 0.4);
+  color: #fff;
+  border-radius: 999px;
+  font-family: var(--v2-font-body);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  font-style: italic;
+  transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease,
+    color 0.3s ease;
+}
+
+.select:hover {
+  border-color: rgba(0, 217, 163, 0.7);
+  transform: scale(1.03);
+}
+
+.select:focus-visible {
+  border-color: rgba(0, 217, 163, 0.8);
+  box-shadow: 0 0 0 3px rgba(0, 217, 163, 0.2);
+}
+
+.select option {
+  background: rgba(7, 11, 26, 0.98);
+  color: #fff;
+}
+
+/* Screen-reader only content */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
