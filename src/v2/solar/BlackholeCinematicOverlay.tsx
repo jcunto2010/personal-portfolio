@@ -69,9 +69,13 @@ export function BlackholeCinematicOverlay({
   let resetDarkOpacity = 0
   if (activeReset) {
     if (resetPhase === 'dive') {
-      resetDarkOpacity = 0
+      // Fade in during dive so blackout arrival feels continuous with camera push-in.
+      // Starts subtle, ramps aggressively near the center.
+      const diveT = remap(rt, 0, RESET_DIVE_END, 0, 1)
+      resetDarkOpacity = Math.pow(diveT, 2.4) * 0.95
     } else if (resetPhase === 'consume') {
-      resetDarkOpacity = remap(rt, RESET_DIVE_END, RESET_DIVE_END + 0.15, 0, 1)
+      // Consume should read as a full blackout hold.
+      resetDarkOpacity = 1
     } else {
       resetDarkOpacity = remap(rt, RESET_CONSUME_END, 1, 1, 0)
     }

@@ -90,17 +90,20 @@ const VENUS_EARTH_ARC_WAYPOINT = new THREE.Vector3(28, 0.5, -88)
  */
 const CINEMATIC_SPEED = 0.135
 
-/**
- * Speed for the Blackhole reset cinematic (enter blackhole → Sun).
- * 0.5 → total duration ~2 s (dive ~0.9s, consume ~0.74s, reappear ~0.36s).
- */
-const RESET_CINEMATIC_SPEED = 0.5
-
 // Reset cinematic phase boundaries [0..1]
 const RESET_DIVE_END    = 0.45   // dive: camera push toward blackhole
 const RESET_CONSUME_END  = 0.82   // consume: dark hold; reappear: intro sweep to Sun + fade out
 // Reappear: same duration as intro sweep (INTRO_DURATION)
 const RESET_REAPPEAR_SPEED = (1 - RESET_CONSUME_END) / INTRO_DURATION
+
+/**
+ * Blackhole reset cinematic speeds (enter blackhole → Sun), by phase:
+ * - dive:    push-in toward blackhole core
+ * - consume: black hold (target ~1s)
+ * - reappear: intro sweep toward Sun (matched to INTRO_DURATION)
+ */
+const RESET_DIVE_SPEED = 0.20
+const RESET_CONSUME_SPEED = (RESET_CONSUME_END - RESET_DIVE_END) / 1.0 // ~=0.37 for 1s hold
 
 // Sub-phase boundaries for the cinematic transition [0..1]
 const CINEMATIC_DEPARTURE_END = 0.12  // 0.00 → 0.12  (~0.9s) — short turn to void
@@ -523,38 +526,48 @@ export function CameraRig({
       // dive: camera pushes toward blackhole center; consume: dark hold; reappear: cut to Sun, overlay fades.
       if (isBlackholeResetting && blackholeResetTRef) {
         const raw  = blackholeResetTRef.current
-        const speed = raw < RESET_CONSUME_END ? RESET_CINEMATIC_SPEED : RESET_REAPPEAR_SPEED
+        const speed =
+          raw < RESET_DIVE_END
+            ? RESET_DIVE_SPEED
+            : raw < RESET_CONSUME_END
+              ? RESET_CONSUME_SPEED
+              : RESET_REAPPEAR_SPEED
         const next = Math.min(1, raw + delta * speed)
         blackholeResetTRef.current = next
 
         let resetPhase: BlackholeResetPhase
         let camPos: THREE.Vector3
         let lookPos: THREE.Vector3
+        // Enter path target: move forward and slightly to camera-right so the
+        // perceived motion matches the right-biased blackhole framing.
+        const bhForward = new THREE.Vector3().subVectors(blackholePose.look, blackholePose.cam).normalize()
+        const bhRight = new THREE.Vector3().crossVectors(bhForward, new THREE.Vector3(0, 1, 0)).normalize()
+        const consumeTargetCam = new THREE.Vector3()
+          .copy(blackholePose.look)
+          .addScaledVector(bhRight, 2.2)
+          .addScaledVector(bhForward, 0.35)
 
         if (next < RESET_DIVE_END) {
           // ── Dive: camera moves from blackhole hold pose toward blackhole center ─
           resetPhase = 'dive'
           const localT = easeInCubic(next / RESET_DIVE_END)
-          // Move position 95% of the way toward lookAt so the sphere dominates the frame
+          // Move toward a right-biased consume target so entry feels aligned with
+          // the current blackhole framing (model appears on the right).
           camPos = new THREE.Vector3().lerpVectors(
             blackholePose.cam,
-            blackholePose.look,
-            0.95 * localT,
+            consumeTargetCam,
+            localT,
           )
           lookPos = blackholePose.look.clone()
 
         } else if (next < RESET_CONSUME_END) {
           // ── Consume: hold at extreme close, black sphere fills frame ─
           resetPhase = 'consume'
-          camPos = new THREE.Vector3().lerpVectors(
-            blackholePose.cam,
-            blackholePose.look,
-            0.95,
-          )
+          camPos = consumeTargetCam.clone()
           lookPos = blackholePose.look.clone()
 
         } else {
-          // ── Reappear: same intro sweep (INTRO_START → sun hold); overlay fades out ─
+          // ── Reappear: reuse the existing Sun intro sweep (INTRO_START → Sun hold) ─
           resetPhase = 'reappear'
           const localT = (next - RESET_CONSUME_END) / (1 - RESET_CONSUME_END)
           const reintroT = THREE.MathUtils.clamp(

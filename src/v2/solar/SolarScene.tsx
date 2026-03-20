@@ -37,6 +37,7 @@ import { useDiscreteShotNavigation } from './useDiscreteShotNavigation'
 import { DebugHUD } from './DebugHUD'
 import { BlackholeCinematicOverlay } from './BlackholeCinematicOverlay'
 import { WarpStarfield } from './WarpStarfield'
+import { BlackholeShaderMesh } from './BlackholeShaderMesh'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
 import { disableFrustumCulling } from './glbNormalization'
 import styles from './SolarScene.module.css'
@@ -77,11 +78,23 @@ function getQueryParam(name: string): boolean {
   }
 }
 
+type BlackholeRenderMode = 'glb' | 'shader'
+
+function getBlackholeRenderMode(): BlackholeRenderMode {
+  try {
+    const raw = new URLSearchParams(window.location.search).get('blackholeRender')
+    return raw === 'shader' ? 'shader' : 'glb'
+  } catch {
+    return 'glb'
+  }
+}
+
 // Temporal: desactiva el debug HUD (incluye overlay + telemetría asociada).
 // Si quieres volver a activarlo, pon esto en `true`.
 const SHOW_DEBUG_HUD = false
 const IS_DEBUG = SHOW_DEBUG_HUD && (import.meta.env.DEV || getQueryParam('debug'))
 const IS_SAFE  = getQueryParam('safe')
+const BLACKHOLE_RENDER_MODE = getBlackholeRenderMode()
 
 // ── Loading thresholds ─────────────────────────────────────────────────────────
 
@@ -1399,27 +1412,53 @@ export function SolarScene({
                 }}
               />
 
-              {/* Blackhole GLB mesh — only visible during its shot */}
-              <BlackholeGuaranteedMesh
-                visible={BLACKHOLE_VISIBLE}
-                onClick={() => {
-                  if (cameraPhase !== 'blackhole-hold') return
-                  const nextClosed = !blackholePanelManuallyClosedRef.current
-                  blackholePanelManuallyClosedRef.current = nextClosed
-                  if (nextClosed) {
-                    if (blackholeHoldTimerRef.current) {
-                      window.clearTimeout(blackholeHoldTimerRef.current)
-                      blackholeHoldTimerRef.current = null
+              {/* Blackhole renderer A/B:
+                  - default: GLB (current implementation)
+                  - ?blackholeRender=shader => procedural shader mesh */}
+              {BLACKHOLE_RENDER_MODE === 'shader' ? (
+                <BlackholeShaderMesh
+                  visible={BLACKHOLE_VISIBLE}
+                  position={BLACKHOLE_POS}
+                  isBlackholeResetting={isBlackholeResetting}
+                  blackholeResetPhase={blackholeResetPhase}
+                  blackholeResetT={resetCinematicT}
+                  onClick={() => {
+                    if (cameraPhase !== 'blackhole-hold') return
+                    const nextClosed = !blackholePanelManuallyClosedRef.current
+                    blackholePanelManuallyClosedRef.current = nextClosed
+                    if (nextClosed) {
+                      if (blackholeHoldTimerRef.current) {
+                        window.clearTimeout(blackholeHoldTimerRef.current)
+                        blackholeHoldTimerRef.current = null
+                      }
+                      setBlackholePanelVisible(false)
+                    } else {
+                      setBlackholePanelVisible(true)
                     }
-                    setBlackholePanelVisible(false)
-                  } else {
-                    setBlackholePanelVisible(true)
-                  }
-                }}
-              />
+                  }}
+                />
+              ) : (
+                <BlackholeGuaranteedMesh
+                  visible={BLACKHOLE_VISIBLE}
+                  onClick={() => {
+                    if (cameraPhase !== 'blackhole-hold') return
+                    const nextClosed = !blackholePanelManuallyClosedRef.current
+                    blackholePanelManuallyClosedRef.current = nextClosed
+                    if (nextClosed) {
+                      if (blackholeHoldTimerRef.current) {
+                        window.clearTimeout(blackholeHoldTimerRef.current)
+                        blackholeHoldTimerRef.current = null
+                      }
+                      setBlackholePanelVisible(false)
+                    } else {
+                      setBlackholePanelVisible(true)
+                    }
+                  }}
+                />
+              )}
 
               {/* Nebula background — epic space backdrop, only during Blackhole shot */}
-              <NebulaBackground visible={BLACKHOLE_VISIBLE} />
+              <NebulaBackground visible={BLACKHOLE_VISIBLE && BLACKHOLE_RENDER_MODE !== 'shader'} />
 
               {/* Lighting */}
               <LightingRig safe={IS_SAFE} />
@@ -1633,7 +1672,7 @@ export function SolarScene({
       <SunInfoPanel
         config={blackholeConfig}
         open={blackholePanelVisible && cameraPhase === 'blackhole-hold'}
-        align="right"
+        align="left"
         phaseInfo={getPlanetPhaseInfo('blackhole', locale)}
         onClose={() => {
           blackholePanelManuallyClosedRef.current = true

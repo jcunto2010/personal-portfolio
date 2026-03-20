@@ -4,6 +4,7 @@ import type { IconType } from 'react-icons'
 import * as SiIcons from 'react-icons/si'
 import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
 import { ClassicHero } from '../ClassicHero/ClassicHero'
+import { ClassicTimeline } from '../ClassicTimeline/ClassicTimeline'
 import { contactV2 } from '../../data/contact.v2'
 import { experienceV2 } from '../../data/experience.v2'
 import { projectsV2 } from '../../data/projects.v2'
@@ -215,19 +216,16 @@ export function ClassicRebuildPage() {
       </section>
 
       <section className={styles.section} id="classic-experience">
-        <h2>{ui.experienceTitle}</h2>
-        <ol className={styles.timeline}>
-          {experienceV2.map((exp) => (
-            <li key={exp.id} className={styles.timelineItem}>
-              <div className={styles.timelinePeriod}>{exp.period}</div>
-              <div>
-                <h3>{exp.role}</h3>
-                <p className={styles.muted}>{exp.company}</p>
-                <p>{isEs ? (exp.descriptionEs ?? exp.description) : exp.description}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <ClassicTimeline
+          heading={ui.experienceTitle}
+          intro={isEs ? 'Roles y aprendizajes a lo largo del tiempo.' : 'Roles and learnings over time.'}
+          entries={experienceV2.map((exp) => ({
+            title: exp.role,
+            subtitle: `${exp.period} \u00b7 ${exp.company}`,
+            description: isEs ? (exp.descriptionEs ?? exp.description) : exp.description,
+            bullets: exp.technologies,
+          }))}
+        />
       </section>
 
       <section className={styles.section} id="classic-work">
