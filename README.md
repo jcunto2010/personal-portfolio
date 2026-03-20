@@ -105,12 +105,20 @@ personal_portfolio/
 
 ### Vercel (recommended)
 
+The repo ships [vercel.json](vercel.json) (Vite build, `dist`, SPA rewrites). **Production branch** is set in the Vercel UI, not in that file.
+
+**Production site (v2)** — import this GitHub repo, then **Settings → Git → Production Branch** → choose your v2 branch (e.g. `v2/cosmic-editorial`). Push to that branch updates production.
+
+**Optional: keep v1 on its own URL** — add a **second** Vercel project linked to the **same** repository, with **Production Branch** = `main`. That deploy stays on the v1 entry (`index.html` at `/`). Custom domains: **Settings → Domains** on each project.
+
+The v1 snapshot at merge-base is also tagged **`v1.0.0`** on GitHub (`git show v1.0.0`).
+
+CLI (optional):
+
 ```bash
 npm install -g vercel
 vercel --prod
 ```
-
-Configure your custom domain in the Vercel dashboard under **Settings → Domains**.
 
 ### Netlify
 
