@@ -91,7 +91,7 @@ function TimelineItem({
 export function ClassicTimeline({ heading, intro, entries }: ClassicTimelineProps) {
   const containerRef = useRef<HTMLElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
-  const reducedMotion = useReducedMotion()
+  const reducedMotion = useReducedMotion() ?? false
   const headingId = useId()
   const { scrollYProgress } = useScroll({
     target: containerRef,

@@ -67,8 +67,8 @@ vercel --prod
 Connect your GitHub repository to Vercel:
 1. Go to Vercel dashboard
 2. Import your Git repository
-3. Configure build settings (already set in vercel.json)
-4. Every push to main branch will trigger a deployment
+3. Configure build settings (already set in `vercel.json`; build command is `npm run build:vercel` so the site root serves Portfolio V2)
+4. Every push to your production branch will trigger a deployment
 
 ## Netlify Deployment
 

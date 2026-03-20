@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:vercel": "npm run build && node scripts/promote-v2-index.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

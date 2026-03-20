@@ -105,11 +105,11 @@ personal_portfolio/
 
 ### Vercel (recommended)
 
-The repo ships [vercel.json](vercel.json) (Vite build, `dist`, SPA rewrites). **Production branch** is set in the Vercel UI, not in that file.
+The repo ships [vercel.json](vercel.json) (Vite build, `dist`, SPA rewrites). **Production branch** is set in the Vercel UI (**Settings → Environments → Production → Branch Tracking**), not in that file.
 
-**Production site (v2)** — import this GitHub repo, then **Settings → Git → Production Branch** → choose your v2 branch (e.g. `v2/cosmic-editorial`). Push to that branch updates production.
+**Root URL is V2** — the build command runs `build:vercel`, which builds both entries then copies [index.v2.html](index.v2.html) over `dist/index.html`. Otherwise Vercel would serve V1 at `/` (static `index.html` wins over rewrites).
 
-**Optional: keep v1 on its own URL** — add a **second** Vercel project linked to the **same** repository, with **Production Branch** = `main`. That deploy stays on the v1 entry (`index.html` at `/`). Custom domains: **Settings → Domains** on each project.
+**Optional: keep v1 on its own URL** — add a **second** Vercel project with **Production Branch** = `main` and override **Build Command** to `npm run build` (no `build:vercel`) so `/` stays V1. Custom domains: **Settings → Domains** on each project.
 
 The v1 line on `main` is anchored with tag **`v1.0.0`** on GitHub (`git show v1.0.0`).
 
