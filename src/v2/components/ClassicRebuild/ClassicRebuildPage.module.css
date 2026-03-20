@@ -83,6 +83,71 @@
   background: rgba(2, 6, 23, 0.45);
 }
 
+.skillsSliders {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.skillsSliderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skillsSliderLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+}
+
+.skillsSliderArea {
+  border: none;
+  border-radius: var(--v2-radius-sm);
+  padding: 1.25rem 0;
+  background: rgba(15, 23, 42, 0.25);
+  min-height: 132px;
+  display: flex;
+  align-items: center;
+}
+
+.skillsSlider {
+  width: 100%;
+}
+
+.skillSliderItem {
+  flex: 0 0 auto;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.skillSliderPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: 999px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.05rem;
+  background: rgba(2, 6, 23, 0.45);
+  color: var(--v2-color-base-text);
+  white-space: nowrap;
+}
+
+.skillSliderIcon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  color: var(--v2-color-cyan);
+}
+
+.skillSliderText {
+  display: inline-block;
+  line-height: 1;
+}
+
 .timeline {
   list-style: none;
   margin: 0;

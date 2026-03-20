@@ -28,7 +28,6 @@ interface ClassicHeroProps {
 }
 
 export function ClassicHero({
-  logoText,
   navLinks,
   heroHeading,
   mainText,

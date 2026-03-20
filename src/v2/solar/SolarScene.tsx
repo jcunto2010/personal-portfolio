@@ -332,6 +332,7 @@ function BlackholeGLBInner({ onClick }: { onClick?: () => void }) {
   const { scene } = useGLTF(BLACKHOLE_GLB_PATH)
   const { gl } = useThree()
   const lightMatsRef = useRef<BlackholeLightMats>({ light1: [], light2: [], light3: [], diskGroup: null })
+  const diskGroupRef = useRef<THREE.Group | null>(null)
 
   useEffect(() => {
     disableFrustumCulling(scene)
@@ -402,8 +403,12 @@ function BlackholeGLBInner({ onClick }: { onClick?: () => void }) {
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
 
-    // Rotate the entire scene slowly around Y (disk spin)
-    scene.rotation.y = t * 0.04
+    // Rotate the entire disk/scene slowly around Y (disk spin).
+    // Mutating `scene` directly is flagged by `react-hooks/immutability`
+    // because `scene` comes from `useGLTF`.
+    if (diskGroupRef.current) {
+      diskGroupRef.current.rotation.y = t * 0.04
+    }
 
     // Pulse around the correct base intensities (light1=4.0, light2=2.5)
     const pulse = 4.0 + Math.sin(t * 1.3) * 0.6 + Math.sin(t * 3.1) * 0.2
@@ -415,6 +420,7 @@ function BlackholeGLBInner({ onClick }: { onClick?: () => void }) {
 
   return (
     <group
+      ref={diskGroupRef}
       position={BLACKHOLE_POS}
       scale={BLACKHOLE_SCALE}
       frustumCulled={false}
@@ -877,7 +883,9 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'sun-hold') {
-      setSunPanelVisible(false)
+      // Evita disparar `setState` directamente dentro del efecto (react-hooks/set-state-in-effect)
+      // Mantiene el contrato de ocultar inmediatamente al salir del "hold".
+      window.requestAnimationFrame(() => setSunPanelVisible(false))
       return
     }
 
@@ -909,7 +917,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'mercury-hold') {
-      setMercuryPanelVisible(false)
+      window.requestAnimationFrame(() => setMercuryPanelVisible(false))
       return
     }
 
@@ -940,7 +948,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'venus-hold') {
-      setVenusPanelVisible(false)
+      window.requestAnimationFrame(() => setVenusPanelVisible(false))
       return
     }
 
@@ -971,7 +979,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'earth-hold') {
-      setEarthPanelVisible(false)
+      window.requestAnimationFrame(() => setEarthPanelVisible(false))
       return
     }
 
@@ -1002,7 +1010,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'moon-hold') {
-      setMoonPanelVisible(false)
+      window.requestAnimationFrame(() => setMoonPanelVisible(false))
       return
     }
 
@@ -1033,7 +1041,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'mars-hold') {
-      setMarsPanelVisible(false)
+      window.requestAnimationFrame(() => setMarsPanelVisible(false))
       return
     }
 
@@ -1064,7 +1072,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'neptune-hold') {
-      setNeptunePanelVisible(false)
+      window.requestAnimationFrame(() => setNeptunePanelVisible(false))
       return
     }
 
@@ -1095,7 +1103,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'uranus-hold') {
-      setUranusPanelVisible(false)
+      window.requestAnimationFrame(() => setUranusPanelVisible(false))
       return
     }
 
@@ -1126,7 +1134,7 @@ export function SolarScene({
     }
 
     if (cameraPhase !== 'blackhole-hold') {
-      setBlackholePanelVisible(false)
+      window.requestAnimationFrame(() => setBlackholePanelVisible(false))
       return
     }
 

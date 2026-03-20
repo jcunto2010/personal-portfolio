@@ -200,13 +200,15 @@ function HomeV2Inner() {
 
   // Start / stop audio in response to audioEnabled + entered state.
   useEffect(() => {
-    if (entryPhase === 'ready' && audioEnabled) {
+    // Audio solo debe sonar en "immersive" (modo inmersivo).
+    // En "non-immersive" (modo clásico) forzamos stop para evitar música.
+    if (entryPhase === 'ready' && audioEnabled && mode === 'immersive') {
       audio.play()
     } else {
-      audio.pause()
+      audio.stop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entryPhase, audioEnabled])
+  }, [entryPhase, audioEnabled, mode])
 
   // Stop audio when unmounting (navigation away from Home).
   useEffect(() => {

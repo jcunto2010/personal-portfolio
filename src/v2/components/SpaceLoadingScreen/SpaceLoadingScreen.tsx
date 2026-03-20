@@ -2,16 +2,29 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import styles from './SpaceLoadingScreen.module.css'
 
+function mulberry32(seed: number) {
+  let t = seed >>> 0
+  return () => {
+    t += 0x6D2B79F5
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r)
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 export function SpaceLoadingScreen() {
   const stars = useMemo(() => {
-    return Array.from({ length: 100 }, () => ({
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      size: `${Math.random() * 2 + 0.5}px`,
-      duration: 3 + Math.random() * 4,
-      delay: Math.random() * 3,
-      maxOpacity: 0.65 + Math.random() * 0.25,
-    }))
+    return Array.from({ length: 100 }, (_, i) => {
+      const rand = mulberry32(i + 1)
+      return {
+        left: `${rand() * 100}%`,
+        top: `${rand() * 100}%`,
+        size: `${rand() * 2 + 0.5}px`,
+        duration: 3 + rand() * 4,
+        delay: rand() * 3,
+        maxOpacity: 0.65 + rand() * 0.25,
+      }
+    })
   }, [])
 
   const shootingStars = useMemo(() => {

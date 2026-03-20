@@ -14,16 +14,29 @@ interface EntryGateProps {
 
 const STAR_COUNT = 150
 
+function mulberry32(seed: number) {
+  let t = seed >>> 0
+  return () => {
+    t += 0x6D2B79F5
+    let r = Math.imul(t ^ (t >>> 15), 1 | t)
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r)
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296
+  }
+}
+
 function useStarfield() {
   return useMemo(() => {
-    return Array.from({ length: STAR_COUNT }, () => ({
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      baseOpacity: Math.random() * 0.7 + 0.3,
-      dimOpacity: Math.random() * 0.2,
-      flickerOpacity: Math.random() * 0.7 + 0.3,
-      duration: Math.random() * 4 + 2,
-    }))
+    return Array.from({ length: STAR_COUNT }, (_, i) => {
+      const rand = mulberry32(i + 1)
+      return {
+        left: rand() * 100,
+        top: rand() * 100,
+        baseOpacity: rand() * 0.7 + 0.3,
+        dimOpacity: rand() * 0.2,
+        flickerOpacity: rand() * 0.7 + 0.3,
+        duration: rand() * 4 + 2,
+      }
+    })
   }, [])
 }
 

@@ -1,31 +1,51 @@
 import { motion } from 'motion/react';
 
+function mulberry32(seed: number) {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 export function SpaceLoadingScreen() {
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center overflow-hidden">
       {/* Subtle stars - matching the intro */}
       <div className="absolute inset-0">
-        {[...Array(100)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute bg-white rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 2 + 0.5}px`,
-              height: `${Math.random() * 2 + 0.5}px`,
-            }}
-            animate={{
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 3,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
+        {[...Array(100)].map((_, i) => {
+          const rand = mulberry32(i + 1);
+          const left = rand() * 100;
+          const top = rand() * 100;
+          const width = rand() * 2 + 0.5;
+          const height = rand() * 2 + 0.5;
+          const duration = 3 + rand() * 4;
+          const delay = rand() * 3;
+
+          return (
+            <motion.div
+              key={i}
+              className="absolute bg-white rounded-full"
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                width: `${width}px`,
+                height: `${height}px`,
+              }}
+              animate={{
+                opacity: [0.3, 0.8, 0.3],
+              }}
+              transition={{
+                duration,
+                repeat: Infinity,
+                delay,
+                ease: "easeInOut",
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Central loading spinner */}
