@@ -111,7 +111,7 @@ The repo ships [vercel.json](vercel.json) (Vite build, `dist`, SPA rewrites). **
 
 **Optional: keep v1 on its own URL** — add a **second** Vercel project linked to the **same** repository, with **Production Branch** = `main`. That deploy stays on the v1 entry (`index.html` at `/`). Custom domains: **Settings → Domains** on each project.
 
-The v1 snapshot at merge-base is also tagged **`v1.0.0`** on GitHub (`git show v1.0.0`).
+The v1 line on `main` is anchored with tag **`v1.0.0`** on GitHub (`git show v1.0.0`).
 
 CLI (optional):
 
