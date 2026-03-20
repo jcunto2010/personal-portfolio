@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Github, Instagram, Linkedin, Twitter } from 'lucide-react'
+import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
 import { ClassicHero } from '../ClassicHero/ClassicHero'
 import { contactV2 } from '../../data/contact.v2'
 import { experienceV2 } from '../../data/experience.v2'
@@ -30,6 +31,25 @@ export function ClassicRebuildPage() {
       isEs
         ? 'Actualmente lidero el desarrollo de Reservo.AI y colaboro en productos donde la velocidad de ejecución y la calidad visual son igual de importantes.'
         : 'I currently lead development for Reservo.AI and collaborate on products where execution speed and visual quality are equally important.',
+    about3:
+      isEs
+        ? 'Mi trabajo conecta diseño, ingeniería y producto para que cada lanzamiento sea consistente, rápido y fácil de evolucionar.'
+        : 'My work connects design, engineering, and product so every release is consistent, fast, and easy to evolve.',
+    aboutHighlights: isEs
+      ? [
+          '4+ años construyendo productos web y mobile.',
+          'Experiencia en arquitectura frontend escalable.',
+          'Enfoque fuerte en performance, DX y mantenibilidad.',
+          'Colaboración directa con diseño, negocio y stakeholders.',
+          'Entrega end-to-end: discovery, build, QA y release.',
+        ]
+      : [
+          '4+ years building web and mobile products.',
+          'Experience designing scalable frontend architecture.',
+          'Strong focus on performance, DX, and maintainability.',
+          'Direct collaboration with design, business, and stakeholders.',
+          'End-to-end delivery: discovery, build, QA, and release.',
+        ],
     skillsTitle: isEs ? 'Skills' : 'Skills',
     experienceTitle: isEs ? 'Experiencia' : 'Experience',
     workTitle: isEs ? 'Proyectos destacados' : 'Featured projects',
@@ -50,6 +70,9 @@ export function ClassicRebuildPage() {
     ctaExperience: isEs ? 'Experiencia' : 'Experience',
     ctaProjects: isEs ? 'Proyectos' : 'Projects',
     heroLocation: isEs ? 'Caracas, Venezuela' : 'Caracas, Venezuela',
+    navAbout: isEs ? 'Acerca' : 'About',
+    aboutCtaSkills: isEs ? 'Ver skills' : 'View skills',
+    aboutCtaContact: isEs ? 'Contactar' : 'Contact',
   }
 
   function scrollToSection(id: string) {
@@ -64,11 +87,12 @@ export function ClassicRebuildPage() {
         <ClassicHero
           logoText={ui.title}
           navLinks={[
-            { label: ui.navHome.toUpperCase(), onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
-            { label: ui.ctaExperience.toUpperCase(), onClick: () => scrollToSection('classic-experience') },
-            { label: ui.ctaProjects.toUpperCase(), onClick: () => scrollToSection('classic-work') },
-            { label: ui.skillsTitle.toUpperCase(), onClick: () => scrollToSection('classic-skills') },
-            { label: ui.contactTitle.toUpperCase(), onClick: () => scrollToSection('classic-contact') },
+            { label: ui.navHome, onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+            { label: ui.navAbout, onClick: () => scrollToSection('classic-about') },
+            { label: ui.ctaExperience, onClick: () => scrollToSection('classic-experience') },
+            { label: ui.ctaProjects, onClick: () => scrollToSection('classic-work') },
+            { label: ui.skillsTitle, onClick: () => scrollToSection('classic-skills') },
+            { label: ui.contactTitle, onClick: () => scrollToSection('classic-contact') },
           ]}
           heroHeading={ui.heroHeading}
           mainText={ui.heroMainText}
@@ -86,11 +110,14 @@ export function ClassicRebuildPage() {
         />
       </header>
 
-      <section className={styles.section} id="classic-about">
-        <h2>{ui.aboutTitle}</h2>
-        <p>{ui.about1}</p>
-        <p>{ui.about2}</p>
-      </section>
+      <ClassicAbout
+        id="classic-about"
+        title={ui.aboutTitle}
+        paragraphs={[ui.about1, ui.about2, ui.about3]}
+        highlights={ui.aboutHighlights}
+        ctaPrimary={{ label: ui.aboutCtaSkills, onClick: () => scrollToSection('classic-skills') }}
+        ctaSecondary={{ label: ui.aboutCtaContact, onClick: () => scrollToSection('classic-contact') }}
+      />
 
       <section className={styles.section} id="classic-skills">
         <h2>{ui.skillsTitle}</h2>
