@@ -1,8 +1,8 @@
 /**
  * PlanetMesh — planets with GLB auto-normalisation.
  *
- * ALL planets (sun, mercury, venus, earth, moon, mars, neptune, uranus,
- * blackhole) use the same render path:
+ * All planets with GLBs (sun, mercury, venus, earth, moon, mars, neptune;
+ * uranus and blackhole are handled outside this component) use the same path:
  *
  *   outer group  → world position + artisticScale (lerped for hover)
  *   inner group  → bounding-box centring offset + normScale (from computeNormParams)
@@ -14,7 +14,7 @@
 
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useGLTF } from '@react-three/drei'
+import { useGLTFV2 } from './useGLTFV2'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { PlanetConfig, LoadingGroup } from './planetRegistry'
@@ -92,7 +92,7 @@ function GLBModel({
   onClick,
   onLoaded,
 }: GLBModelProps) {
-  const { scene } = useGLTF(modelPath)
+  const { scene } = useGLTFV2(modelPath)
   const groupRef  = useRef<THREE.Group>(null)
   const spinRef   = useRef<THREE.Group>(null)
   const [hovered, setHovered]  = useState(false)
@@ -105,8 +105,9 @@ function GLBModel({
 
   useEffect(() => {
     disableFrustumCulling(scene)
-    if (import.meta.env.DEV) {
-      console.error(
+    const isDev = import.meta.env.DEV
+    if (isDev) {
+      console.debug(
         `[PlanetMesh:debug] ${planetId} loaded | `
         + `radiusApprox=${norm.radiusApprox.toFixed(3)} `
         + `normScale=${norm.normScale.toFixed(4)} `

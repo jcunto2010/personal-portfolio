@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5'
 import { useAppMode, type AppMode } from '../../lib/appModeContext'
 import { LanguageSwitcher } from '../LanguageSwitcher/LanguageSwitcher'
@@ -47,6 +47,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   const [localMode, setLocalMode] = useState<AppMode>(mode)
   const [localAudio, setLocalAudio] = useState<boolean>(audioEnabled)
   const stars = useStarfield()
+  const reduceMotion = useReducedMotion()
 
   const isEs = locale === 'es'
   const ui = isEs
@@ -62,8 +63,9 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         immersiveLabel: 'Modo Inmersivo',
         recommended: 'Recomendado',
         immersiveSub: 'Experiencia en pantalla completa con sonido ambiental',
-        audioAriaOn: 'Audio de fondo activado — haz clic para desactivarlo',
-        audioAriaOff: 'Audio de fondo desactivado — haz clic para activarlo',
+        immersiveBtnAria: 'Activar modo inmersivo',
+        audioAriaOn: 'Silenciar sonido',
+        audioAriaOff: 'Activar sonido',
         classicLabel: 'Modo clásico',
         classicSub: 'Experiencia editorial enfocada en contenido',
       }
@@ -79,8 +81,9 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         immersiveLabel: 'Immersive Mode',
         recommended: 'Recommended',
         immersiveSub: 'Full screen experience with ambient sound',
-        audioAriaOn: 'Background audio enabled — click to disable',
-        audioAriaOff: 'Background audio disabled — click to enable',
+        immersiveBtnAria: 'Activate immersive mode',
+        audioAriaOn: 'Mute sound',
+        audioAriaOff: 'Unmute sound',
         classicLabel: 'Classic mode',
         classicSub: 'Editorial experience focused on content',
       }
@@ -88,6 +91,16 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   const noAnim = skipAnimations
     ? { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } }
     : {}
+
+  /** H1 stays visible for LCP; optional subtle motion only (no opacity fade-in). */
+  const introH1Motion =
+    skipAnimations || reduceMotion
+      ? { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } }
+      : {
+          initial: { opacity: 1, y: 8 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+        }
 
   async function commitSelection(nextMode: AppMode) {
     setMode(nextMode)
@@ -140,9 +153,9 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           <div className={styles.introTitleInner}>
             <motion.h1
               className={styles.introH1}
-              initial={noAnim.initial ?? { opacity: 0 }}
-              animate={noAnim.animate ?? { opacity: 1 }}
-              transition={noAnim.transition ?? { duration: 1.2 }}
+              initial={noAnim.initial ?? introH1Motion.initial}
+              animate={noAnim.animate ?? introH1Motion.animate}
+              transition={noAnim.transition ?? introH1Motion.transition}
             >
               {ui.introTitlePrefix} <span className={styles.introName}>{ui.introName}</span>
             </motion.h1>
@@ -185,45 +198,48 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           role="group"
           aria-label={ui.introButtonsGroup}
         >
-          <button
-            type="button"
-            className={styles.introBtnImmersive}
-            onClick={handleImmersiveMode}
-            aria-pressed={localMode === 'immersive'}
-          >
-            <div className={styles.introBtnImmersiveSweep} aria-hidden="true" />
-            <div className={styles.introBtnImmersiveInner}>
-              <div className={styles.introBtnImmersiveText}>
-                <div className={styles.introBtnImmersiveRow}>
-                  <span className={styles.introBtnImmersiveLabel}>{ui.immersiveLabel}</span>
-                  <span className={styles.introBtnImmersiveBadge}>{ui.recommended}</span>
+          <div className={styles.introBtnImmersiveWrap}>
+            <button
+              type="button"
+              className={styles.introBtnImmersive}
+              onClick={handleImmersiveMode}
+              aria-pressed={localMode === 'immersive'}
+              aria-label={ui.immersiveBtnAria}
+            >
+              <div className={styles.introBtnImmersiveSweep} aria-hidden="true" />
+              <div className={styles.introBtnImmersiveInner}>
+                <div className={styles.introBtnImmersiveText}>
+                  <div className={styles.introBtnImmersiveRow}>
+                    <span className={styles.introBtnImmersiveLabel}>{ui.immersiveLabel}</span>
+                    <span className={styles.introBtnImmersiveBadge}>{ui.recommended}</span>
+                  </div>
+                  <span className={styles.introBtnImmersiveSub}>
+                    {ui.immersiveSub}
+                  </span>
                 </div>
-                <span className={styles.introBtnImmersiveSub}>
-                  {ui.immersiveSub}
-                </span>
               </div>
-              <button
-                type="button"
-                className={styles.introAudioToggle}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setLocalAudio((prev) => !prev)
-                }}
-                aria-pressed={localAudio}
-                aria-label={
-                  localAudio
-                    ? ui.audioAriaOn
-                    : ui.audioAriaOff
-                }
-              >
-                {localAudio ? (
-                  <IoVolumeHigh size={20} style={{ color: '#00D9A3' }} />
-                ) : (
-                  <IoVolumeMute size={20} style={{ color: 'rgba(255,255,255,0.4)' }} />
-                )}
-              </button>
-            </div>
-          </button>
+            </button>
+            <button
+              type="button"
+              className={styles.introAudioToggle}
+              onClick={(e) => {
+                e.stopPropagation()
+                setLocalAudio((prev) => !prev)
+              }}
+              aria-pressed={localAudio}
+              aria-label={
+                localAudio
+                  ? ui.audioAriaOn
+                  : ui.audioAriaOff
+              }
+            >
+              {localAudio ? (
+                <IoVolumeHigh size={20} style={{ color: '#00D9A3' }} />
+              ) : (
+                <IoVolumeMute size={20} style={{ color: 'rgba(255,255,255,0.4)' }} />
+              )}
+            </button>
+          </div>
 
           <button
             type="button"

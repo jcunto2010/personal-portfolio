@@ -15,7 +15,8 @@
  */
 import { Suspense, useEffect, useRef, useState, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls, Center, Bounds } from '@react-three/drei'
+import { OrbitControls, Center, Bounds } from '@react-three/drei'
+import { useGLTFV2 } from '../../solar/useGLTFV2'
 import * as THREE from 'three'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -48,7 +49,6 @@ const GLB_ASSETS: { name: string; path: string }[] = [
   { name: 'mars',      path: '/assets/solar/models/mars.glb'      },
   { name: 'neptune',   path: '/assets/solar/models/neptune.glb'   },
   { name: 'uranus',    path: '/assets/solar/models/uranus.glb'    },
-  { name: 'blackhole', path: '/assets/solar/models/blackhole.glb' },
 ]
 
 const AUDIO_PATH = '/assets/audio/shona-theme.mp3'
@@ -101,7 +101,7 @@ interface ModelProbeProps {
 }
 
 function ModelProbe({ path, onResult }: ModelProbeProps) {
-  const { scene } = useGLTF(path)
+  const { scene } = useGLTFV2(path)
   const reported = useRef(false)
 
   useEffect(() => {

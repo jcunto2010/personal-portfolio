@@ -50,8 +50,10 @@ import { useAudioShell } from '../../lib/useAudioShell'
 import { EntryGate } from '../../components/EntryGate/EntryGate'
 import { NonImmersiveHome } from '../../components/NonImmersiveHome/NonImmersiveHome'
 import { SpaceLoadingScreen } from '../../components/SpaceLoadingScreen/SpaceLoadingScreen'
-import HomeV2 from './HomeV2'
 import { useJourneyLoader } from '../../lib/useJourneyLoader'
+
+/** Editorial home (ClassicRebuildPage, Three shader chunk, etc.) — lazy so EntryGate + H1 are not blocked by that JS. */
+const LazyHomeV2 = lazy(() => import('./HomeV2'))
 
 // ── Lazy SolarScene — WebGL bundle only loaded in immersive mode ───────────────
 
@@ -328,7 +330,19 @@ function HomeV2Inner() {
 
       {entryPhase === 'ready' && mode === 'non-immersive' && (
         <NonImmersiveHome onSwitchMode={handleSwitchMode}>
-          <HomeV2 />
+          <Suspense
+            fallback={
+              <div
+                style={{
+                  minHeight: '100vh',
+                  background: '#070B1A',
+                }}
+                aria-hidden="true"
+              />
+            }
+          >
+            <LazyHomeV2 />
+          </Suspense>
         </NonImmersiveHome>
       )}
 

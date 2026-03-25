@@ -36,8 +36,8 @@
  *                          short idle delay, whichever comes first)
  *
  * group 3 — "deep"      : loaded only once scroll progress crosses
- *   blackhole              DEEP_LOAD_THRESHOLD (0.45); blackhole is
- *                          NEVER preloaded at scene mount.
+ *                          DEEP_LOAD_THRESHOLD (0.45). Blackhole has no GLB
+ *                          (procedural shader in SolarScene); deep may be empty.
  *
  * Phase subdivision per planet (scroll progress, normalised 0..1)
  * ───────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ export interface PlanetConfig {
   label: string
   /** Narrative section this body represents. */
   section: string
-  /** Path to the GLB asset under /public. */
+  /** Path to the GLB asset under /public. Empty string if no GLB (e.g. blackhole shader). */
   modelPath: string
   /** [x, y, z] position in scene units. */
   position: [number, number, number]
@@ -103,7 +103,7 @@ export interface PlanetConfig {
    */
   accentColor: string
   /**
-   * Progressive loading wave. Controls when useGLTF.preload() is called.
+   * Progressive loading wave. Controls when useGLTFV2.preload() is called.
    */
   loadingGroup: LoadingGroup
   // ── Scroll focus window (outer envelope) ─────────────────────────────────────
@@ -398,7 +398,8 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     id: 'blackhole',
     label: 'Blackhole',
     section: 'Grand Finale',
-    modelPath: '/assets/solar/models/blackhole.glb',
+    /** No GLB — rendered by BlackholeShaderMesh in SolarScene. */
+    modelPath: '',
     position: [0, 0, -400],
     scale: 4.0,
     normalizedRadiusTarget: 1,
@@ -424,6 +425,13 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
 export const PLANET_MAP = new Map<PlanetId, PlanetConfig>(
   PLANET_REGISTRY.map((p) => [p.id, p]),
 )
+
+/** Unique GLB URLs for the solar scene — GPU disposal + `useGLTF.clear` when exiting immersive mode. */
+export const SOLAR_GLB_MODEL_URLS: readonly string[] = Object.freeze([
+  ...new Set(
+    PLANET_REGISTRY.map((p) => p.modelPath).filter((path): path is string => path.length > 0),
+  ),
+])
 
 export function getPlanetFocusCenter(config: PlanetConfig): number {
   return (config.focusStart + config.focusEnd) * 0.5

@@ -1,7 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { ClassicAboutShaderBackground } from './ClassicAboutShaderBackground'
 import styles from './ClassicAbout.module.css'
+
+const LazyClassicAboutShaderBackground = lazy(() =>
+  import('./ClassicAboutShaderBackground').then((m) => ({
+    default: m.ClassicAboutShaderBackground,
+  })),
+)
 
 interface ClassicAboutProps {
   id: string
@@ -42,7 +47,9 @@ export function ClassicAbout({
 
   return (
     <section id={id} ref={sectionRef} className={styles.section} aria-label="Classic about">
-      <ClassicAboutShaderBackground />
+      <Suspense fallback={<div className={styles.shaderLayer} aria-hidden="true" />}>
+        <LazyClassicAboutShaderBackground />
+      </Suspense>
       <div className={styles.overlayLayer} aria-hidden="true" />
       <div className={styles.stage}>
         <motion.header style={{ y: translateY }} className={styles.header}>
