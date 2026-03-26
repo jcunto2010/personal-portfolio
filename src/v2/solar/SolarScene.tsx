@@ -24,7 +24,7 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 import { useGLTFV2 } from './useGLTFV2'
-import { getStableActivePlanet, PLANET_REGISTRY } from './planetRegistry'
+import { getPlanetIndexById, getStableActivePlanet, PLANET_REGISTRY, SUN_GLB_URL } from './planetRegistry'
 import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
 import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
@@ -88,12 +88,13 @@ const SHOW_DEBUG_HUD = false
 const IS_DEBUG = SHOW_DEBUG_HUD && (import.meta.env.DEV || getQueryParam('debug'))
 const IS_SAFE  = getQueryParam('safe')
 
-// ── Loading thresholds ─────────────────────────────────────────────────────────
+// ── Loading thresholds (legacy scroll-driven HUD / finale only) ───────────────
 
-const DEEP_LOAD_THRESHOLD  = 0.45
-const MID_SCROLL_THRESHOLD = 0.08
 const FINALE_THRESHOLD     = 0.90
-const MID_LOAD_DELAY_MS    = 2000
+
+/** Discrete journey indices for progressive GLB groups (scroll stays at 0 in discrete mode). */
+const EARTH_SHOT_REGISTRY_INDEX = getPlanetIndexById('earth')
+const MARS_SHOT_REGISTRY_INDEX = getPlanetIndexById('mars')
 // Matches INTRO_START in CameraRig — CameraRig snaps to this on frame 1.
 // Matches INTRO_START in CameraRig.tsx — CameraRig snaps to this on frame 1.
 const INITIAL_CAMERA_POSITION: [number, number, number] = [36.0, 28.0, 44.0]
@@ -212,30 +213,6 @@ function NebulaBackground({ visible }: { visible: boolean }) {
   )
 }
 
-// ── Uranus material patch ─────────────────────────────────────────────────────
-//
-// Forces doubleSided=true on every material in the Uranus GLB so rings are
-// always visible regardless of camera angle.
-
-function UranusDoubleSidedPatch() {
-  const { scene } = useGLTFV2('/assets/solar/models/uranus.glb')
-  useEffect(() => {
-    scene.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh
-        const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-        mats.forEach((mat) => {
-          if (mat && (mat as THREE.MeshStandardMaterial).isMeshStandardMaterial) {
-            ;(mat as THREE.MeshStandardMaterial).side = THREE.DoubleSide
-            ;(mat as THREE.MeshStandardMaterial).needsUpdate = true
-          }
-        })
-      }
-    })
-  }, [scene])
-  return null
-}
-
 // ── Uranus textured mesh ───────────────────────────────────────────────────────
 //
 // Uses textures extracted directly from uranus.glb:
@@ -249,12 +226,11 @@ function UranusDoubleSidedPatch() {
 const URANUS_POS: [number, number, number] = [22, -1.0, -328]
 const URANUS_SPHERE_R = 4.0
 
-/** Preloads Uranus textures (and GLB) when at Neptune so the first Neptune→Uranus transition is smooth. */
+/** Warms TextureLoader cache when `deep` is active (same window as Neptune GLB). */
 function UranusTexturePreload({ active }: { active: boolean }) {
   useEffect(() => {
     if (!active) return
     useLoader.preload(THREE.TextureLoader, [...URANUS_DETAIL_TEXTURE_URLS])
-    useGLTFV2.preload('/assets/solar/models/uranus.glb')
   }, [active])
   return null
 }
@@ -299,20 +275,22 @@ function UranusTexturedInner({ visible, onClick }: { visible: boolean; onClick?:
   )
 }
 
-function UranusGuaranteedMesh({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
-  if (!visible) return null
+/**
+ * Mounts `useTexture` once `warm` is true (journey ready + deep group), so GPU upload
+ * does not coincide with the Neptune→Uranus camera move. `visible` only toggles meshes.
+ */
+function UranusGuaranteedMesh({
+  warm,
+  visible,
+  onClick,
+}: {
+  warm: boolean
+  visible: boolean
+  onClick?: () => void
+}) {
+  if (!warm) return null
   return (
-    <Suspense fallback={
-      <group position={URANUS_POS}>
-        <mesh
-          frustumCulled={false}
-          onClick={(e) => { e.stopPropagation(); onClick?.() }}
-        >
-          <sphereGeometry args={[URANUS_SPHERE_R, 64, 64]} />
-          <meshStandardMaterial color="#7ececa" emissive="#1a7a7a" emissiveIntensity={0.25} roughness={0.55} />
-        </mesh>
-      </group>
-    }>
+    <Suspense fallback={null}>
       <UranusTexturedInner visible={visible} onClick={onClick} />
     </Suspense>
   )
@@ -434,73 +412,49 @@ class GLBErrorBoundary extends Component<GLBErrorBoundaryProps, GLBErrorBoundary
 // ── Group 1: preload at module import time (non-safe mode only) ───────────────
 
 if (!IS_SAFE) {
-  PLANET_REGISTRY
-    .filter((p) => p.loadingGroup === 'initial' && p.id !== 'blackhole')
-    .forEach((p) => useGLTFV2.preload(p.modelPath))
+  const w = globalThis as unknown as { __SOLAR_INITIAL_PRELOADED__?: boolean }
+  if (!w.__SOLAR_INITIAL_PRELOADED__) {
+    w.__SOLAR_INITIAL_PRELOADED__ = true
+    // Preload: string canónica para deduplicación de caché.
+    useGLTFV2.preload(SUN_GLB_URL)
+    for (const id of ['earth', 'mercury', 'venus'] as const) {
+      const cfg = PLANET_REGISTRY.find((p) => p.id === id)
+      if (cfg?.modelPath) useGLTFV2.preload(cfg.modelPath)
+    }
+  }
 }
 
-// ── Progressive loader hook ────────────────────────────────────────────────────
+// ── Progressive loader (discrete shots — scroll container stays at top) ───────
+// Peak index only increases: after unlocking mid/deep once, reset-to-Sun does not
+// unmount GLBs already resolved (matches prior Set-based behaviour).
 
-function useProgressiveLoader(scrollProgress: number, safe: boolean): Set<LoadingGroup> {
-  const [activeGroups, setActiveGroups] = useState<Set<LoadingGroup>>(
-    () => new Set<LoadingGroup>(['initial']),
-  )
-  const midFiredRef  = useRef(false)
-  const deepFiredRef = useRef(false)
+function useProgressiveLoader(
+  currentShotId: PlanetId,
+  targetShotId: PlanetId | null,
+  safe: boolean,
+): Set<LoadingGroup> {
+  const snapshotMax = useMemo(() => {
+    if (safe) return 0
+    const cur = getPlanetIndexById(currentShotId)
+    const tgt = targetShotId != null ? getPlanetIndexById(targetShotId) : cur
+    return Math.max(cur, tgt)
+  }, [currentShotId, targetShotId, safe])
 
-  useEffect(() => {
-    if (safe || midFiredRef.current) return
-    midFiredRef.current = true
+  const [peakIdx, setPeakIdx] = useState(0)
+  // Monotonic peak: adjust state during render when the discrete journey advances
+  // (avoids setState in an effect; reset-to-sun keeps prior peak so mid/deep stay unlocked).
+  if (snapshotMax > peakIdx) {
+    setPeakIdx(snapshotMax)
+  }
+  const maxIdx = Math.max(peakIdx, snapshotMax)
 
-    const fireMid = () => {
-      PLANET_REGISTRY
-        .filter((p) => p.loadingGroup === 'mid' && p.id !== 'blackhole')
-        .forEach((p) => useGLTFV2.preload(p.modelPath))
-      setActiveGroups((prev) => new Set([...prev, 'mid']))
-    }
-
-    type IdleCb = (cb: IdleRequestCallback, opts?: IdleRequestOptions) => number
-    type CancelIdleCb = (handle: number) => void
-    const ric = (window as unknown as Record<string, unknown>)['requestIdleCallback'] as IdleCb | undefined
-    const cic = (window as unknown as Record<string, unknown>)['cancelIdleCallback'] as CancelIdleCb | undefined
-
-    let handle: number
-    if (ric && cic) {
-      handle = ric(fireMid, { timeout: MID_LOAD_DELAY_MS })
-      return () => cic(handle)
-    } else {
-      handle = window.setTimeout(fireMid, MID_LOAD_DELAY_MS)
-      return () => window.clearTimeout(handle)
-    }
-  }, [safe])
-
-  useEffect(() => {
-    if (safe || midFiredRef.current) return
-    if (scrollProgress < MID_SCROLL_THRESHOLD) return
-    midFiredRef.current = true
-    const handle = window.setTimeout(() => {
-      PLANET_REGISTRY
-        .filter((p) => p.loadingGroup === 'mid' && p.id !== 'blackhole')
-        .forEach((p) => useGLTFV2.preload(p.modelPath))
-      setActiveGroups((prev) => new Set([...prev, 'mid']))
-    }, 0)
-    return () => window.clearTimeout(handle)
-  }, [scrollProgress, safe])
-
-  useEffect(() => {
-    if (safe || deepFiredRef.current) return
-    if (scrollProgress < DEEP_LOAD_THRESHOLD) return
-    deepFiredRef.current = true
-    const handle = window.setTimeout(() => {
-      PLANET_REGISTRY
-        .filter((p) => p.loadingGroup === 'deep' && p.id !== 'blackhole')
-        .forEach((p) => useGLTFV2.preload(p.modelPath))
-      setActiveGroups((prev) => new Set([...prev, 'deep']))
-    }, 0)
-    return () => window.clearTimeout(handle)
-  }, [scrollProgress, safe])
-
-  return activeGroups
+  return useMemo(() => {
+    const groups = new Set<LoadingGroup>(['initial'])
+    if (safe) return groups
+    if (maxIdx >= EARTH_SHOT_REGISTRY_INDEX) groups.add('mid')
+    if (maxIdx >= MARS_SHOT_REGISTRY_INDEX) groups.add('deep')
+    return groups
+  }, [maxIdx, safe])
 }
 
 // ── SolarScene ────────────────────────────────────────────────────────────────
@@ -535,13 +489,23 @@ export function SolarScene({
 }: SolarSceneProps) {
   const { locale } = useLocale()
 
-  useEffect(() => () => {
-    releaseSolarImmersiveAssets()
+  // React 18 StrictMode (dev) mounts/unmounts components immediately to
+  // surface side-effects. Our cleanup calls `useGLTF.clear()` which
+  // can force a second real network GET for the same GLB (e.g. `sun.glb`).
+  // We suppress cache-clearing during these short-lived unmounts.
+  useEffect(() => {
+    const mountedAt = import.meta.env.DEV ? performance.now() : 0
+    return () => {
+      if (import.meta.env.DEV) {
+        const elapsed = performance.now() - mountedAt
+        if (elapsed < 750) return
+      }
+      releaseSolarImmersiveAssets()
+    }
   }, [])
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const scrollProgress = useScrollProgress(scrollContainerRef)
-  const activeGroups = useProgressiveLoader(scrollProgress, IS_SAFE)
   const activeJourneyPlanetRef = useRef<PlanetId>('sun')
 
   // Legacy scroll-based shot navigation (kept for debug display only)
@@ -574,6 +538,8 @@ export function SolarScene({
     onBlackholeResetComplete,
     onBlackholeResetPhaseChange,
   } = useDiscreteShotNavigation(scrollContainerRef)
+
+  const activeGroups = useProgressiveLoader(discreteCurrentShotId, discreteTargetShotId, IS_SAFE)
 
   // Read cinematic T each frame for the DOM overlay (only active during cinematic)
   const cinematicT = useCinematicT(blackholeCinematicTRef, isBlackholeCinematic)
@@ -1213,20 +1179,14 @@ export function SolarScene({
                 blackholeResetPhase={blackholeResetPhase}
               />
 
-              {/* Uranus material patch — forces doubleSided on all ring materials */}
-              {!IS_SAFE && (
-                <Suspense fallback={null}>
-                  <UranusDoubleSidedPatch />
-                </Suspense>
-              )}
-
-              {/* Preload Uranus textures + GLB when at Neptune so first Neptune→Uranus transition is smooth */}
+              {/* Uranus detail textures — preload + warm when deep group is active (aligned with Neptune GLB). */}
               <UranusTexturePreload
-                active={discreteCurrentShotId === 'neptune' || discreteTargetShotId === 'uranus'}
+                active={!IS_SAFE && journeyReady && activeGroups.has('deep')}
               />
 
               {/* Uranus guaranteed mesh — hidden during blackhole cinematic so it never appears in frame */}
               <UranusGuaranteedMesh
+                warm={!IS_SAFE && journeyReady && activeGroups.has('deep')}
                 visible={
                   !isBlackholeCinematic &&
                   (discreteCurrentShotId === 'uranus' ||

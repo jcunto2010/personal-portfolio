@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "compress:glb": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Get-ChildItem -Path 'public/assets/solar/models' -Filter '*.glb' | Where-Object { $_.BaseName -notlike '*.opt' } | ForEach-Object { $in=$_.FullName; $out=Join-Path $_.DirectoryName ($_.BaseName + '.opt.glb'); gltf-transform optimize $in $out --compress draco }\"",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
@@ -17,6 +18,8 @@
     "test:e2e:v2": "playwright test --project=v2-chromium-desktop --project=v2-mobile-chrome",
     "test:e2e:v1": "playwright test --project=v1-chromium-desktop --project=v1-mobile-chrome",
     "bundle:check": "node scripts/bundle-check.cjs",
+    "copy:draco": "node scripts/copy-draco.mjs",
+    "prebuild": "npm run copy:draco",
     "lhci": "lhci autorun",
     "postinstall": "patch-package",
     "ci:v2": "npm run build && npm run bundle:check"
@@ -36,6 +39,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@eslint/js": "^9.39.3",
+    "@gltf-transform/cli": "^4.3.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",

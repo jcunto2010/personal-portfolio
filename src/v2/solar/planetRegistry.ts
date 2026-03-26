@@ -27,17 +27,13 @@
  *     here are intentional artistic choices, not physical accuracy.
  *   - Moon is smaller than Earth; Sun is the largest.
  *
- * Loading groups (progressive / zone-based strategy)
- * ────────────────────────────────────────────────────
- * group 1 — "initial"   : loaded immediately on immersive-mode entry
- *   sun, mercury, venus, earth, moon, mars, neptune, uranus  (active discrete stations)
- *
- * group 2 — "mid"       : loaded after group-1 resolves (or after a
- *                          short idle delay, whichever comes first)
- *
- * group 3 — "deep"      : loaded only once scroll progress crosses
- *                          DEEP_LOAD_THRESHOLD (0.45). Blackhole has no GLB
- *                          (procedural shader in SolarScene); deep may be empty.
+ * Loading groups (progressive — driven by discrete shot navigation in SolarScene)
+ * ────────────────────────────────────────────────────────────────────────────────
+ * group "initial" : sun, mercury, venus, earth — loaded on immersive entry
+ * group "mid"     : moon, mars — activated when discrete journey reaches earth
+ *                    (prefetch while still on earth so Luna/Marte are ready in time)
+ * group "deep"    : neptune — activated when discrete journey reaches mars
+ * Blackhole has no GLB (procedural shader). Uranus uses a procedural mesh, not GLB.
  *
  * Phase subdivision per planet (scroll progress, normalised 0..1)
  * ───────────────────────────────────────────────────────────────
@@ -103,7 +99,7 @@ export interface PlanetConfig {
    */
   accentColor: string
   /**
-   * Progressive loading wave. Controls when useGLTFV2.preload() is called.
+   * Progressive loading wave. Controls cuándo se monta/carga el GLB en runtime.
    */
   loadingGroup: LoadingGroup
   // ── Scroll focus window (outer envelope) ─────────────────────────────────────
@@ -129,6 +125,10 @@ export interface PlanetConfig {
 
 export const ACTIVE_PLANET_HYSTERESIS = 0.015
 
+// Canonical GLB URL string for cache key deduplication.
+// `useGLTF` (suspend-react) is sensitive to the exact URL string.
+export const SUN_GLB_URL = '/assets/solar/models/sun.glb'
+
 // ── Scale convention ───────────────────────────────────────────────────────────
 // `scale`        = desired artistic radius in scene units.
 //                  PlanetMesh normalises every GLB to radius=1 then multiplies
@@ -148,7 +148,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     id: 'sun',
     label: 'Sun',
     section: 'Intro / About',
-    modelPath: '/assets/solar/models/sun.glb',
+    modelPath: SUN_GLB_URL,
     position: [0, 0, 0],
     scale: 3.5,
     normalizedRadiusTarget: 1,
@@ -278,10 +278,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     normalizedRadiusTarget: 1,
     fallbackRadius: 0.4,
     accentColor: '#B0BEC5',
-    // Moved from 'mid' to 'initial' so Moon is guaranteed to load before the
-    // discrete navigation reaches the Earth → Moon transition. Moon is a
-    // small asset (similar to Mercury) so the extra weight is acceptable.
-    loadingGroup: 'initial',
+    loadingGroup: 'mid',
     // Moon gets a shorter window — it's a "beat" not a "station".
     focusStart:   0.49,
     approachStart: 0.49,
@@ -308,9 +305,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     normalizedRadiusTarget: 1,
     fallbackRadius: 0.85,
     accentColor: '#EF5350',
-    // Moved from 'mid' to 'initial' so Mars is guaranteed to load before the
-    // discrete navigation reaches the Moon → Mars transition.
-    loadingGroup: 'initial',
+    loadingGroup: 'mid',
     focusStart:   0.56,
     approachStart: 0.56,
     settleStart:   0.60,
@@ -342,11 +337,12 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     // at the camera distance used in the Neptune shot.
     scale: 6.0,
     normalizedRadiusTarget: 1,
-    fallbackRadius: 1.5,
+    // fallbackRadius is in normalised space (PlanetMesh/SuspenseFallbackSphere:
+    // world radius = fallbackRadius × scale). Match the sphere vs ring-bbox
+    // fraction (~0.25) so the placeholder matches the GLB sphere, not the ring extent.
+    fallbackRadius: 0.25,
     accentColor: '#5C6BC0',
-    // Moved from 'deep' to 'initial' so Neptune is guaranteed to load before the
-    // discrete navigation reaches the Mars → Neptune transition (microfase 7).
-    loadingGroup: 'initial',
+    loadingGroup: 'deep',
     focusStart:   0.68,
     approachStart: 0.68,
     settleStart:   0.72,
@@ -364,7 +360,8 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     id: 'uranus',
     label: 'Uranus',
     section: 'Contact',
-    modelPath: '/assets/solar/models/uranus.glb',
+    /** Procedural mesh + textures in SolarScene — no GLB in immersive. */
+    modelPath: '',
     // RIGHT lane (+X). Camera hold pose is on the left.
     position: [22, -1.0, -328],
     // New 3MB GLB: normScale=0.001, dominant axis = 2000 native units.
@@ -377,7 +374,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     // 1.0 × 9.0 = 9.0u — clearly visible teal sphere while GLB loads.
     fallbackRadius: 1.0,
     accentColor: '#80CBC4',
-    loadingGroup: 'initial',
+    loadingGroup: 'deep',
     focusStart:   0.80,
     approachStart: 0.80,
     settleStart:   0.84,

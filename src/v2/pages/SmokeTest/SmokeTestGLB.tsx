@@ -17,6 +17,7 @@ import { Suspense, useEffect, useRef, useState, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Center, Bounds } from '@react-three/drei'
 import { useGLTFV2 } from '../../solar/useGLTFV2'
+import { SUN_GLB_URL } from '../../solar/planetRegistry'
 import * as THREE from 'three'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -41,7 +42,7 @@ interface AudioResult {
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 const GLB_ASSETS: { name: string; path: string }[] = [
-  { name: 'sun',       path: '/assets/solar/models/sun.glb'       },
+  { name: 'sun',       path: SUN_GLB_URL                           },
   { name: 'mercury',   path: '/assets/solar/models/mercury.glb'   },
   { name: 'venus',     path: '/assets/solar/models/venus.glb'     },
   { name: 'earth',     path: '/assets/solar/models/earth.glb'     },

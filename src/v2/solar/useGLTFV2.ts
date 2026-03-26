@@ -1,18 +1,24 @@
 /**
  * Drei useGLTF with V2 loader extensions (KHR_materials_pbrSpecularGlossiness plugin, etc.).
- * Signature matches useGLTF defaults: Draco + Meshopt enabled.
+ * Draco + Meshopt enabled. Decoder Draco servido desde `/draco/` (mismo origen) para cumplir CSP
+ * (`connect-src` no permite gstatic en index.v2.html). Ver `scripts/copy-draco.mjs`.
  */
 import { useGLTF } from '@react-three/drei'
 import { extendGltfLoaderWithV2Extensions } from './gltfLoaderExtensions'
 
+/** Same-origin path to Draco WASM/JS (public/draco → /draco/ in prod). */
+const DRACO_DECODER_PATH = '/draco/'
+
 export function useGLTFV2(path: string) {
-  return useGLTF(path, true, true, extendGltfLoaderWithV2Extensions)
+  return useGLTF(path, DRACO_DECODER_PATH, true, extendGltfLoaderWithV2Extensions)
 }
 
 useGLTFV2.preload = (path: string) => {
-  useGLTF.preload(path, true, true, extendGltfLoaderWithV2Extensions)
+  useGLTF.preload(path, DRACO_DECODER_PATH, true, extendGltfLoaderWithV2Extensions)
 }
 
 useGLTFV2.clear = (path: string) => {
   useGLTF.clear(path)
 }
+
+useGLTFV2.setDecoderPath = useGLTF.setDecoderPath

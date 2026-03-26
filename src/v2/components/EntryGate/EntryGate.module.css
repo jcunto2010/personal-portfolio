@@ -28,6 +28,44 @@
   border-radius: 9999px;
 }
 
+/* Global name so inline `animation: introFadeIn …` in TSX matches (CSS Modules hash scoped keys). */
+@keyframes :global(introFadeIn) {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes starFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: var(--endOpacity, 1);
+  }
+}
+
+@keyframes introH1FloatIn {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.starFadeIn {
+  will-change: opacity;
+  animation: starFadeIn 1.2s ease forwards;
+}
+
+.introH1In {
+  will-change: transform;
+  animation: introH1FloatIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Main content column — centered, full width for layout */
 .introContent {
   position: relative;
@@ -41,7 +79,7 @@
   gap: 4rem;
   padding: 1rem 1.5rem;
   box-sizing: border-box;
-  font-family: var(--v2-font-body);
+  font-family: var(--v2-font-body, 'Inter', system-ui, sans-serif);
   font-style: italic;
 }
 
@@ -56,7 +94,7 @@
 
 .introH1 {
   margin: 0 0 0.75rem;
-  font-family: var(--v2-font-display);
+  font-family: var(--v2-font-display, 'Inter', system-ui, sans-serif);
   font-size: clamp(2.25rem, 5vw, 3rem);
   font-weight: 300;
   letter-spacing: -0.025em;
@@ -193,6 +231,13 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.introAudioToggleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
 .introBtnClassic {
   padding: 1.25rem 2.5rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -233,7 +278,7 @@
 
 .introFooter {
   margin-top: 2rem;
-  font-family: var(--v2-font-display);
+  font-family: var(--v2-font-display, 'Inter', system-ui, sans-serif);
   font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.25em;
@@ -290,7 +335,7 @@
   align-items: stretch;
   gap: var(--v2-space-8);
   text-align: center;
-  font-family: var(--v2-font-display);
+  font-family: var(--v2-font-display, 'Inter', system-ui, sans-serif);
 }
 
 .heroSection {

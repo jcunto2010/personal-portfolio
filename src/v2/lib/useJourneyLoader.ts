@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { AppMode } from './appModeContext'
 import { projectsV2 } from '../data/projects.v2'
 
@@ -62,9 +62,23 @@ async function preloadClassicAssets(): Promise<void> {
 export function useJourneyLoader(mode: AppMode): JourneyLoaderController {
   const [status, setStatus] = useState<JourneyStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  /** Invalida callbacks async de un start/reset anterior (p. ej. volver al gate mientras carga). */
+  const loadGenerationRef = useRef(0)
 
   const start = useCallback(() => {
+    loadGenerationRef.current += 1
+    const gen = loadGenerationRef.current
     setError(null)
+
+    const applyReady = () => {
+      if (loadGenerationRef.current !== gen) return
+      setStatus('ready')
+    }
+    const applyError = (msg: string) => {
+      if (loadGenerationRef.current !== gen) return
+      setError(msg)
+      setStatus('error')
+    }
 
     if (mode === 'non-immersive') {
       setStatus('loading')
@@ -75,11 +89,11 @@ export function useJourneyLoader(mode: AppMode): JourneyLoaderController {
         .then(() => {
           const elapsed = performance.now() - startedAt
           const waitMs = Math.max(0, minDelayMs - elapsed)
-          window.setTimeout(() => setStatus('ready'), waitMs)
+          window.setTimeout(applyReady, waitMs)
         })
         .catch(() => {
           // If some image fails, still allow entry; remaining images lazy-load.
-          setStatus('ready')
+          applyReady()
         })
       return
     }
@@ -87,27 +101,23 @@ export function useJourneyLoader(mode: AppMode): JourneyLoaderController {
     if (mode === 'immersive') {
       setStatus('loading')
       preloadImmersiveBundle()
-        .then(() => {
-          setStatus('ready')
-        })
+        .then(applyReady)
         .catch((err: unknown) => {
           const msg = err instanceof Error ? err.message : String(err)
-          setError(msg)
-          setStatus('error')
+          applyError(msg)
         })
       return
     }
 
     if (typeof window !== 'undefined' && 'requestAnimationFrame' in window) {
-      window.requestAnimationFrame(() => {
-        setStatus('ready')
-      })
+      window.requestAnimationFrame(applyReady)
     } else {
-      setStatus('ready')
+      applyReady()
     }
   }, [mode])
 
   const reset = useCallback(() => {
+    loadGenerationRef.current += 1
     setStatus('idle')
     setError(null)
   }, [])

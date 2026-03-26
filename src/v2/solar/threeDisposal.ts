@@ -17,6 +17,7 @@ function revokeBlobIfNeeded(texture: THREE.Texture): void {
 
 /** Disposes a texture and revokes `blob:` sources created by GLTFLoader for embedded images. */
 export function disposeTexture(texture: THREE.Texture): void {
+  if (!(texture instanceof THREE.Texture) || typeof texture.dispose !== 'function') return
   revokeBlobIfNeeded(texture)
   texture.dispose()
 }

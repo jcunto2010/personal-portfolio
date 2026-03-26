@@ -45,6 +45,7 @@
 
 import { Component, lazy, Suspense, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { createPortal, flushSync } from 'react-dom'
 import { AppModeProvider, useAppMode } from '../../lib/appModeContext'
 import { useAudioShell } from '../../lib/useAudioShell'
 import { EntryGate } from '../../components/EntryGate/EntryGate'
@@ -174,7 +175,7 @@ class ImmersiveErrorBoundary extends Component<
 // ── Inner shell (needs AppModeContext in scope) ────────────────────────────
 
 function HomeV2Inner() {
-  const { mode, audioEnabled } = useAppMode()
+  const { mode, audioEnabled, exitFullscreen } = useAppMode()
   const audio = useAudioShell()
 
   type EntryPhase = 'select' | 'loading' | 'ready'
@@ -185,14 +186,17 @@ function HomeV2Inner() {
   const journeyLoader = useJourneyLoader(mode)
 
   // Orquesta la transición select → loading → ready
+  // Nota: no depender de `journeyLoader` entero — el snapshot cambia cada render y
+  // re-ejecutaría start() en bucle mientras entryPhase === 'loading'.
+  const { start: journeyStart, reset: journeyReset } = journeyLoader
   useEffect(() => {
     if (entryPhase === 'loading') {
-      journeyLoader.start()
+      journeyStart()
     }
     if (entryPhase === 'select') {
-      journeyLoader.reset()
+      journeyReset()
     }
-  }, [entryPhase, journeyLoader])
+  }, [entryPhase, journeyStart, journeyReset])
 
   useEffect(() => {
     if (entryPhase === 'loading' && journeyLoader.status === 'ready') {
@@ -223,11 +227,19 @@ function HomeV2Inner() {
     setEntryPhase('loading')
   }
 
-  function handleSwitchMode() {
+  /** Vuelve al Entry Gate: commit síncrono + salir de fullscreen (misma interacción de usuario). */
+  function goToEntryGateSelect() {
     audio.stop()
-    setEntryPhase('select')
-    setImmersiveSceneReady(false)
-    journeyLoader.reset()
+    flushSync(() => {
+      setEntryPhase('select')
+      setImmersiveSceneReady(false)
+      journeyLoader.reset()
+    })
+    void exitFullscreen()
+  }
+
+  function handleSwitchMode() {
+    goToEntryGateSelect()
   }
 
   // Reset immersive scene ready when entering loading so overlay shows until onReady.
@@ -237,11 +249,32 @@ function HomeV2Inner() {
     }
   }, [entryPhase, mode])
 
+  const entryGate =
+    entryPhase === 'select' ? (
+      <EntryGate onEnter={handleEnter} skipAnimations={hasEnteredOnce} />
+    ) : null
+
   return (
     <>
-      {entryPhase === 'select' && (
-        <EntryGate onEnter={handleEnter} skipAnimations={hasEnteredOnce} />
-      )}
+      {/* Portal a body: por encima de portales del SolarScene (p. ej. overlay z-index 9000).
+          className v2-root: los tokens (--v2-font-*, colores) viven en .v2-root; fuera de ahí
+          font-family: var(--v2-font-*) es inválido y el navegador cae a Times/serif. */}
+      {entryGate !== null &&
+        createPortal(
+          <div
+            className="v2-root"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 2147483646,
+              isolation: 'isolate',
+              pointerEvents: 'auto',
+            }}
+          >
+            {entryGate}
+          </div>,
+          document.body,
+        )}
 
       {entryPhase === 'loading' && mode === 'immersive' && (
         <>
@@ -267,10 +300,7 @@ function HomeV2Inner() {
               </p>
               <button
                 type="button"
-                onClick={() => {
-                  setEntryPhase('select')
-                  journeyLoader.reset()
-                }}
+                onClick={goToEntryGateSelect}
                 style={{
                   padding: '0.5rem 1.25rem',
                   borderRadius: '999px',
@@ -306,10 +336,7 @@ function HomeV2Inner() {
           >
             <button
               type="button"
-              onClick={() => {
-                setEntryPhase('select')
-                journeyLoader.reset()
-              }}
+              onClick={goToEntryGateSelect}
               style={{
                 pointerEvents: 'auto',
                 padding: '0.5rem 1.25rem',

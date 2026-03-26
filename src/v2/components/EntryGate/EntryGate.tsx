@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
-import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5'
+import { useEffect, useMemo, useState } from 'react'
+import { Volume2, VolumeX } from 'lucide-react'
 import { useAppMode, type AppMode } from '../../lib/appModeContext'
 import { LanguageSwitcher } from '../LanguageSwitcher/LanguageSwitcher'
 import { useLocale } from '../../lib/localeContext'
@@ -40,6 +39,32 @@ function useStarfield() {
   }, [])
 }
 
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => setPrefersReducedMotion(mediaQuery.matches)
+
+    update()
+
+    // Safari fallback (legacy)
+    // eslint-disable-next-line deprecation/deprecation
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', update)
+      return () => mediaQuery.removeEventListener('change', update)
+    }
+    // eslint-disable-next-line deprecation/deprecation
+    mediaQuery.addListener(update)
+    // eslint-disable-next-line deprecation/deprecation
+    return () => mediaQuery.removeListener(update)
+  }, [])
+
+  return prefersReducedMotion
+}
+
 export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   const { mode, audioEnabled, setMode, setAudioEnabled, requestFullscreen, isFullscreen } =
     useAppMode()
@@ -47,7 +72,20 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   const [localMode, setLocalMode] = useState<AppMode>(mode)
   const [localAudio, setLocalAudio] = useState<boolean>(audioEnabled)
   const stars = useStarfield()
-  const reduceMotion = useReducedMotion()
+  const reduceMotion = usePrefersReducedMotion()
+
+  const shouldAnimate = !skipAnimations && !reduceMotion
+  const [animateIntro, setAnimateIntro] = useState(false)
+
+  // Trigger CSS animations after the initial paint, so LCP isn't delayed by JS/parse time.
+  useEffect(() => {
+    if (!shouldAnimate) {
+      setAnimateIntro(false)
+      return
+    }
+    const id = requestAnimationFrame(() => setAnimateIntro(true))
+    return () => cancelAnimationFrame(id)
+  }, [shouldAnimate])
 
   const isEs = locale === 'es'
   const ui = isEs
@@ -88,20 +126,6 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         classicSub: 'Editorial experience focused on content',
       }
 
-  const noAnim = skipAnimations
-    ? { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } }
-    : {}
-
-  /** H1 stays visible for LCP; optional subtle motion only (no opacity fade-in). */
-  const introH1Motion =
-    skipAnimations || reduceMotion
-      ? { initial: { opacity: 1 }, animate: { opacity: 1 }, transition: { duration: 0 } }
-      : {
-          initial: { opacity: 1, y: 8 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
-        }
-
   async function commitSelection(nextMode: AppMode) {
     setMode(nextMode)
     setAudioEnabled(localAudio)
@@ -121,6 +145,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     await commitSelection('non-immersive')
   }
 
+  const isMuted = !localAudio
+
   return (
     <div
       className={styles.overlay}
@@ -130,16 +156,17 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     >
       <div className={styles.starfield}>
         {stars.map((star, i) => (
-          <motion.div
+          <div
             key={i}
-            className={styles.star}
+            className={`${styles.star} ${shouldAnimate ? styles.starFadeIn : ''}`}
             style={{
               left: `${star.left}%`,
               top: `${star.top}%`,
+              opacity: shouldAnimate ? 0 : star.baseOpacity,
+              animationDelay: shouldAnimate ? `${i * 0.04}s` : undefined,
+              ['--endOpacity' as any]: star.baseOpacity,
             }}
-            initial={{ opacity: skipAnimations ? star.baseOpacity : 0 }}
-            animate={{ opacity: star.baseOpacity }}
-            transition={skipAnimations ? { duration: 0 } : { duration: 1.2, delay: i * 0.04 }}
+            aria-hidden="true"
           />
         ))}
       </div>
@@ -151,34 +178,53 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
       <div className={styles.introContent}>
         <div className={styles.introTitleBlock}>
           <div className={styles.introTitleInner}>
-            <motion.h1
-              className={styles.introH1}
-              initial={noAnim.initial ?? introH1Motion.initial}
-              animate={noAnim.animate ?? introH1Motion.animate}
-              transition={noAnim.transition ?? introH1Motion.transition}
+            <h1
+              className={`${styles.introH1} ${
+                shouldAnimate && animateIntro ? styles.introH1In : ''
+              }`}
             >
               {ui.introTitlePrefix} <span className={styles.introName}>{ui.introName}</span>
-            </motion.h1>
-            <motion.div
+            </h1>
+            <div
               className={styles.introDivider}
-              initial={noAnim.initial ?? { opacity: 0 }}
-              animate={noAnim.animate ?? { opacity: 1 }}
-              transition={noAnim.transition ?? { duration: 1.5, delay: 2.5 }}
+              style={
+                shouldAnimate
+                  ? {
+                      opacity: 0,
+                      animation: animateIntro
+                        ? `introFadeIn 1.5s ease forwards`
+                        : undefined,
+                      animationDelay: animateIntro ? '2.5s' : undefined,
+                    }
+                  : { opacity: 1 }
+              }
             />
           </div>
-          <motion.p
+          <p
             className={styles.introRole}
-            initial={noAnim.initial ?? { opacity: 0 }}
-            animate={noAnim.animate ?? { opacity: 1 }}
-            transition={noAnim.transition ?? { duration: 1.5, delay: 4 }}
+            style={
+              shouldAnimate
+                ? {
+                    opacity: 0,
+                    animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
+                    animationDelay: animateIntro ? '4s' : undefined,
+                  }
+                : { opacity: 1 }
+            }
           >
             {ui.introRole}
-          </motion.p>
-          <motion.p
+          </p>
+          <p
             className={styles.introDesc}
-            initial={noAnim.initial ?? { opacity: 0 }}
-            animate={noAnim.animate ?? { opacity: 1 }}
-            transition={noAnim.transition ?? { duration: 1.5, delay: 5.5 }}
+            style={
+              shouldAnimate
+                ? {
+                    opacity: 0,
+                    animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
+                    animationDelay: animateIntro ? '5.5s' : undefined,
+                  }
+                : { opacity: 1 }
+            }
           >
             {ui.introDesc1}
             {ui.introDesc2 ? (
@@ -187,14 +233,20 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
                 {ui.introDesc2}
               </>
             ) : null}
-          </motion.p>
+          </p>
         </div>
 
-        <motion.div
+        <div
           className={styles.introButtons}
-          initial={noAnim.initial ?? { opacity: 0 }}
-          animate={noAnim.animate ?? { opacity: 1 }}
-          transition={noAnim.transition ?? { duration: 1.5, delay: 7.5 }}
+          style={
+            shouldAnimate
+              ? {
+                  opacity: 0,
+                  animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
+                  animationDelay: animateIntro ? '7.5s' : undefined,
+                }
+              : { opacity: 1 }
+          }
           role="group"
           aria-label={ui.introButtonsGroup}
         >
@@ -233,11 +285,19 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
                   : ui.audioAriaOff
               }
             >
-              {localAudio ? (
-                <IoVolumeHigh size={20} style={{ color: '#00D9A3' }} />
-              ) : (
-                <IoVolumeMute size={20} style={{ color: 'rgba(255,255,255,0.4)' }} />
-              )}
+              <span
+                className={styles.introAudioToggleIcon}
+                style={{
+                  color: isMuted ? 'rgba(255,255,255,0.4)' : '#00D9A3',
+                }}
+                aria-hidden="true"
+              >
+                {isMuted ? (
+                  <VolumeX size={22} strokeWidth={2} absoluteStrokeWidth />
+                ) : (
+                  <Volume2 size={22} strokeWidth={2} absoluteStrokeWidth />
+                )}
+              </span>
             </button>
           </div>
 
@@ -254,21 +314,33 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
               </span>
             </div>
           </button>
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div
+      <div
         className={`${styles.introCorner} ${styles.introCornerTopLeft}`}
-        initial={noAnim.initial ?? { opacity: 0 }}
-        animate={noAnim.animate ?? { opacity: 1 }}
-        transition={noAnim.transition ?? { duration: 1.5, delay: 9.5 }}
+        style={
+          shouldAnimate
+            ? {
+                opacity: 0,
+                animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
+                animationDelay: animateIntro ? '9.5s' : undefined,
+              }
+            : { opacity: 1 }
+        }
         aria-hidden="true"
       />
-      <motion.div
+      <div
         className={`${styles.introCorner} ${styles.introCornerBottomRight}`}
-        initial={noAnim.initial ?? { opacity: 0 }}
-        animate={noAnim.animate ?? { opacity: 1 }}
-        transition={noAnim.transition ?? { duration: 1.5, delay: 9.5 }}
+        style={
+          shouldAnimate
+            ? {
+                opacity: 0,
+                animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
+                animationDelay: animateIntro ? '9.5s' : undefined,
+              }
+            : { opacity: 1 }
+        }
         aria-hidden="true"
       />
     </div>

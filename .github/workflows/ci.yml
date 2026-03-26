@@ -44,10 +44,10 @@ jobs:
   # Runs after the main checks job (build artefact already validated there).
   # Does NOT replace the existing checks job; it extends CI with V2-specific
   # budgets aligned with the PRD:
-  #   LCP  ≤ 2500 ms | CLS ≤ 0.1 | INP ≤ 200 ms | JS initial ≤ 300 KB gzip
+  #   LCP  ≤ 2500 ms | CLS ≤ 0.1 | INP ≤ 200 ms | T-005 initial JS ≤ 2400 KB gzip
   # ──────────────────────────────────────────────────────────────────────────
   v2-bundle-check:
-    name: V2 · Bundle budget check (JS initial ≤ 300 KB gzip)
+    name: V2 · Bundle budget check (T-005 ≤ 2.4 MB gzip · T-005b no three preload)
     runs-on: ubuntu-latest
     needs: checks
 
@@ -68,7 +68,7 @@ jobs:
         run: npm run build
 
       - name: Run bundle check
-        # scripts/bundle-check.cjs exits 1 if initial JS gzip > 300 KB.
+        # scripts/bundle-check.cjs: T-005 initial gzip + T-005b three-bundle ∉ modulepreload.
         # Output is printed regardless of pass/fail for full visibility.
         run: npm run bundle:check
 

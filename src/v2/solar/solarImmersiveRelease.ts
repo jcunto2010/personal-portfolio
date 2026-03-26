@@ -3,6 +3,7 @@
  * `useGLTF` keeps parsed scenes in cache; `<primitive object={scene} />` is not auto-disposed by R3F.
  */
 import { peek } from 'suspend-react'
+import * as THREE from 'three'
 import { TextureLoader } from 'three'
 import type { Texture } from 'three'
 import { GLTFLoader } from 'three-stdlib'
@@ -12,8 +13,8 @@ import { SOLAR_GLB_MODEL_URLS } from './planetRegistry'
 import { disposeObject3DDeep, disposeTexture } from './threeDisposal'
 import { useGLTFV2 } from './useGLTFV2'
 
-/** Milky Way equirect (NebulaBackground). */
-export const NEBULA_STARS_TEXTURE_URL = '/assets/solar/textures/8k_stars_milky_way.jpg'
+/** Milky Way equirect (NebulaBackground) — 2K para reducir el transfer en la carga inicial. */
+export const NEBULA_STARS_TEXTURE_URL = '/assets/solar/textures/2k_stars_milky_way.jpg'
 
 /** Uranus procedural layers (UranusGuaranteedMesh). */
 export const URANUS_DETAIL_TEXTURE_URLS = [
@@ -36,8 +37,15 @@ export function releaseSolarImmersiveAssets(): void {
     useGLTFV2.clear(path)
   }
 
-  const nebula = peek([TextureLoader, NEBULA_STARS_TEXTURE_URL]) as Texture | undefined
-  if (nebula) disposeTexture(nebula)
+  // useLoader/suspend guarda el resultado de Promise.all → [Texture], no la textura suelta;
+  // peek devuelve ese array; antes se pasaba a disposeTexture y fallaba (dispose no existe en Array).
+  const nebulaPeek = peek([TextureLoader, NEBULA_STARS_TEXTURE_URL]) as Texture | Texture[] | undefined
+  if (nebulaPeek) {
+    const nebulaList = Array.isArray(nebulaPeek) ? nebulaPeek : [nebulaPeek]
+    for (const t of nebulaList) {
+      if (t instanceof THREE.Texture) disposeTexture(t)
+    }
+  }
   useTexture.clear(NEBULA_STARS_TEXTURE_URL)
 
   const uranusBatch = peek([TextureLoader, ...URANUS_DETAIL_TEXTURE_URLS]) as
@@ -47,7 +55,7 @@ export function releaseSolarImmersiveAssets(): void {
   if (uranusBatch) {
     const list = Array.isArray(uranusBatch) ? uranusBatch : [uranusBatch]
     for (const t of list) {
-      if (t?.isTexture) disposeTexture(t)
+      if (t instanceof THREE.Texture) disposeTexture(t)
     }
   }
   useTexture.clear([...URANUS_DETAIL_TEXTURE_URLS])
