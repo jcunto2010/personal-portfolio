@@ -501,8 +501,9 @@ export function CameraRig({
           onBlackholeCinematicPhaseChange?.(cinPhase)
         }
 
-        // Debug phase label
-        if (import.meta.env.DEV && onPhaseChange) {
+        // Report phase label for overlays/cards.
+        // Keep it guarded only by "phase changed" (tracked via lastPhaseRef) to avoid spam.
+        if (onPhaseChange) {
           const phaseId: CameraPhaseId =
             cinPhase === 'departure' ? 'blackhole-cinematic-departure' :
             cinPhase === 'warp'      ? 'blackhole-cinematic-warp'      :
@@ -589,7 +590,8 @@ export function CameraRig({
           lastResetPhaseRef.current = resetPhase
           onBlackholeResetPhaseChange?.(resetPhase)
         }
-        if (import.meta.env.DEV && onPhaseChange) {
+        // Report phase label for overlays/cards.
+        if (onPhaseChange) {
           const phaseId: CameraPhaseId =
             resetPhase === 'dive'     ? 'blackhole-reset-dive'     :
             resetPhase === 'consume'  ? 'blackhole-reset-consume'  :
@@ -747,8 +749,8 @@ export function CameraRig({
           onDiscreteTransitionComplete?.()
         }
 
-        // Debug
-        if (import.meta.env.DEV) {
+        // Report phase labels for overlays/cards.
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId =
               discreteIsResetting                    ? 'reset-loop'         :
@@ -776,7 +778,7 @@ export function CameraRig({
         desiredLat.current.copy(blackholePose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'blackhole-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -793,7 +795,7 @@ export function CameraRig({
         desiredLat.current.copy(uranusPose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'uranus-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -810,7 +812,7 @@ export function CameraRig({
         desiredLat.current.copy(neptunePose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'neptune-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -827,7 +829,7 @@ export function CameraRig({
         desiredLat.current.copy(marsPose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'mars-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -844,7 +846,7 @@ export function CameraRig({
         desiredLat.current.copy(moonPose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'moon-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -861,7 +863,7 @@ export function CameraRig({
         desiredLat.current.copy(earthPose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'earth-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -878,7 +880,7 @@ export function CameraRig({
         desiredLat.current.copy(venusPose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'venus-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -895,7 +897,7 @@ export function CameraRig({
         desiredLat.current.copy(mercPose.look)
         posDamp = DAMP_HOLD * 2.5  // 4.0 — settles in ~1.1s instead of ~2.9s
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = 'mercury-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -912,7 +914,7 @@ export function CameraRig({
         desiredLat.current.copy(sunPose.look)
         posDamp = introT < 1 ? DAMP_INTRO : DAMP_HOLD
 
-        if (import.meta.env.DEV) {
+        if (onPhaseChange || onShotPhaseChange) {
           if (onPhaseChange) {
             const id: CameraPhaseId = introT < 0.99 ? 'intro' : 'sun-hold'
             if (id !== lastPhaseRef.current) { lastPhaseRef.current = id; onPhaseChange(id) }
@@ -1002,7 +1004,7 @@ export function CameraRig({
 
     cam.lookAt(lookAtSmoothed.current)
 
-    if (import.meta.env.DEV) {
+    if (onPhaseChange || onShotPhaseChange) {
       if (onPhaseChange) {
         let phaseId: CameraPhaseId
         if (introT < 0.99) {
