@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules'] },
+  { ignores: ['dist', 'node_modules', 'public/draco/**'] },
 
   js.configs.recommended,
 
@@ -67,6 +67,26 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
+      'no-undef': 'off',
+      'no-console': 'off',
+    },
+  },
+
+  // Node.js ESM scripts — scripts/*.mjs runs in Node (type:module), not the browser.
+  {
+    files: ['scripts/**/*.mjs', '*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        URL: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+    rules: {
       'no-undef': 'off',
       'no-console': 'off',
     },

@@ -51,14 +51,11 @@ function usePrefersReducedMotion() {
     update()
 
     // Safari fallback (legacy)
-    // eslint-disable-next-line deprecation/deprecation
     if (typeof mediaQuery.addEventListener === 'function') {
       mediaQuery.addEventListener('change', update)
       return () => mediaQuery.removeEventListener('change', update)
     }
-    // eslint-disable-next-line deprecation/deprecation
     mediaQuery.addListener(update)
-    // eslint-disable-next-line deprecation/deprecation
     return () => mediaQuery.removeListener(update)
   }, [])
 
@@ -80,8 +77,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
   // Trigger CSS animations after the initial paint, so LCP isn't delayed by JS/parse time.
   useEffect(() => {
     if (!shouldAnimate) {
-      setAnimateIntro(false)
-      return
+      const id = requestAnimationFrame(() => setAnimateIntro(false))
+      return () => cancelAnimationFrame(id)
     }
     const id = requestAnimationFrame(() => setAnimateIntro(true))
     return () => cancelAnimationFrame(id)

@@ -7,7 +7,7 @@ import { useGLTF } from '@react-three/drei'
 import { extendGltfLoaderWithV2Extensions } from './gltfLoaderExtensions'
 
 /** Same-origin path to Draco WASM/JS (public/draco → /draco/ in prod). */
-const DRACO_DECODER_PATH = '/draco/'
+const DRACO_DECODER_PATH = `${import.meta.env.BASE_URL}draco/`
 
 export function useGLTFV2(path: string) {
   return useGLTF(path, DRACO_DECODER_PATH, true, extendGltfLoaderWithV2Extensions)

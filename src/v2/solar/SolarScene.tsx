@@ -191,11 +191,15 @@ function StarField() {
 const NEBULA_SKY_ROTATION: [number, number, number] = [-0.18, Math.PI * 0.62, 0]
 
 function NebulaBackground({ visible }: { visible: boolean }) {
-  const texture = useTexture(NEBULA_STARS_TEXTURE_URL)
-  useEffect(() => {
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.anisotropy = 8
-  }, [texture])
+  const rawTexture = useTexture(NEBULA_STARS_TEXTURE_URL)
+  const texture = useMemo(() => {
+    const t = rawTexture.clone()
+    t.colorSpace = THREE.SRGBColorSpace
+    t.anisotropy = 8
+    t.needsUpdate = true
+    return t
+  }, [rawTexture])
+  useEffect(() => () => texture.dispose(), [texture])
   if (!visible) return null
   return (
     <group rotation={NEBULA_SKY_ROTATION}>
