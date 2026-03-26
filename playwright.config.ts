@@ -55,7 +55,8 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         // V2 is served at index.v2.html
-        baseURL: 'http://localhost:5173/index.v2.html',
+        // `?e2e=1` bypasses the EntryGate so tests can load Home immediately.
+        baseURL: 'http://localhost:5173/index.v2.html?e2e=1',
       },
     },
     {
@@ -63,7 +64,7 @@ export default defineConfig({
       testMatch: 'e2e/v2/**/*.spec.ts',
       use: {
         ...devices['Pixel 5'],
-        baseURL: 'http://localhost:5173/index.v2.html',
+        baseURL: 'http://localhost:5173/index.v2.html?e2e=1',
       },
     },
   ],

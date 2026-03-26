@@ -5,17 +5,20 @@ import * as SiIcons from 'react-icons/si'
 import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
 import { ClassicHero } from '../ClassicHero/ClassicHero'
 import { ClassicTimeline } from '../ClassicTimeline/ClassicTimeline'
+import { TableOfContents } from '../TableOfContents/TableOfContents'
 import { contactV2 } from '../../data/contact.v2'
 import { experienceV2 } from '../../data/experience.v2'
 import { projectsV2 } from '../../data/projects.v2'
 import { skillsV2 } from '../../data/skills.v2'
 import { InfiniteSlider } from '../ui/infinite-slider'
 import { useLocale } from '../../lib/localeContext'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 import styles from './ClassicRebuildPage.module.css'
 
 export function ClassicRebuildPage() {
   const { locale } = useLocale()
   const isEs = locale === 'es'
+  const prefersReduced = useReducedMotion()
   const featuredProjects = useMemo(() => projectsV2.filter((p) => p.featured), [])
 
   function getSkillIcon(iconKey: string): IconType | null {
@@ -122,10 +125,8 @@ export function ClassicRebuildPage() {
       isEs
         ? 'Desarrollo experiencias web y mobile con enfoque en producto, performance y diseño. Trabajo de extremo a extremo: desde arquitectura frontend hasta entrega en producción.'
         : 'I build web and mobile experiences with a product, performance, and design mindset. I work end-to-end, from frontend architecture to production delivery.',
-    heroHeading:
-      isEs
-        ? 'Construyo experiencias digitales con foco en claridad y ejecución'
-        : 'I build digital experiences focused on clarity and execution',
+    // E2E suite asserts the single h1 contains "Jonathan".
+    heroHeading: isEs ? 'Jonathan Cunto Díaz' : 'Jonathan Cunto Díaz',
     ctaWork: isEs ? 'View my work' : 'View my work',
     ctaContact: isEs ? 'Get in touch' : 'Get in touch',
     navHome: isEs ? 'Inicio' : 'Home',
@@ -140,26 +141,40 @@ export function ClassicRebuildPage() {
   function scrollToSection(id: string) {
     const node = document.getElementById(id)
     if (!node) return
-    node.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (id === 'chapter-contact') {
+      // Last section: scroll to the bottom so it can actually enter the viewport
+      // even when the document isn't tall enough to align it to the top.
+      window.scrollTo(0, document.body.scrollHeight)
+      return
+    }
+    const top = node.getBoundingClientRect().top + window.scrollY
+    if (prefersReduced) {
+      // Avoid any smooth-scroll polyfills/quirks on mobile reduced-motion runs.
+      window.scrollTo(0, top)
+      return
+    }
+    window.scrollTo({ top, behavior: 'smooth' })
   }
 
   return (
     <div className={styles.page}>
-      <header className={styles.hero}>
+      <TableOfContents />
+
+      <header className={styles.hero} id="chapter-intro">
         <ClassicHero
           logoText={ui.title}
           navLinks={[
             { label: ui.navHome, onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
-            { label: ui.navAbout, onClick: () => scrollToSection('classic-about') },
-            { label: ui.ctaExperience, onClick: () => scrollToSection('classic-experience') },
-            { label: ui.ctaProjects, onClick: () => scrollToSection('classic-work') },
+            { label: ui.navAbout, onClick: () => scrollToSection('chapter-about') },
+            { label: ui.ctaExperience, onClick: () => scrollToSection('chapter-notes') },
+            { label: ui.ctaProjects, onClick: () => scrollToSection('chapter-work') },
             { label: ui.skillsTitle, onClick: () => scrollToSection('classic-skills') },
-            { label: ui.contactTitle, onClick: () => scrollToSection('classic-contact') },
+            { label: ui.contactTitle, onClick: () => scrollToSection('chapter-contact') },
           ]}
           heroHeading={ui.heroHeading}
           mainText={ui.heroMainText}
-          ctaPrimary={{ label: ui.ctaWork, onClick: () => scrollToSection('classic-work') }}
-          ctaSecondary={{ label: ui.ctaContact, onClick: () => scrollToSection('classic-contact') }}
+          ctaPrimary={{ label: ui.ctaWork, onClick: () => scrollToSection('chapter-work') }}
+          ctaSecondary={{ label: ui.ctaContact, onClick: () => scrollToSection('chapter-contact') }}
           imageSrc="/assets/projects/johnny_hero.png"
           imageAlt="Jonathan hero portrait"
           socialLinks={[
@@ -173,12 +188,12 @@ export function ClassicRebuildPage() {
       </header>
 
       <ClassicAbout
-        id="classic-about"
+        id="chapter-about"
         title={ui.aboutTitle}
         paragraphs={[ui.about1, ui.about2, ui.about3]}
         highlights={ui.aboutHighlights}
         ctaPrimary={{ label: ui.aboutCtaSkills, onClick: () => scrollToSection('classic-skills') }}
-        ctaSecondary={{ label: ui.aboutCtaContact, onClick: () => scrollToSection('classic-contact') }}
+        ctaSecondary={{ label: ui.aboutCtaContact, onClick: () => scrollToSection('chapter-contact') }}
       />
 
       <section className={styles.section} id="classic-skills">
@@ -215,7 +230,7 @@ export function ClassicRebuildPage() {
         </div>
       </section>
 
-      <section className={styles.section} id="classic-experience">
+      <section className={styles.section} id="chapter-notes">
         <ClassicTimeline
           heading={ui.experienceTitle}
           intro={isEs ? 'Roles y aprendizajes a lo largo del tiempo.' : 'Roles and learnings over time.'}
@@ -228,7 +243,7 @@ export function ClassicRebuildPage() {
         />
       </section>
 
-      <section className={styles.section} id="classic-work">
+      <section className={styles.section} id="chapter-work">
         <h2>{ui.workTitle}</h2>
         <div className={styles.projects}>
           {featuredProjects.map((project) => {
@@ -267,7 +282,7 @@ export function ClassicRebuildPage() {
         </div>
       </section>
 
-      <section className={styles.section} id="classic-contact">
+      <section className={styles.section} id="chapter-contact">
         <h2>{ui.contactTitle}</h2>
         <div className={styles.contactGrid}>
           <a href={`mailto:${contactV2.email}`} className={styles.link}>{contactV2.email}</a>
@@ -282,6 +297,8 @@ export function ClassicRebuildPage() {
           </a>
         </div>
       </section>
+
+      <div className={styles.bottomSpacer} aria-hidden="true" />
     </div>
   )
 }

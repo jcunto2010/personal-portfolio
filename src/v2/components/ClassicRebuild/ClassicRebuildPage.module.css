@@ -232,6 +232,10 @@
   color: var(--v2-color-cyan);
 }
 
+.bottomSpacer {
+  height: 80vh;
+}
+
 @media (max-width: 720px) {
   .hero {
     min-height: auto;

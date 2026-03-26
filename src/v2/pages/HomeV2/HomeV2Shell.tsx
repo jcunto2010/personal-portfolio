@@ -175,15 +175,26 @@ class ImmersiveErrorBoundary extends Component<
 // ── Inner shell (needs AppModeContext in scope) ────────────────────────────
 
 function HomeV2Inner() {
-  const { mode, audioEnabled, exitFullscreen } = useAppMode()
+  const { mode, audioEnabled, setMode, setAudioEnabled, exitFullscreen } = useAppMode()
   const audio = useAudioShell()
 
   type EntryPhase = 'select' | 'loading' | 'ready'
-  const [entryPhase, setEntryPhase] = useState<EntryPhase>('select')
+  const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1'
+  const [entryPhase, setEntryPhase] = useState<EntryPhase>(() => (isE2E ? 'ready' : 'select'))
   const [immersiveSceneReady, setImmersiveSceneReady] = useState(false)
   const [hasEnteredOnce, setHasEnteredOnce] = useState(false)
 
   const journeyLoader = useJourneyLoader(mode)
+
+  // E2E bypass: ensure Home content renders immediately (no EntryGate).
+  useEffect(() => {
+    if (!isE2E) return
+    setMode('non-immersive')
+    setAudioEnabled(false)
+    setHasEnteredOnce(true)
+    setEntryPhase('ready')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isE2E])
 
   // Orquesta la transición select → loading → ready
   // Nota: no depender de `journeyLoader` entero — el snapshot cambia cada render y

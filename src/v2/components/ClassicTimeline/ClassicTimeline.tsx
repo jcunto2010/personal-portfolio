@@ -34,7 +34,9 @@ function TimelineItem({
   const start = idx / safeTotal
   const end = (idx + 1) / safeTotal
 
-  const itemOpacity = useTransform(scrollYProgress, [start, start + (end - start) * 0.7], [0.35, 1])
+  // Keep content readable for accessibility audits (Axe color-contrast).
+  // Avoid very low opacity states that effectively reduce contrast below WCAG thresholds.
+  const itemOpacity = useTransform(scrollYProgress, [start, start + (end - start) * 0.7], [0.92, 1])
   const itemY = useTransform(scrollYProgress, [start, start + (end - start) * 0.7], [10, 0])
 
   const markerScale = useTransform(scrollYProgress, [start, end], [0.75, 1])
