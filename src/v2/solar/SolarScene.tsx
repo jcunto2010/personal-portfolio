@@ -536,6 +536,26 @@ export function SolarScene({
     )
   }
 
+  return (
+    <SolarSceneWebGL
+      onSwitchMode={onSwitchMode}
+      mode={mode}
+      entered={entered}
+      audioEnabled={audioEnabled}
+      audioDiagnostics={audioDiagnostics}
+      onReady={onReady}
+    />
+  )
+}
+
+function SolarSceneWebGL({
+  onSwitchMode,
+  mode = 'immersive',
+  entered = true,
+  audioEnabled = false,
+  audioDiagnostics = DEFAULT_AUDIO_DIAG,
+  onReady,
+}: SolarSceneProps) {
   const { locale } = useLocale()
 
   // React 18 StrictMode (dev) mounts/unmounts components immediately to
