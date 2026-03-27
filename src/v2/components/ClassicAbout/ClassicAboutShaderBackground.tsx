@@ -78,7 +78,13 @@ export function ClassicAboutShaderBackground() {
     const mesh = new THREE.Mesh(geometry, material)
     scene.add(mesh)
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'high-performance' })
+    let renderer: THREE.WebGLRenderer
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'high-performance' })
+    } catch {
+      // Degrade gracefully on unstable/blocked GPU contexts.
+      return
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8))
     renderer.setClearColor(0x000000, 0)
     renderer.domElement.style.position = 'absolute'

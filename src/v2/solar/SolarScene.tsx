@@ -491,6 +491,51 @@ export function SolarScene({
   audioDiagnostics = DEFAULT_AUDIO_DIAG,
   onReady,
 }: SolarSceneProps) {
+  const [webglAvailable] = useState<boolean>(() => {
+    try {
+      const canvas = document.createElement('canvas')
+      return Boolean(
+        canvas.getContext('webgl2') ||
+        canvas.getContext('webgl') ||
+        canvas.getContext('experimental-webgl'),
+      )
+    } catch {
+      return false
+    }
+  })
+
+  useEffect(() => {
+    if (!webglAvailable) onReady?.()
+  }, [webglAvailable, onReady])
+
+  if (!webglAvailable) {
+    return (
+      <div className={styles.solarSceneRoot} style={{ display: 'grid', placeItems: 'center', background: '#030712' }}>
+        <div style={{ textAlign: 'center', color: '#e2e8f0', fontFamily: 'monospace', padding: '2rem' }}>
+          <p style={{ margin: 0, fontSize: '1rem' }}>WebGL no disponible en este navegador/GPU.</p>
+          <p style={{ margin: '0.75rem 0 1.5rem', opacity: 0.75, fontSize: '0.85rem' }}>
+            Cambia a modo clásico o revisa la aceleración por hardware.
+          </p>
+          <button
+            type="button"
+            onClick={onSwitchMode}
+            style={{
+              padding: '0.55rem 1.2rem',
+              borderRadius: '999px',
+              border: '1px solid rgba(226,232,240,0.35)',
+              background: 'rgba(255,255,255,0.08)',
+              color: '#e2e8f0',
+              cursor: 'pointer',
+              fontFamily: 'monospace',
+            }}
+          >
+            ← Volver al selector de modo
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   const { locale } = useLocale()
 
   // React 18 StrictMode (dev) mounts/unmounts components immediately to

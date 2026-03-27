@@ -74,6 +74,7 @@ interface ImmersiveErrorBoundaryState {
 interface ImmersiveErrorBoundaryProps {
   children: ReactNode
   onReset: () => void
+  onError?: () => void
 }
 
 class ImmersiveErrorBoundary extends Component<
@@ -89,7 +90,9 @@ class ImmersiveErrorBoundary extends Component<
     return { error }
   }
 
-  componentDidCatch() {}
+  componentDidCatch() {
+    this.props.onError?.()
+  }
 
   render() {
     const { error } = this.state
@@ -386,7 +389,10 @@ function HomeV2Inner() {
 
       {entryPhase === 'ready' && mode === 'immersive' && (
         <>
-          <ImmersiveErrorBoundary onReset={handleSwitchMode}>
+          <ImmersiveErrorBoundary
+            onReset={handleSwitchMode}
+            onError={() => setImmersiveSceneReady(true)}
+          >
             <Suspense fallback={<SpaceLoadingScreen />}>
               <LazySolarScene
                 onSwitchMode={handleSwitchMode}

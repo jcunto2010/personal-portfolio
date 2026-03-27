@@ -1,5 +1,5 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useId, useRef } from 'react'
 import styles from './ClassicTimeline.module.css'
 
 export interface ClassicTimelineEntry {
@@ -15,61 +15,18 @@ interface ClassicTimelineProps {
   entries: ClassicTimelineEntry[]
 }
 
-function TimelineItem({
-  entry,
-  idx,
-  total,
-  reducedMotion,
-  scrollYProgress,
-}: {
-  entry: ClassicTimelineEntry
-  idx: number
-  total: number
-  reducedMotion: boolean
-  scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress']
-}) {
-  // Convertimos el avance global del scroll en un rango por ítem para animar
-  // marker + contenido de forma continua.
-  const safeTotal = Math.max(total, 1)
-  const start = idx / safeTotal
-  const end = (idx + 1) / safeTotal
-
-  // Keep content readable for accessibility audits (Axe color-contrast).
-  // Avoid very low opacity states that effectively reduce contrast below WCAG thresholds.
-  const itemOpacity = useTransform(scrollYProgress, [start, start + (end - start) * 0.7], [0.92, 1])
-  const itemY = useTransform(scrollYProgress, [start, start + (end - start) * 0.7], [10, 0])
-
-  const markerScale = useTransform(scrollYProgress, [start, end], [0.75, 1])
-  const markerOpacity = useTransform(scrollYProgress, [start, end], [0.4, 1])
-
-  const itemStyle = reducedMotion
-    ? {
-        opacity: itemOpacity,
-      }
-    : {
-        opacity: itemOpacity,
-        y: itemY,
-      }
-
-  const markerStyle = reducedMotion
-    ? {
-        opacity: markerOpacity,
-      }
-    : {
-        scale: markerScale,
-        opacity: markerOpacity,
-      }
-
+function TimelineItem({ entry, idx }: { entry: ClassicTimelineEntry; idx: number }) {
   return (
     <motion.li
       className={styles.item}
-      style={itemStyle}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      viewport={{ once: true, margin: '-80px' }}
     >
-      <motion.div
-        className={styles.marker}
-        aria-hidden="true"
-        style={markerStyle}
-      />
+      <div className={styles.markerCol} aria-hidden="true">
+        <div className={styles.marker} />
+      </div>
 
       <div className={styles.meta}>
         <p className={styles.itemTitle}>{entry.title}</p>
@@ -91,35 +48,16 @@ function TimelineItem({
 }
 
 export function ClassicTimeline({ heading, intro, entries }: ClassicTimelineProps) {
-  const containerRef = useRef<HTMLElement | null>(null)
-  const trackRef = useRef<HTMLDivElement | null>(null)
-  const reducedMotion = useReducedMotion() ?? false
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const headingId = useId()
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start 10%', 'end 50%'],
+    offset: ['start 80%', 'end 20%'],
   })
-
-  const [trackHeight, setTrackHeight] = useState(0)
-
-  useEffect(() => {
-    const measure = () => {
-      const node = trackRef.current
-      if (!node) return
-      setTrackHeight(node.getBoundingClientRect().height)
-    }
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [])
-
-  const beamHeight = useTransform(scrollYProgress, [0, 1], [0, trackHeight])
-  // Empezar visible antes para que el efecto sea evidente al hacer scroll.
-  const beamOpacity = useTransform(scrollYProgress, [0, 0.05], [0.25, 1])
-  const stableEntries = useMemo(() => entries, [entries])
+  const trackHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
   return (
-    <section className={styles.root} ref={containerRef} aria-labelledby={headingId}>
+    <section className={styles.root} aria-labelledby={headingId}>
       <div className={styles.header}>
         <h3 className={styles.heading} id={headingId}>
           {heading}
@@ -127,22 +65,15 @@ export function ClassicTimeline({ heading, intro, entries }: ClassicTimelineProp
         <p className={styles.intro}>{intro}</p>
       </div>
 
-      <div className={styles.listWrap}>
-        <div className={styles.track} aria-hidden="true" ref={trackRef}>
+      <div className={styles.listWrap} ref={containerRef}>
+        <div className={styles.track} aria-hidden="true">
           <div className={styles.trackBase} />
-          <motion.div className={styles.trackFill} style={{ height: beamHeight, opacity: beamOpacity }} />
+          <motion.div className={styles.trackFill} style={{ height: trackHeight }} />
         </div>
 
         <ol className={styles.list}>
-          {stableEntries.map((entry, idx) => (
-            <TimelineItem
-              key={`${entry.title}-${idx}`}
-              entry={entry}
-              idx={idx}
-              total={stableEntries.length}
-              reducedMotion={reducedMotion}
-              scrollYProgress={scrollYProgress}
-            />
+          {entries.map((entry, idx) => (
+            <TimelineItem key={`${entry.title}-${idx}`} entry={entry} idx={idx} />
           ))}
         </ol>
       </div>
