@@ -1,6 +1,6 @@
-﻿import React, { useEffect, useRef, useCallback, useState } from 'react'
+import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { FaRobot, FaCalendarCheck, FaBell, FaFingerprint, FaProjectDiagram } from 'react-icons/fa'
-import type { Node, Edge, Connection} from 'reactflow';
+import type { Node, Edge, Connection, NodeChange, ReactFlowInstance } from 'reactflow'
 import ReactFlow, { Background, useNodesState, useEdgesState, addEdge, Handle, Position } from 'reactflow'
 import 'reactflow/dist/style.css'
 import FlowStepper from '../shared/FlowStepper'
@@ -142,17 +142,20 @@ const UserFlowDiagram: React.FC = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   // Prevent node dragging by filtering out position changes
-  const handleNodesChange = useCallback((changes: any) => {
-    const filteredChanges = changes.filter((change: any) => change.type !== 'position')
-    onNodesChange(filteredChanges)
-  }, [onNodesChange])
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      const filteredChanges = changes.filter((change) => change.type !== 'position')
+      onNodesChange(filteredChanges)
+    },
+    [onNodesChange],
+  )
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   )
 
-  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null)
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null)
 
   useEffect(() => {
     if (reactFlowInstance) {

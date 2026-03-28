@@ -15,5 +15,4 @@ mkdirSync(destDir, { recursive: true })
 for (const f of files) {
   cpSync(join(srcDir, f), join(destDir, f))
 }
-// eslint-disable-next-line no-console -- script feedback
 console.log(`copy-draco: ${files.length} files -> ${destDir}`)

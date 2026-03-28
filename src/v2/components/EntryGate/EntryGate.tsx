@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { Volume2, VolumeX } from 'lucide-react'
 import { useAppMode, type AppMode } from '../../lib/appModeContext'
 import { LanguageSwitcher } from '../LanguageSwitcher/LanguageSwitcher'
@@ -156,13 +156,15 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           <div
             key={i}
             className={`${styles.star} ${shouldAnimate ? styles.starFadeIn : ''}`}
-            style={{
-              left: `${star.left}%`,
-              top: `${star.top}%`,
-              opacity: shouldAnimate ? 0 : star.baseOpacity,
-              animationDelay: shouldAnimate ? `${i * 0.04}s` : undefined,
-              ['--endOpacity' as any]: star.baseOpacity,
-            }}
+            style={
+              {
+                left: `${star.left}%`,
+                top: `${star.top}%`,
+                opacity: shouldAnimate ? 0 : star.baseOpacity,
+                animationDelay: shouldAnimate ? `${i * 0.04}s` : undefined,
+                '--endOpacity': star.baseOpacity,
+              } as CSSProperties & { '--endOpacity'?: number }
+            }
             aria-hidden="true"
           />
         ))}

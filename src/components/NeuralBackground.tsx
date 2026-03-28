@@ -10,6 +10,85 @@ interface NeuralBackgroundProps {
   reducedMotion?: boolean
 }
 
+interface NeuralParticleContext {
+  width: number
+  height: number
+  mouse: { x: number; y: number }
+}
+
+class NeuralParticle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  age: number
+  life: number
+
+  constructor(
+    private readonly ctx: NeuralParticleContext,
+    private readonly color: string,
+    private readonly speed: number,
+  ) {
+    this.x = 0
+    this.y = 0
+    this.vx = 0
+    this.vy = 0
+    this.age = 0
+    this.life = 0
+    this.reset()
+  }
+
+  update() {
+    const { width, height, mouse } = this.ctx
+    const angle = (Math.cos(this.x * 0.005) + Math.sin(this.y * 0.005)) * Math.PI
+    this.vx += Math.cos(angle) * 0.2 * this.speed
+    this.vy += Math.sin(angle) * 0.2 * this.speed
+
+    const dx = mouse.x - this.x
+    const dy = mouse.y - this.y
+    const distance = Math.sqrt(dx * dx + dy * dy)
+    const interactionRadius = 150
+
+    if (distance < interactionRadius) {
+      const force = (interactionRadius - distance) / interactionRadius
+      this.vx -= dx * force * 0.05
+      this.vy -= dy * force * 0.05
+    }
+
+    this.x += this.vx
+    this.y += this.vy
+    this.vx *= 0.95
+    this.vy *= 0.95
+
+    this.age++
+    if (this.age > this.life) {
+      this.reset()
+    }
+
+    if (this.x < 0) this.x = width
+    if (this.x > width) this.x = 0
+    if (this.y < 0) this.y = height
+    if (this.y > height) this.y = 0
+  }
+
+  reset() {
+    const { width, height } = this.ctx
+    this.x = Math.random() * width
+    this.y = Math.random() * height
+    this.vx = 0
+    this.vy = 0
+    this.age = 0
+    this.life = Math.random() * 200 + 100
+  }
+
+  draw(context: CanvasRenderingContext2D) {
+    context.fillStyle = this.color
+    const alpha = 1 - Math.abs((this.age / this.life) - 0.5) * 2
+    context.globalAlpha = alpha
+    context.fillRect(this.x, this.y, 2, 2)
+  }
+}
+
 export default function NeuralBackground({
   className,
   color = '#6366f1',
@@ -31,75 +110,10 @@ export default function NeuralBackground({
 
     let width = 0
     let height = 0
-    let particles: Particle[] = []
+    let particles: NeuralParticle[] = []
     let animationFrameId: number
-    let mouse = { x: -1000, y: -1000 }
-
-    class Particle {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      age: number
-      life: number
-
-      constructor() {
-        this.x = Math.random() * width
-        this.y = Math.random() * height
-        this.vx = 0
-        this.vy = 0
-        this.age = 0
-        this.life = Math.random() * 200 + 100
-      }
-
-      update() {
-        const angle = (Math.cos(this.x * 0.005) + Math.sin(this.y * 0.005)) * Math.PI
-        this.vx += Math.cos(angle) * 0.2 * speed
-        this.vy += Math.sin(angle) * 0.2 * speed
-
-        const dx = mouse.x - this.x
-        const dy = mouse.y - this.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
-        const interactionRadius = 150
-
-        if (distance < interactionRadius) {
-          const force = (interactionRadius - distance) / interactionRadius
-          this.vx -= dx * force * 0.05
-          this.vy -= dy * force * 0.05
-        }
-
-        this.x += this.vx
-        this.y += this.vy
-        this.vx *= 0.95
-        this.vy *= 0.95
-
-        this.age++
-        if (this.age > this.life) {
-          this.reset()
-        }
-
-        if (this.x < 0) this.x = width
-        if (this.x > width) this.x = 0
-        if (this.y < 0) this.y = height
-        if (this.y > height) this.y = 0
-      }
-
-      reset() {
-        this.x = Math.random() * width
-        this.y = Math.random() * height
-        this.vx = 0
-        this.vy = 0
-        this.age = 0
-        this.life = Math.random() * 200 + 100
-      }
-
-      draw(context: CanvasRenderingContext2D) {
-        context.fillStyle = color
-        const alpha = 1 - Math.abs((this.age / this.life) - 0.5) * 2
-        context.globalAlpha = alpha
-        context.fillRect(this.x, this.y, 2, 2)
-      }
-    }
+    const mouse = { x: -1000, y: -1000 }
+    const particleCtx: NeuralParticleContext = { width: 0, height: 0, mouse }
 
     const init = () => {
       if (width < 1 || height < 1) return
@@ -113,7 +127,7 @@ export default function NeuralBackground({
 
       particles = []
       for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle())
+        particles.push(new NeuralParticle(particleCtx, color, speed))
       }
     }
 
@@ -128,6 +142,8 @@ export default function NeuralBackground({
       if (w < 1 || h < 1) return false
       width = w
       height = h
+      particleCtx.width = width
+      particleCtx.height = height
       return true
     }
 

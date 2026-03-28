@@ -107,6 +107,7 @@ function GLBModel({
     disableFrustumCulling(scene)
     const isDev = import.meta.env.DEV
     if (isDev) {
+      // eslint-disable-next-line no-console -- dev-only layout debug
       console.debug(
         `[PlanetMesh:debug] ${planetId} loaded | `
         + `radiusApprox=${norm.radiusApprox.toFixed(3)} `
