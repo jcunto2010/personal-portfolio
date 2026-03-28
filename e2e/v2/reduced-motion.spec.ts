@@ -49,7 +49,7 @@ test.describe('prefers-reduced-motion', () => {
   })
 
   test('all chapter sections are visible (not opacity:0 from stale animation)', async ({ page }) => {
-    const ids = ['chapter-about', 'chapter-notes', 'chapter-work', 'chapter-contact']
+    const ids = ['chapter-about', 'chapter-notes', 'chapter-reservo', 'chapter-startupconnect', 'chapter-contact']
     for (const id of ids) {
       const el = page.locator(`#${id}`)
       await expect(el).toBeAttached()
@@ -67,9 +67,8 @@ test.describe('prefers-reduced-motion', () => {
     await expect(btn).toBeVisible()
     await btn.click()
 
-    // Native scrollIntoView should still bring chapter-work into view
     await page.waitForTimeout(500)
-    const box = await page.locator('#chapter-work').boundingBox()
+    const box = await page.locator('#chapter-reservo').boundingBox()
     expect(box).not.toBeNull()
     expect(box!.y).toBeLessThan(1200)
   })

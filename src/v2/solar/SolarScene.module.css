@@ -32,8 +32,8 @@
   overflow-y: scroll;
   overflow-x: hidden;
   scrollbar-width: none;
-  /* Touch-action: ensure scrolling works on touch devices */
-  touch-action: pan-y;
+  /* Let JS own vertical swipes (discrete shots); avoids iOS stealing the gesture / pull-to-refresh */
+  touch-action: none;
 }
 
 .scrollContainer::-webkit-scrollbar {

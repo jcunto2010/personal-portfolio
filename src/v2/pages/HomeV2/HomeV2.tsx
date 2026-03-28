@@ -7,7 +7,7 @@ import { ClassicRebuildPage } from '../../components/ClassicRebuild/ClassicRebui
  *   - Hero: src/components/Hero.tsx
  *   - Skills: src/data/skills.ts
  *   - Experience: src/data/experience.ts
- *   - Contact: src/components/Contact.tsx + Footer.tsx
+ *   - Contact: src/v2/components/Contact/Contact.tsx + Footer.tsx
  *
  * Scroll layer (T-002):
  *   - Lenis provides smooth scroll via `useLenis`.

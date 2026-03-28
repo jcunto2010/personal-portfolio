@@ -9,7 +9,7 @@
  *   ✓ Page has exactly one h1 (chapter-intro-heading)
  *   ✓ Sidebar TableOfContents is present
  *   ✓ Each TOC link scrolls to its chapter (chapter IDs in DOM)
- *   ✓ Hero "View my work" button scrolls to #chapter-work
+ *   ✓ Hero "View my work" button scrolls to #chapter-reservo
  *   ✓ Hero "Get in touch" button scrolls to #chapter-contact
  *   ✓ Social links in Hero point to corrected URLs
  */
@@ -65,19 +65,17 @@ test.describe('Home V2', () => {
     const toc = page.getByRole('navigation', { name: /page chapters/i })
     const tocLinks = toc.getByRole('button')
 
-    // At least 5 chapter buttons: Intro, About, Experience, Work, Contact
+    // Chapter buttons: Intro, About, Experience, Reservo.AI, StartupConnect, Contact
     const count = await tocLinks.count()
     expect(count).toBeGreaterThanOrEqual(4)
 
-    // Click the "Work" button (4th: index 3) which targets #chapter-work
-    // Using the label text for resilience against reordering.
-    const workBtn = toc.getByRole('button', { name: /work/i })
-    await expect(workBtn).toBeVisible()
+    const reservoBtn = toc.getByRole('button', { name: /reservo/i })
+    await expect(reservoBtn).toBeVisible()
 
     // Record scroll position before click
     const scrollBefore = await page.evaluate(() => window.scrollY)
 
-    await workBtn.click()
+    await reservoBtn.click()
 
     // Wait for scroll to start (Lenis or native)
     await page.waitForFunction(
@@ -89,25 +87,22 @@ test.describe('Home V2', () => {
     // Give smooth-scroll time to settle
     await page.waitForTimeout(1000)
 
-    // The page must have scrolled down — chapter-work is not at y=0
     const scrollAfter = await page.evaluate(() => window.scrollY)
     expect(scrollAfter).toBeGreaterThan(100)
   })
 
   // ── Hero CTAs ─────────────────────────────────────────────────────────────
 
-  test('"View my work" button is present and scrolls toward #chapter-work', async ({ page }) => {
+  test('"View my work" button is present and scrolls toward #chapter-reservo', async ({ page }) => {
     const btn = page.getByRole('button', { name: /view my work/i })
     await expect(btn).toBeVisible()
 
-    // The chapter-work section must exist in the DOM before clicking
-    await expect(page.locator('#chapter-work')).toBeAttached()
+    await expect(page.locator('#chapter-reservo')).toBeAttached()
 
     await btn.click()
     await page.waitForTimeout(800)
 
-    // After clicking, chapter-work should be closer to (or past) the viewport top
-    const box = await page.locator('#chapter-work').boundingBox()
+    const box = await page.locator('#chapter-reservo').boundingBox()
     expect(box).not.toBeNull()
     // box.y will be ≤ viewport height after scroll
     expect(box!.y).toBeLessThan(1200)
@@ -155,7 +150,14 @@ test.describe('Home V2', () => {
   // ── Chapter sections in DOM ───────────────────────────────────────────────
 
   test('all chapter sections exist in the DOM', async ({ page }) => {
-    for (const id of ['chapter-intro', 'chapter-about', 'chapter-notes', 'chapter-work', 'chapter-contact']) {
+    for (const id of [
+      'chapter-intro',
+      'chapter-about',
+      'chapter-notes',
+      'chapter-reservo',
+      'chapter-startupconnect',
+      'chapter-contact',
+    ]) {
       await expect(page.locator(`#${id}`)).toBeAttached()
     }
   })

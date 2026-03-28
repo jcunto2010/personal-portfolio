@@ -1,0 +1,413 @@
+/**
+ * Contact — "Let's work together" block (21st.dev–inspired).
+ * Uses V2 tokens only; scoped to avoid ClassicRebuildPage .section h2 / .section p rules.
+ */
+
+/* Shared stacks match ClassicHero / ClassicTimeline / ClassicRebuildPage */
+.root {
+  position: relative;
+  isolation: isolate;
+  align-self: stretch;
+  width: 100%;
+  max-width: 56rem;
+  margin-inline: auto;
+  min-height: min(100vh, 56rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(3rem, 10vh, 6rem) clamp(1rem, 4vw, 2rem);
+  text-align: center;
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-weight: 400;
+}
+
+.ambient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    color-mix(in srgb, var(--v2-color-cyan) 12%, transparent),
+    transparent 55%
+  );
+  /* Lighter veil so the neural canvas reads through the section */
+  opacity: 0.28;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2rem, 5vh, 3rem);
+}
+
+/* ── Main CTA cluster (headline + arrow) ─────────────────────────── */
+.ctaCluster {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  outline: none;
+}
+
+.ctaInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 4vh, 2.25rem);
+}
+
+.ctaCluster:focus-visible {
+  border-radius: var(--v2-radius-md);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--v2-color-cyan) 55%, transparent);
+}
+
+.heroTitle {
+  margin: 0;
+  /* Same display stack as ClassicTimeline .heading / chapter titles */
+  font-family: var(--v2-font-display, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-weight: var(--v2-font-weight-display, 600);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  color: var(--v2-color-base-text);
+  text-align: center;
+}
+
+.heroLine {
+  display: block;
+  overflow: hidden;
+}
+
+.heroLineInner {
+  display: block;
+}
+
+.heroLineMuted {
+  color: var(--v2-color-muted-text);
+}
+
+.arrowBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 22rem;
+  margin-top: 0.15rem;
+}
+
+.decorLine {
+  height: 1px;
+  flex: 1 1 2rem;
+  max-width: 3rem;
+  background: color-mix(in srgb, var(--v2-color-base-text) 22%, transparent);
+  transform-origin: center;
+}
+
+.arrowRow {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+@media (min-width: 640px) {
+  .arrowRow {
+    width: 5.25rem;
+    height: 5.25rem;
+  }
+}
+
+.arrowCircle {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--v2-color-border-soft) 100%, transparent);
+  pointer-events: none;
+}
+
+.arrowIcon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Footnote ───────────────────────────────────────────────────── */
+.footnote {
+  display: flex;
+  max-width: 28rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.blurb {
+  margin: 0;
+  /* ClassicHero .mainText */
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.35vw, 1.3rem);
+  line-height: 1.7;
+  color: var(--v2-color-muted-text);
+}
+
+/* ── Contact panel (state 2) — mismo ancho que .footnote + filas alineadas al .arrowBlock ─ */
+.panelHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.panelEyebrow {
+  margin: 0;
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+}
+
+.rows {
+  display: flex;
+  width: 100%;
+  max-width: 22rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.55rem;
+  box-sizing: border-box;
+}
+
+/* LinkedIn + GitHub: dos columnas iguales, mismo ancho que email/teléfono */
+.socialRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 380px) {
+  .socialRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Todos los botones/filas: misma píldora ovalada y acento cyan (paleta V2) */
+.row {
+  appearance: none;
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.65rem;
+  padding: 0.65rem 1rem;
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-weight: 400;
+  font-size: clamp(0.88rem, 1.2vw, 1rem);
+  text-align: left;
+  color: var(--v2-color-base-text);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--v2-color-cyan) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--v2-color-cyan) 45%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.row:hover {
+  border-color: var(--v2-color-cyan);
+  background: color-mix(in srgb, var(--v2-color-cyan) 20%, transparent);
+}
+
+.row:hover .rowIcon {
+  color: var(--v2-color-cyan);
+  transform: translateY(-1px);
+}
+
+.rowIcon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: color-mix(in srgb, var(--v2-color-base-text) 88%, transparent);
+  transition:
+    color 0.35s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rowLabel {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.rowChevron {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin-left: auto;
+  color: var(--v2-color-muted-text);
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.row:hover .rowChevron {
+  color: var(--v2-color-cyan);
+  transform: translate(2px, -2px);
+}
+
+.rowSocial {
+  width: 100%;
+  min-width: 0;
+  justify-content: center;
+  padding: 0.65rem 1.1rem;
+}
+
+.rowSocial .rowLabel {
+  flex: 0 1 auto;
+  text-align: center;
+}
+
+.rowWrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.emailRow {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+.emailRowMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.copyEmailBtn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  padding: 0;
+  cursor: pointer;
+  color: color-mix(in srgb, var(--v2-color-base-text) 88%, transparent);
+  background: color-mix(in srgb, var(--v2-color-cyan) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--v2-color-cyan) 45%, transparent);
+  border-radius: 999px;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
+}
+
+.copyEmailBtn:hover {
+  border-color: var(--v2-color-cyan);
+  background: color-mix(in srgb, var(--v2-color-cyan) 20%, transparent);
+  color: var(--v2-color-cyan);
+}
+
+.copyEmailBtnDone {
+  border-color: var(--v2-color-cyan);
+  color: var(--v2-color-cyan);
+}
+
+.copyEmailIcon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.panelMeta {
+  margin: 0;
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--v2-color-muted-text);
+  text-align: center;
+}
+
+.backBtn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.15rem;
+  padding: 0.55rem 1.25rem;
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
+  font-size: 0.94rem;
+  font-weight: 400;
+  color: var(--v2-color-base-text);
+  background: color-mix(in srgb, var(--v2-color-cyan) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--v2-color-cyan) 45%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+
+.backBtn:hover {
+  color: var(--v2-color-base-text);
+  border-color: var(--v2-color-cyan);
+  background: color-mix(in srgb, var(--v2-color-cyan) 20%, transparent);
+}
+
+.backBtn:hover .backIcon {
+  color: var(--v2-color-cyan);
+}
+
+.backIcon {
+  width: 1rem;
+  height: 1rem;
+  color: color-mix(in srgb, var(--v2-color-base-text) 88%, transparent);
+  transition: color 0.3s ease;
+}
+
+/* Misma columna y ritmo vertical que el estado inicial (Let's work) */
+.idleLayer,
+.contactLayer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2rem, 5vh, 3rem);
+}
+
+.contactStack {
+  width: 100%;
+  max-width: 28rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.25rem, 3vh, 1.75rem);
+}

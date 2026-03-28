@@ -5,10 +5,12 @@ import * as SiIcons from 'react-icons/si'
 import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
 import { ClassicHero } from '../ClassicHero/ClassicHero'
 import { ClassicTimeline } from '../ClassicTimeline/ClassicTimeline'
+import NeuralBackground from '../../../components/NeuralBackground'
+import Contact from '../Contact/Contact'
 import { TableOfContents } from '../TableOfContents/TableOfContents'
 import { contactV2 } from '../../data/contact.v2'
 import { experienceV2 } from '../../data/experience.v2'
-import { projectsV2 } from '../../data/projects.v2'
+import { getProjectBySlug, type ProjectV2 } from '../../data/projects.v2'
 import { skillsV2 } from '../../data/skills.v2'
 import { InfiniteSlider } from '../ui/infinite-slider'
 import { useLocale } from '../../lib/localeContext'
@@ -19,7 +21,8 @@ export function ClassicRebuildPage() {
   const { locale } = useLocale()
   const isEs = locale === 'es'
   const prefersReduced = useReducedMotion()
-  const featuredProjects = useMemo(() => projectsV2.filter((p) => p.featured), [])
+  const reservoProject = useMemo(() => getProjectBySlug('reservo-ai'), [])
+  const startupProject = useMemo(() => getProjectBySlug('startupconnect'), [])
 
   function getSkillIcon(iconKey: string): IconType | null {
     const exportNameByKey: Record<string, string> = {
@@ -117,7 +120,6 @@ export function ClassicRebuildPage() {
         ],
     skillsTitle: isEs ? 'Skills' : 'Skills',
     experienceTitle: isEs ? 'Experiencia' : 'Experience',
-    workTitle: isEs ? 'Proyectos destacados' : 'Featured projects',
     technologies: isEs ? 'Tecnologías' : 'Technologies',
     contactTitle: isEs ? 'Contacto' : 'Contact',
     github: isEs ? 'Código en GitHub' : 'Source on GitHub',
@@ -131,22 +133,18 @@ export function ClassicRebuildPage() {
     ctaContact: isEs ? 'Get in touch' : 'Get in touch',
     navHome: isEs ? 'Inicio' : 'Home',
     ctaExperience: isEs ? 'Experiencia' : 'Experience',
-    ctaProjects: isEs ? 'Proyectos' : 'Projects',
     heroLocation: isEs ? 'Caracas, Venezuela' : 'Caracas, Venezuela',
     navAbout: isEs ? 'Acerca' : 'About',
     aboutCtaSkills: isEs ? 'Ver skills' : 'View skills',
     aboutCtaContact: isEs ? 'Contactar' : 'Contact',
+    footerCopyright: isEs
+      ? 'Hecho por mí en 2026. Todos los derechos reservados.'
+      : 'Made by me in 2026. All rights reserved.',
   }
 
   function scrollToSection(id: string) {
     const node = document.getElementById(id)
     if (!node) return
-    if (id === 'chapter-contact') {
-      // Last section: scroll to the bottom so it can actually enter the viewport
-      // even when the document isn't tall enough to align it to the top.
-      window.scrollTo(0, document.body.scrollHeight)
-      return
-    }
     const top = node.getBoundingClientRect().top + window.scrollY
     if (prefersReduced) {
       // Avoid any smooth-scroll polyfills/quirks on mobile reduced-motion runs.
@@ -154,6 +152,39 @@ export function ClassicRebuildPage() {
       return
     }
     window.scrollTo({ top, behavior: 'smooth' })
+  }
+
+  function renderProjectCard(project: ProjectV2) {
+    const description = isEs ? (project.descriptionEs ?? project.description) : project.description
+    const highlights = isEs ? (project.highlightsEs ?? project.highlights ?? []) : (project.highlights ?? [])
+    return (
+      <article className={styles.projectCard}>
+        <img src={project.coverImage} alt="" className={styles.cover} loading="lazy" />
+        <div className={styles.projectBody}>
+          <p className={styles.year}>{project.year}</p>
+          <p className={styles.muted}>{project.tagline}</p>
+          <p>{description}</p>
+          {highlights.length > 0 && (
+            <ul className={styles.bullets}>
+              {highlights.slice(0, 5).map((h) => (
+                <li key={h}>{h}</li>
+              ))}
+            </ul>
+          )}
+          <p className={styles.metaLabel}>{ui.technologies}</p>
+          <ul className={styles.chips}>
+            {project.technologies.map((tech) => (
+              <li key={tech} className={styles.chip}>{tech}</li>
+            ))}
+          </ul>
+          {project.githubUrl && (
+            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
+              {ui.github}
+            </a>
+          )}
+        </div>
+      </article>
+    )
   }
 
   return (
@@ -167,13 +198,14 @@ export function ClassicRebuildPage() {
             { label: ui.navHome, onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
             { label: ui.navAbout, onClick: () => scrollToSection('chapter-about') },
             { label: ui.ctaExperience, onClick: () => scrollToSection('chapter-notes') },
-            { label: ui.ctaProjects, onClick: () => scrollToSection('chapter-work') },
+            { label: 'Reservo.AI', onClick: () => scrollToSection('chapter-reservo') },
+            { label: 'StartupConnect', onClick: () => scrollToSection('chapter-startupconnect') },
             { label: ui.skillsTitle, onClick: () => scrollToSection('classic-skills') },
             { label: ui.contactTitle, onClick: () => scrollToSection('chapter-contact') },
           ]}
           heroHeading={ui.heroHeading}
           mainText={ui.heroMainText}
-          ctaPrimary={{ label: ui.ctaWork, onClick: () => scrollToSection('chapter-work') }}
+          ctaPrimary={{ label: ui.ctaWork, onClick: () => scrollToSection('chapter-reservo') }}
           ctaSecondary={{ label: ui.ctaContact, onClick: () => scrollToSection('chapter-contact') }}
           imageSrc="/assets/projects/johnny_hero.png"
           imageAlt="Jonathan hero portrait"
@@ -243,62 +275,45 @@ export function ClassicRebuildPage() {
         />
       </section>
 
-      <section className={styles.section} id="chapter-work">
-        <h2>{ui.workTitle}</h2>
-        <div className={styles.projects}>
-          {featuredProjects.map((project) => {
-            const description = isEs ? (project.descriptionEs ?? project.description) : project.description
-            const highlights = isEs ? (project.highlightsEs ?? project.highlights ?? []) : (project.highlights ?? [])
-            return (
-              <article key={project.slug} className={styles.projectCard}>
-                <img src={project.coverImage} alt={project.title} className={styles.cover} loading="lazy" />
-                <div className={styles.projectBody}>
-                  <p className={styles.year}>{project.year}</p>
-                  <h3>{project.title}</h3>
-                  <p className={styles.muted}>{project.tagline}</p>
-                  <p>{description}</p>
-                  {highlights.length > 0 && (
-                    <ul className={styles.bullets}>
-                      {highlights.slice(0, 5).map((h) => (
-                        <li key={h}>{h}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <p className={styles.metaLabel}>{ui.technologies}</p>
-                  <ul className={styles.chips}>
-                    {project.technologies.map((tech) => (
-                      <li key={tech} className={styles.chip}>{tech}</li>
-                    ))}
-                  </ul>
-                  {project.githubUrl && (
-                    <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className={styles.link}>
-                      {ui.github}
-                    </a>
-                  )}
-                </div>
-              </article>
-            )
-          })}
+      {reservoProject && (
+        <section className={styles.section} id="chapter-reservo" aria-labelledby="chapter-reservo-heading">
+          <h2 id="chapter-reservo-heading">{reservoProject.title}</h2>
+          <div className={styles.projectSingle}>{renderProjectCard(reservoProject)}</div>
+        </section>
+      )}
+
+      {startupProject && (
+        <section className={styles.section} id="chapter-startupconnect" aria-labelledby="chapter-startupconnect-heading">
+          <h2 id="chapter-startupconnect-heading">{startupProject.title}</h2>
+          <div className={styles.projectSingle}>{renderProjectCard(startupProject)}</div>
+        </section>
+      )}
+
+      <section
+        className={`${styles.section} ${styles.sectionContact}`}
+        id="chapter-contact"
+        aria-labelledby="chapter-contact-heading"
+      >
+        <div className={styles.contactNeuralUnderlay} aria-hidden="true">
+          <NeuralBackground
+            reducedMotion={prefersReduced}
+            color="#93c5fd"
+            trailOpacity={0.07}
+            particleCount={720}
+            speed={1}
+          />
+        </div>
+        <h2 id="chapter-contact-heading" className={styles.srOnly}>
+          {ui.contactTitle}
+        </h2>
+        <div className={styles.contactSlot}>
+          <Contact />
         </div>
       </section>
 
-      <section className={styles.section} id="chapter-contact">
-        <h2>{ui.contactTitle}</h2>
-        <div className={styles.contactGrid}>
-          <a href={`mailto:${contactV2.email}`} className={styles.link}>{contactV2.email}</a>
-          <a href={contactV2.whatsapp} target="_blank" rel="noopener noreferrer" className={styles.link}>
-            {contactV2.whatsappDisplay}
-          </a>
-          <a href={contactV2.github} target="_blank" rel="noopener noreferrer" className={styles.link}>
-            github.com/jcunto2010
-          </a>
-          <a href={contactV2.linkedin} target="_blank" rel="noopener noreferrer" className={styles.link}>
-            jonathan-cuntodiaz
-          </a>
-        </div>
-      </section>
-
-      <div className={styles.bottomSpacer} aria-hidden="true" />
+      <footer className={styles.siteFooter}>
+        <p className={styles.footerText}>{ui.footerCopyright}</p>
+      </footer>
     </div>
   )
 }

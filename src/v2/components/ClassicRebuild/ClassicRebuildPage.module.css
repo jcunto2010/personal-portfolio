@@ -9,7 +9,6 @@
 .hero {
   min-height: 100vh;
   padding: 0;
-  border-bottom: 1px solid var(--v2-color-border-soft);
   width: 100vw;
   margin-left: calc(50% - 50vw);
 }
@@ -44,12 +43,58 @@
 }
 
 .section {
+  position: relative;
   min-height: 100vh;
   padding: 4rem 1rem 2rem;
-  border-bottom: 1px solid var(--v2-color-border-soft);
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* Screen-reader-only chapter title — avoids duplicating a visible "Contact" H2 over the 21st-style block */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Neural canvas: absolute inset fills section; min-height avoids 0×0 when % heights collapse. */
+.contactNeuralUnderlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  min-height: min(100vh, 100%);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Full viewport width like .hero — .page max-width would otherwise clip the neural layer */
+.sectionContact {
+  isolation: isolate;
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.contactSlot {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
 }
 
 .section h2 {
@@ -175,6 +220,11 @@
   gap: 1.2rem;
 }
 
+.projectSingle {
+  width: 100%;
+  max-width: 52rem;
+}
+
 .projectCard {
   border: 1px solid var(--v2-color-border-soft);
   border-radius: var(--v2-radius-md);
@@ -232,8 +282,23 @@
   color: var(--v2-color-cyan);
 }
 
-.bottomSpacer {
-  height: 80vh;
+.siteFooter {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 3rem 1.5rem 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.footerText {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--v2-color-muted-text);
+  line-height: 1.6;
+  max-width: 52ch;
 }
 
 @media (max-width: 720px) {

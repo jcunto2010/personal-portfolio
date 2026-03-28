@@ -8,7 +8,6 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   padding: clamp(0.75rem, 2vw, 1.2rem);
-  border-bottom: 1px solid var(--v2-color-border-soft);
 }
 
 .shaderLayer {

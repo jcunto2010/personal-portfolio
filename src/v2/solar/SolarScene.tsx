@@ -558,6 +558,14 @@ function SolarSceneWebGL({
 }: SolarSceneProps) {
   const { locale } = useLocale()
 
+  const immersiveScrollRegionLabel = useMemo(
+    () =>
+      locale === 'es'
+        ? 'Experiencia solar — desplázate con la rueda o desliza para explorar'
+        : 'Solar system experience — scroll or swipe to explore',
+    [locale],
+  )
+
   // React 18 StrictMode (dev) mounts/unmounts components immediately to
   // surface side-effects. Our cleanup calls `useGLTF.clear()` which
   // can force a second real network GET for the same GLB (e.g. `sun.glb`).
@@ -1196,7 +1204,7 @@ function SolarSceneWebGL({
       <div
         ref={scrollContainerRef}
         className={styles.scrollContainer}
-        aria-label="Solar system experience — scroll to explore"
+        aria-label={immersiveScrollRegionLabel}
         role="region"
       >
         <div className={styles.scrollTrack} style={{ height: `${SCROLL_TRAVEL_VH}vh` }}>

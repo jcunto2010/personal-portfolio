@@ -31,10 +31,10 @@
  *   - Does NOT reactivate EntryGate, does NOT reset audio, does NOT reset immersive mode.
  *
  * Input:
- *   - wheel deltaY events captured on the scroll container ref
- *   - Threshold: ±150px accumulated deltaY to trigger a shot change
- *   - Accumulator decays to 0 after 400 ms of silence
- *   - During a transition all wheel input is ignored (inputLock)
+ *   - wheel: deltaY on the scroll container ref; threshold ±INTENT_THRESHOLD (150)
+ *   - touch: touchmove deltas (prevY − clientY); threshold ±TOUCH_THRESHOLD (80 px)
+ *   - Wheel accumulator decays to 0 after 400 ms of silence; touch resets on touchend/touchcancel
+ *   - During a transition all input is ignored (inputLock)
  *
  * CameraRig responsibility:
  *   - Read transitionT ref and advance it each frame with delta * speed.
@@ -104,10 +104,16 @@ export interface DiscreteShotState {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 /**
- * Accumulated deltaY required to fire a shot change.
+ * Accumulated deltaY required to fire a shot change (mouse / trackpad wheel).
  * 150 = ~2-3 mouse wheel notches (each ≈ 53 px on Windows/macOS).
  */
 const INTENT_THRESHOLD = 150
+
+/**
+ * Touch swipe: accumulated vertical movement in px before firing a shot change.
+ * Separate from wheel — touchmove reports real pixels; 80 ≈ deliberate short swipe.
+ */
+const TOUCH_THRESHOLD = 80
 
 /**
  * Milliseconds of wheel silence before the accumulator resets.
@@ -171,6 +177,8 @@ export function useDiscreteShotNavigation(
   const targetShotIdRef      = useRef<DiscreteShotId | null>(null)
   const intentAccRef         = useRef(0)
   const decayTimerRef        = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** Last clientY for single-finger touchmove deltas (aligned with wheel: down = +intent). */
+  const lastTouchYRef        = useRef<number | null>(null)
 
   // ── Transition control ───────────────────────────────────────────────────
 
@@ -278,76 +286,125 @@ export function useDiscreteShotNavigation(
     setTransitionDir(null)
   }, [])
 
-  // ── Wheel intent accumulation ─────────────────────────────────────────────
+  const clearIntentAccumulator = useCallback(() => {
+    intentAccRef.current = 0
+    setWheelIntent(0)
+    if (decayTimerRef.current !== null) {
+      clearTimeout(decayTimerRef.current)
+      decayTimerRef.current = null
+    }
+  }, [])
+
+  /**
+   * After intentAccRef was updated, evaluate thresholds. Returns true if a navigation
+   * fired (caller may preventDefault on wheel / touchmove).
+   */
+  const applyIntentAfterAccumulation = useCallback(
+    (threshold: number): boolean => {
+      const curr = currentShotIdRef.current
+
+      if (intentAccRef.current >= threshold) {
+        const next = getNextShot(curr)
+        if (next !== null) {
+          clearIntentAccumulator()
+          if (curr === 'uranus' && next === 'blackhole') startBlackholeCinematic()
+          else startTransition(curr, next)
+          return true
+        }
+        if (curr === 'blackhole') {
+          clearIntentAccumulator()
+          startBlackholeResetCinematic()
+          return true
+        }
+      }
+
+      if (intentAccRef.current <= -threshold) {
+        const prev = getPrevShot(curr)
+        if (prev !== null) {
+          clearIntentAccumulator()
+          startTransition(curr, prev)
+          return true
+        }
+      }
+
+      intentAccRef.current =
+        Math.sign(intentAccRef.current) *
+        Math.min(Math.abs(intentAccRef.current), threshold * 1.5)
+      setWheelIntent(intentAccRef.current)
+      return false
+    },
+    [clearIntentAccumulator, startBlackholeCinematic, startBlackholeResetCinematic, startTransition],
+  )
+
+  // ── Wheel + touch intent ─────────────────────────────────────────────────
 
   useEffect(() => {
     const el = scrollContainerRef.current
     if (!el) return
 
     const handleWheel = (e: WheelEvent) => {
-      // During any transition or reset: fully ignore all wheel input
       if (isTransitioningRef.current) return
 
-      // Accumulate intent
       intentAccRef.current += e.deltaY
       setWheelIntent(intentAccRef.current)
 
-      // Schedule accumulator decay
       if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
       decayTimerRef.current = setTimeout(() => {
         intentAccRef.current = 0
         setWheelIntent(0)
       }, DECAY_TIMEOUT_MS)
 
-      const curr = currentShotIdRef.current
-
-      // Scroll down: advance to next shot, or trigger reset loop from blackhole
-      if (intentAccRef.current >= INTENT_THRESHOLD) {
-        const next = getNextShot(curr)
-        if (next !== null) {
-          e.preventDefault()
-          intentAccRef.current = 0
-          setWheelIntent(0)
-          if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-          // Special cinematic transition for Uranus → Blackhole
-          if (curr === 'uranus' && next === 'blackhole') {
-            startBlackholeCinematic()
-          } else {
-            startTransition(curr, next)
-          }
-          return
-        } else if (curr === 'blackhole') {
-          // No next shot from blackhole → trigger enter-blackhole cinematic, then reset to Sun
-          e.preventDefault()
-          intentAccRef.current = 0
-          setWheelIntent(0)
-          if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-          startBlackholeResetCinematic()
-          return
-        }
+      if (applyIntentAfterAccumulation(INTENT_THRESHOLD)) {
+        e.preventDefault()
       }
-
-      // Scroll up: go back to previous shot
-      if (intentAccRef.current <= -INTENT_THRESHOLD) {
-        const prev = getPrevShot(curr)
-        if (prev !== null) {
-          e.preventDefault()
-          intentAccRef.current = 0
-          setWheelIntent(0)
-          if (decayTimerRef.current !== null) clearTimeout(decayTimerRef.current)
-          startTransition(curr, prev)
-          return
-        }
-      }
-
-      // Clamp accumulator so it doesn't drift into huge values
-      intentAccRef.current = Math.sign(intentAccRef.current) * Math.min(Math.abs(intentAccRef.current), INTENT_THRESHOLD * 1.5)
     }
 
-    // passive:false so we can call preventDefault during discrete transitions
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return
+      lastTouchYRef.current = e.touches[0].clientY
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isTransitioningRef.current) return
+      if (e.touches.length !== 1) return
+      if (lastTouchYRef.current === null) return
+
+      const y = e.touches[0].clientY
+      const dy = lastTouchYRef.current - y
+      lastTouchYRef.current = y
+
+      intentAccRef.current += dy
+      setWheelIntent(intentAccRef.current)
+
+      if (applyIntentAfterAccumulation(TOUCH_THRESHOLD)) {
+        e.preventDefault()
+      }
+    }
+
+    const handleTouchEnd = () => {
+      lastTouchYRef.current = null
+      clearIntentAccumulator()
+    }
+
+    const handleTouchCancel = () => {
+      lastTouchYRef.current = null
+      clearIntentAccumulator()
+    }
+
     el.addEventListener('wheel', handleWheel, { passive: false })
-    return () => el.removeEventListener('wheel', handleWheel)
-  }, [scrollContainerRef, startTransition, startBlackholeResetCinematic, startBlackholeCinematic])
+    el.addEventListener('touchstart', handleTouchStart, { passive: true })
+    el.addEventListener('touchmove', handleTouchMove, { passive: false })
+    el.addEventListener('touchend', handleTouchEnd, { passive: true })
+    el.addEventListener('touchcancel', handleTouchCancel, { passive: true })
+
+    return () => {
+      el.removeEventListener('wheel', handleWheel)
+      el.removeEventListener('touchstart', handleTouchStart)
+      el.removeEventListener('touchmove', handleTouchMove)
+      el.removeEventListener('touchend', handleTouchEnd)
+      el.removeEventListener('touchcancel', handleTouchCancel)
+    }
+  }, [scrollContainerRef, applyIntentAfterAccumulation, clearIntentAccumulator])
 
   return {
     currentShotId,

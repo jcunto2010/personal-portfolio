@@ -14,7 +14,8 @@ const CHAPTER_IDS = [
   'chapter-intro',
   'chapter-about',
   'chapter-notes',
-  'chapter-work',
+  'chapter-reservo',
+  'chapter-startupconnect',
   'chapter-contact',
 ] as const
 
@@ -47,9 +48,11 @@ export function useChapterReveal(enabled = true) {
       const section = document.getElementById(id)
       if (!section) return
 
-      // Target: the inner content wrapper to avoid animating the full
-      // section background (which would create a layout gap).
-      const inner = section.querySelector<HTMLElement>(':scope > div')
+      // Target: first in-flow content div — skip aria-hidden decorative layers
+      // so GSAP does not overwrite transforms on background slots.
+      const inner = section.querySelector<HTMLElement>(
+        ':scope > div:not([aria-hidden="true"])',
+      )
       const target = inner ?? section
 
       // Set initial state.
@@ -78,7 +81,9 @@ export function useChapterReveal(enabled = true) {
       chaptersToAnimate.forEach((id) => {
         const section = document.getElementById(id)
         if (!section) return
-        const inner = section.querySelector<HTMLElement>(':scope > div')
+        const inner = section.querySelector<HTMLElement>(
+          ':scope > div:not([aria-hidden="true"])',
+        )
         const target = inner ?? section
         gsap.set(target, { clearProps: 'all' })
       })

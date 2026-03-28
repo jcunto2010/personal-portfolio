@@ -17,18 +17,20 @@ export function TableOfContents() {
 
   const chapters: TocEntry[] = locale === 'es'
     ? [
-        { id: 'chapter-intro',   label: 'Introducción' },
-        { id: 'chapter-about',   label: 'Acerca de' },
-        { id: 'chapter-notes',   label: 'Experiencia' },
-        { id: 'chapter-work',    label: 'Trabajo' },
-        { id: 'chapter-contact', label: 'Contacto' },
+        { id: 'chapter-intro',            label: 'Introducción' },
+        { id: 'chapter-about',            label: 'Acerca de' },
+        { id: 'chapter-notes',            label: 'Experiencia' },
+        { id: 'chapter-reservo',          label: 'Reservo.AI' },
+        { id: 'chapter-startupconnect',   label: 'StartupConnect' },
+        { id: 'chapter-contact',          label: 'Contacto' },
       ]
     : [
-        { id: 'chapter-intro',   label: 'Intro' },
-        { id: 'chapter-about',   label: 'About' },
-        { id: 'chapter-notes',   label: 'Experience' },
-        { id: 'chapter-work',    label: 'Work' },
-        { id: 'chapter-contact', label: 'Contact' },
+        { id: 'chapter-intro',            label: 'Intro' },
+        { id: 'chapter-about',            label: 'About' },
+        { id: 'chapter-notes',            label: 'Experience' },
+        { id: 'chapter-reservo',          label: 'Reservo.AI' },
+        { id: 'chapter-startupconnect',   label: 'StartupConnect' },
+        { id: 'chapter-contact',          label: 'Contact' },
       ]
 
   useEffect(() => {
