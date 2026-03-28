@@ -67,10 +67,17 @@ test.describe('prefers-reduced-motion', () => {
     await expect(btn).toBeVisible()
     await btn.click()
 
-    await page.waitForTimeout(500)
-    const box = await page.locator('#chapter-reservo').boundingBox()
-    expect(box).not.toBeNull()
-    expect(box!.y).toBeLessThan(1200)
+    // Wait until scroll settles — native smooth scroll can exceed a fixed 500 ms on
+    // long pages / mobile CI; assert geometry instead of a desktop-only y threshold.
+    await page.waitForFunction(
+      () => {
+        const el = document.getElementById('chapter-reservo')
+        if (!el) return false
+        const r = el.getBoundingClientRect()
+        return r.top < window.innerHeight && r.bottom > 0
+      },
+      { timeout: 10000 },
+    )
   })
 
   test('"Get in touch" CTA still works without smooth scroll', async ({ page }) => {
@@ -78,9 +85,14 @@ test.describe('prefers-reduced-motion', () => {
     await expect(btn).toBeVisible()
     await btn.click()
 
-    await page.waitForTimeout(500)
-    const box = await page.locator('#chapter-contact').boundingBox()
-    expect(box).not.toBeNull()
-    expect(box!.y).toBeLessThan(1200)
+    await page.waitForFunction(
+      () => {
+        const el = document.getElementById('chapter-contact')
+        if (!el) return false
+        const r = el.getBoundingClientRect()
+        return r.top < window.innerHeight && r.bottom > 0
+      },
+      { timeout: 10000 },
+    )
   })
 })

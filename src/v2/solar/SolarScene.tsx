@@ -41,6 +41,9 @@ import { BlackholeShaderMesh } from './BlackholeShaderMesh'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
 import styles from './SolarScene.module.css'
 import { useLocale } from '../lib/localeContext'
+import { useAppMode } from '../lib/appModeContext'
+import { useJourneyLoader } from '../lib/useJourneyLoader'
+import RotatePrompt from '../../components/RotatePrompt'
 import { getPlanetPhaseInfo } from './planetPhaseInfo'
 import {
   NEBULA_STARS_TEXTURE_URL,
@@ -718,6 +721,20 @@ function SolarSceneWebGL({
   const initialGroupSize = RENDERED_PLANETS.filter((p) => p.loadingGroup === 'initial').length
   const [journeyReady, setJourneyReady]   = useState(IS_SAFE) // safe mode skips GLB gate
 
+  const { mode: appMode } = useAppMode()
+  const {
+    status: journeyLoaderStatus,
+    ready: journeyLoaderReadyFlag,
+    start: journeyLoaderStart,
+  } = useJourneyLoader(appMode)
+
+  useEffect(() => {
+    journeyLoaderStart()
+  }, [journeyLoaderStart])
+
+  const isReady =
+    (journeyLoaderStatus === 'ready' || journeyLoaderReadyFlag === true) && journeyReady
+
   // Read canvas/camera state via onCreated — no useThree needed outside Canvas
   const handleCanvasCreated = useCallback((state: { camera: THREE.Camera; gl: THREE.WebGLRenderer }) => {
     setCanvasMounted(true)
@@ -1175,6 +1192,7 @@ function SolarSceneWebGL({
 
   return (
     <div className={styles.solarSceneRoot}>
+      <RotatePrompt isReady={isReady} />
 
       {IS_SAFE && (
         <div style={{
