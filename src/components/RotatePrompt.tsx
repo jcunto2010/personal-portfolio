@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type ReactElement } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useLocale } from '../v2/lib/localeContext'
 
 export interface RotatePromptProps {
   /** `true` cuando el preload de assets (p. ej. GLBs iniciales) ha terminado. */
@@ -33,6 +34,24 @@ function createParticles(count: number): StarParticle[] {
 }
 
 export default function RotatePrompt({ isReady }: RotatePromptProps): ReactElement {
+  const { locale } = useLocale()
+  const copy = useMemo(
+    () =>
+      locale === 'es'
+        ? {
+            loadingHeadline: 'Cargando experiencia...',
+            rotateHeadline: 'Gira tu dispositivo',
+            rotateSub:
+              'El modo inmersivo está optimizado para pantalla horizontal',
+          }
+        : {
+            loadingHeadline: 'Loading experience…',
+            rotateHeadline: 'Rotate your device',
+            rotateSub: 'Immersive mode is optimized for landscape',
+          },
+    [locale],
+  )
+
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const particlesRef = useRef<StarParticle[] | null>(null)
@@ -252,7 +271,7 @@ export default function RotatePrompt({ isReady }: RotatePromptProps): ReactEleme
                     textAlign: 'center',
                   }}
                 >
-                  Cargando experiencia...
+                  {copy.loadingHeadline}
                 </p>
                 <div className="rotatePrompt__loadingSub" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span className="rotatePrompt__dot" />
@@ -272,7 +291,7 @@ export default function RotatePrompt({ isReady }: RotatePromptProps): ReactEleme
                     textAlign: 'center',
                   }}
                 >
-                  Gira tu dispositivo
+                  {copy.rotateHeadline}
                 </p>
                 <p
                   style={{
@@ -284,7 +303,7 @@ export default function RotatePrompt({ isReady }: RotatePromptProps): ReactEleme
                     textAlign: 'center',
                   }}
                 >
-                  El modo inmersivo está optimizado para pantalla horizontal
+                  {copy.rotateSub}
                 </p>
               </>
             )}

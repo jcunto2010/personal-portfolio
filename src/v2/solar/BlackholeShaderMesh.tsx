@@ -3,6 +3,12 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { BlackholeResetPhase } from './useDiscreteShotNavigation'
 
+/**
+ * `u_bhScale` multiplies screen offset before ray cast: **smaller** value = **larger** disk on screen.
+ * For +30% linear size vs 1.0, use 1/1.3 (not 1.3 — that was making it smaller).
+ */
+const BH_BASE_U_SCALE = 1.0 / 1.3
+
 export interface BlackholeShaderMeshProps {
   visible: boolean
   position?: [number, number, number]
@@ -316,7 +322,7 @@ export function BlackholeShaderMesh({
       u_rotate: { value: 0.0 },
       // Accent framing: move BH toward the right side (user preference).
       u_bhCenter: { value: new THREE.Vector2(0.78, 0.52) },
-      u_bhScale: { value: 1.0 },
+      u_bhScale: { value: BH_BASE_U_SCALE },
       u_chromatic: { value: 0.0 },
     }),
     [viewportSize.width, viewportSize.height],
@@ -336,18 +342,18 @@ export function BlackholeShaderMesh({
           // Dive phase range in global resetT: [0.00 .. 0.45]
           const t = THREE.MathUtils.clamp(blackholeResetT / 0.45, 0, 1)
           const eased = t * t * (3 - 2 * t)
-          materialRef.current.uniforms.u_bhScale.value = THREE.MathUtils.lerp(1.0, 0.22, eased)
+          materialRef.current.uniforms.u_bhScale.value = THREE.MathUtils.lerp(BH_BASE_U_SCALE, 0.22, eased)
           materialRef.current.uniforms.u_diskIntensity.value = THREE.MathUtils.lerp(1.0, 0.75, eased)
         } else if (blackholeResetPhase === 'consume') {
           materialRef.current.uniforms.u_bhScale.value = 0.22
           materialRef.current.uniforms.u_diskIntensity.value = 0.65
         } else {
           // Reappear: restore defaults for the next blackhole entry.
-          materialRef.current.uniforms.u_bhScale.value = 1.0
+          materialRef.current.uniforms.u_bhScale.value = BH_BASE_U_SCALE
           materialRef.current.uniforms.u_diskIntensity.value = 1.0
         }
       } else {
-        materialRef.current.uniforms.u_bhScale.value = 1.0
+        materialRef.current.uniforms.u_bhScale.value = BH_BASE_U_SCALE
         materialRef.current.uniforms.u_diskIntensity.value = 1.0
       }
     }

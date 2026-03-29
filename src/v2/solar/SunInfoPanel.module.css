@@ -310,11 +310,3 @@
     opacity: 1;
   }
 }
-
-/* Mobile UX pending — hide panel until defined */
-@media (max-width: 900px) {
-  .panel {
-    display: none;
-  }
-}
-
