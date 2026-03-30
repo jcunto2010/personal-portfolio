@@ -44,6 +44,7 @@ import { useLocale } from '../lib/localeContext'
 import { useAppMode } from '../lib/appModeContext'
 import { useJourneyLoader } from '../lib/useJourneyLoader'
 import RotatePrompt from '../../components/RotatePrompt'
+import OnboardingTutorial from '../../components/OnboardingTutorial'
 import { getPlanetPhaseInfo } from './planetPhaseInfo'
 import {
   NEBULA_STARS_TEXTURE_URL,
@@ -735,6 +736,40 @@ function SolarSceneWebGL({
   const isReady =
     (journeyLoaderStatus === 'ready' || journeyLoaderReadyFlag === true) && journeyReady
 
+  const [tutorialDone, setTutorialDone] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [rotatePromptVisible, setRotatePromptVisible] = useState(false)
+  const tutorialHasShownRef = useRef(false)
+
+  const handleTutorialDone = useCallback(() => {
+    setTutorialDone(true)
+    setShowTutorial(false)
+  }, [])
+
+  useEffect(() => {
+    const computeRotatePrompt = (): void => {
+      const isMobile = window.matchMedia('(pointer: coarse)').matches
+      const isPortrait = window.innerWidth < window.innerHeight
+      const isLandscape = !isPortrait
+      setRotatePromptVisible(isMobile && !(isLandscape && isReady))
+    }
+    computeRotatePrompt()
+    window.addEventListener('resize', computeRotatePrompt)
+    return () => window.removeEventListener('resize', computeRotatePrompt)
+  }, [isReady])
+
+  useEffect(() => {
+    if (tutorialDone || tutorialHasShownRef.current) return
+    if (cameraPhase !== 'sun-hold') return
+    if (rotatePromptVisible) return
+
+    const t = window.setTimeout(() => {
+      tutorialHasShownRef.current = true
+      setShowTutorial(true)
+    }, 400)
+    return () => window.clearTimeout(t)
+  }, [cameraPhase, tutorialDone, rotatePromptVisible])
+
   // Read canvas/camera state via onCreated — no useThree needed outside Canvas
   const handleCanvasCreated = useCallback((state: { camera: THREE.Camera; gl: THREE.WebGLRenderer }) => {
     setCanvasMounted(true)
@@ -1066,6 +1101,7 @@ function SolarSceneWebGL({
 
   function handlePlanetClick(config: PlanetConfig) {
     if (config.id === 'sun') {
+      if (!tutorialDone) return
       // Toggle is only meaningful in sun-hold.
       if (cameraPhase !== 'sun-hold') return
       const nextClosed = !sunPanelManuallyClosedRef.current
@@ -1193,6 +1229,10 @@ function SolarSceneWebGL({
   return (
     <div className={styles.solarSceneRoot}>
       <RotatePrompt isReady={isReady} />
+
+      {showTutorial && (
+        <OnboardingTutorial onDone={handleTutorialDone} />
+      )}
 
       {IS_SAFE && (
         <div style={{
@@ -1421,7 +1461,7 @@ function SolarSceneWebGL({
       {/* Sun info panel — uses the empty half of the Sun frame */}
       <SunInfoPanel
         config={sunConfig}
-        open={sunPanelVisible && cameraPhase === 'sun-hold'}
+        open={sunPanelVisible && cameraPhase === 'sun-hold' && tutorialDone}
         align="right"
         phaseInfo={getPlanetPhaseInfo('sun', locale)}
         onClose={() => {
