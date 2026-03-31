@@ -514,7 +514,7 @@ git rm -r src/components/
 ## Notas
 
 - Documentación del repo (`CHECKLIST.md`, `SCREENSHOTS_GUIDE.md`, secciones antiguas de esta auditoría que citan `OnboardingTutorial` bajo `src/components/`) puede quedar desactualizada; no afecta al build.
-- La feature `case-studies` sigue existiendo bajo `src/features/case-studies/`; si deja de usarse en rutas públicas, una limpieza posterior podría retirarla por separado.
+- El módulo `src/features/case-studies/` se eliminó en un commit posterior (ver sección «eliminación de `src/features/`» al final de este documento).
 
 ---
 
@@ -564,3 +564,48 @@ Archivos eliminados del índice: `experience.ts`, `projects.ts`, `skills.ts`.
 ## Notas
 
 - Varios `.md` (`README.md`, `QUICKSTART.md`, `PROJECT_SUMMARY.md`, etc.) y cabeceras históricas en `src/v2/data/*.v2.ts` pueden seguir mencionando `src/data/…` como origen de la migración; no impiden el build.
+
+---
+
+# Auditoría de migración: eliminación de `src/features/` (case studies V1)
+
+## Contexto
+
+`src/features/case-studies/` contenía la experiencia V1 de case study (p. ej. `ReservoCaseStudy`, `CaseStudyLayout`, `DeveloperModeContext`, `FlowStepper` y componentes auxiliares). V2 expone los case studies en `src/v2/pages/ProjectDetailV2/` y datos en `src/v2/data/`.
+
+## Verificación de imports cruzados
+
+Dentro de **`src/v2/`** se buscó:
+
+- `features/case-studies`
+- `from '…/features/…'` (rutas relativas que apunten al árbol `features`)
+
+**Resultado:** ninguna coincidencia; V2 no importa el módulo.
+
+Se revisó además todo **`src/*.ts` / `src/*.tsx`**: los únicos usos de `case-studies`, `ReservoCaseStudy`, `DeveloperModeContext` y `CaseStudyLayout` estaban **dentro** de `src/features/` (imports internos). Ningún otro archivo del árbol fuente enlazaba ese módulo.
+
+## Modificaciones realizadas
+
+```bash
+git rm -r src/features/
+```
+
+**Archivos eliminados (8):** `CodeShowcase.tsx`, `FlowStepper.tsx`, `ImpactMetrics.tsx`, `TechStackOrbit.tsx`, `DeveloperModeContext.tsx`, `index.ts`, `CaseStudyLayout.tsx`, `ReservoCaseStudy.tsx` (todos bajo `case-studies/`).
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Imports V2 → `src/features/` | Ninguno. |
+| `npm run build` | Correcto tras `git rm -r src/features/`. |
+
+## Commit
+
+- **Mensaje:** `chore(v1-removal): remove V1 features/case-studies module`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- Documentación del repo que citaba `src/features/case-studies/` o imports desde `Header` V1 puede quedar obsoleta; no afecta al build.
+- La nota bajo la auditoría de eliminación de `src/components/` se actualizó para remitir a esta sección en lugar de afirmar que el módulo seguía presente.
