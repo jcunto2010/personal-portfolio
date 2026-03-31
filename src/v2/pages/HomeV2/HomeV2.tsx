@@ -4,8 +4,8 @@ import { ClassicRebuildPage } from '../../components/ClassicRebuild/ClassicRebui
  * Home V2 — Cosmic Editorial
  *
  * Real content migrated from legacy V1 sources (see ClassicRebuild / data modules):
- *   - Skills: src/data/skills.ts
- *   - Experience: src/data/experience.ts
+ *   - Skills: src/v2/data/skills.v2.ts
+ *   - Experience: src/v2/data/experience.v2.ts
  *   - Contact: src/v2/components/Contact/Contact.tsx (+ ClassicRebuild footer block)
  *
  * Scroll layer (T-002):

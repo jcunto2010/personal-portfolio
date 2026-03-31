@@ -515,3 +515,52 @@ git rm -r src/components/
 
 - Documentación del repo (`CHECKLIST.md`, `SCREENSHOTS_GUIDE.md`, secciones antiguas de esta auditoría que citan `OnboardingTutorial` bajo `src/components/`) puede quedar desactualizada; no afecta al build.
 - La feature `case-studies` sigue existiendo bajo `src/features/case-studies/`; si deja de usarse en rutas públicas, una limpieza posterior podría retirarla por separado.
+
+---
+
+# Auditoría de migración: eliminación de `src/data/` (V1)
+
+## Contexto
+
+Los datos de portafolio V1 vivían en `src/data/` (`skills.ts`, `projects.ts`, `experience.ts`). La fuente canónica es `src/v2/data/` (`*.v2.ts` y módulos asociados).
+
+## Verificación de imports cruzados en `src/v2/`
+
+Se buscó `from '../data/'` y `from '../../data/'` (y variantes con más niveles) dentro de `src/v2/`.
+
+**Resultado:** todas las coincidencias importan archivos **`*.v2.ts`** (por ejemplo `projects.v2`, `contact.v2`). Por resolución de rutas relativas, esos paths apuntan a **`src/v2/data/`**, no a `src/data/`.
+
+No se encontraron imports en `src/v2/` hacia `skills.ts`, `projects.ts` ni `experience.ts` sin sufijo `.v2`.
+
+Se comprobó además que ningún otro `.ts`/`.tsx` bajo `src/` importe módulos V1 en `src/data/`; solo quedan menciones en comentarios y en documentación del repo (`.md`).
+
+## Modificaciones realizadas
+
+### 1. Comentario en `src/v2/pages/HomeV2/HomeV2.tsx`
+
+Las líneas de cabecera que aún citaban `src/data/skills.ts` y `src/data/experience.ts` se actualizaron a `src/v2/data/skills.v2.ts` y `src/v2/data/experience.v2.ts`.
+
+### 2. Eliminación del árbol V1
+
+```bash
+git rm -r src/data/
+```
+
+Archivos eliminados del índice: `experience.ts`, `projects.ts`, `skills.ts`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Imports cruzados V2 → `src/data/` | Ninguno. |
+| `npm run build` | Correcto tras `git rm -r src/data/`. |
+
+## Commit
+
+- **Mensaje:** `chore(v1-removal): remove V1 data files (migrated to src/v2/data/)`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- Varios `.md` (`README.md`, `QUICKSTART.md`, `PROJECT_SUMMARY.md`, etc.) y cabeceras históricas en `src/v2/data/*.v2.ts` pueden seguir mencionando `src/data/…` como origen de la migración; no impiden el build.
