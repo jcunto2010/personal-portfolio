@@ -1,11 +1,10 @@
 /**
  * OnboardingTutorial — modal de bienvenida al modo solar.
  *
- * Copia manual de capturas (antes de ejecutar el proyecto):
- *   C:\Users\Jonathan\Projects\Typescript\personal-portfolio\public\tutorial\sun-no-card.png
- *   C:\Users\Jonathan\Projects\Typescript\personal-portfolio\public\tutorial\sun-with-card.png
- *   C:\Users\Jonathan\Projects\Typescript\personal-portfolio\public\tutorial\mercury-card.png
- * (Origen habitual: public/assets/projects/*.png)
+ * Imágenes en disco (canónicas):
+ *   public/assets/projects/sun-no-card.png
+ *   public/assets/projects/sun-with-card.png
+ *   public/assets/projects/mercury-card.png
  */
 
 import { useCallback, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
@@ -16,9 +15,9 @@ import { useLocale, type V2Locale } from '../v2/lib/localeContext'
 const FONT_BODY =
   "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)"
 
-const IMG_SUN_NO = '/tutorial/sun-no-card.png'
-const IMG_SUN_WITH = '/tutorial/sun-with-card.png'
-const IMG_MERCURY = '/tutorial/mercury-card.png'
+const IMG_SUN_NO = '/assets/projects/sun-no-card.png'
+const IMG_SUN_WITH = '/assets/projects/sun-with-card.png'
+const IMG_MERCURY = '/assets/projects/mercury-card.png'
 
 export interface OnboardingTutorialProps {
   onDone: () => void
