@@ -700,3 +700,48 @@ git rm -r loadingscreen/
 ## Notas
 
 - Cualquier documentación o notas locales que describieran `loadingscreen/` como playground de diseño pueden ignorarse o actualizarse aparte; no bloquean el build.
+
+---
+
+# Auditoría de migración: eliminación de `/smoke-test` (`SmokeTestGLB`)
+
+## Contexto
+
+La ruta **`/smoke-test`** y el componente **`SmokeTestGLB`** se añadieron en la Fase 0 para validar assets GLB (y audio). Estaban marcados como temporales y no debían exponerse en producción.
+
+## Modificaciones realizadas
+
+### 1. `src/v2/router/routes.tsx`
+
+- Eliminado `LazySmokeTest` y su comentario de Fase 0.
+- Eliminada la entrada `path: 'smoke-test'` del array `v2Routes`.
+
+### 2. `src/v2/AppV2.tsx`
+
+- Eliminado el import de `LazySmokeTest`.
+- Eliminado el `<Route path="smoke-test" …>` y el comentario asociado.
+
+### 3. Código fuente del smoke test
+
+```bash
+git rm -r src/v2/pages/SmokeTest/
+```
+
+(Único archivo: `SmokeTestGLB.tsx`.)
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto; el bundle ya no genera chunk lazy `SmokeTestGLB-*.js`. |
+| Rutas V2 activas | `/`, `/projects`, `/projects/:slug`. |
+
+## Commit
+
+- **Mensaje:** `chore: remove smoke-test route and SmokeTestGLB component (phase 0 cleanup)`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- Documentos en `docs/audit-plan-fixes.md` y `docs/audit-plan-fixes-2.md` pueden seguir mencionando `SmokeTestGLB` o `/smoke-test` en contexto histórico de auditoría; no afectan al build.

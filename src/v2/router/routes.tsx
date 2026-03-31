@@ -11,8 +11,6 @@ export const LazyProjectsV2 = lazy(() => import('../pages/ProjectsV2/ProjectsV2'
 export const LazyProjectDetailV2 = lazy(
   () => import('../pages/ProjectDetailV2/ProjectDetailV2'),
 )
-/** Fase 0 — smoke test temporal. Eliminar tras validar assets. */
-export const LazySmokeTest = lazy(() => import('../pages/SmokeTest/SmokeTestGLB'))
 
 export function PageFallback() {
   return (
@@ -56,14 +54,6 @@ export const v2Routes: RouteObject[] = [
     element: (
       <Suspense fallback={<PageFallback />}>
         <LazyProjectDetailV2 />
-      </Suspense>
-    ),
-  },
-  {
-    path: 'smoke-test',
-    element: (
-      <Suspense fallback={<PageFallback />}>
-        <LazySmokeTest />
       </Suspense>
     ),
   },

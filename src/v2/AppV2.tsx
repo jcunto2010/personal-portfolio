@@ -4,7 +4,6 @@ import {
   LazyHomeV2,
   LazyProjectsV2,
   LazyProjectDetailV2,
-  LazySmokeTest,
   PageFallback,
 } from './router/routes'
 import './tokens/tokens.css'
@@ -58,15 +57,6 @@ export default function AppV2() {
               element={
                 <Suspense fallback={<PageFallback />}>
                   <LazyProjectDetailV2 />
-                </Suspense>
-              }
-            />
-            {/* Fase 0 — smoke test temporal. Eliminar tras validar assets. */}
-            <Route
-              path="smoke-test"
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <LazySmokeTest />
                 </Suspense>
               }
             />
