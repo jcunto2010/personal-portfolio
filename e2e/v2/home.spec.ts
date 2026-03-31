@@ -1,7 +1,7 @@
 /**
  * T-006 — Home V2 critical-path tests
  *
- * Entry point : http://localhost:5173/index.v2.html#/
+ * Entry point : http://localhost:5173/?e2e=1#/
  * Router      : HashRouter  →  routes are in the fragment (#/)
  *
  * Covered by this file:
@@ -16,9 +16,8 @@
 
 import { test, expect } from '@playwright/test'
 
-// V2 is always served at index.v2.html; the baseURL in playwright.config is
-// already set to http://localhost:5173/index.v2.html for the v2-* projects,
-// so navigating to '' or '#/' hits the home route.
+// baseURL in playwright.config for v2-* projects includes `?e2e=1`;
+// navigating to '' hits the home route.
 const HOME = ''
 
 test.describe('Home V2', () => {

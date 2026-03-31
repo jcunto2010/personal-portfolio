@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /**
- * Playwright configuration — V1 smoke + V2 E2E suite.
+ * Playwright configuration — root smoke + V2 E2E suite.
  *
  * FLAKINESS POLICY (T-006):
  *  - `retries: 1` in local mode, `retries: 2` in CI.
@@ -36,7 +36,7 @@ export default defineConfig({
   },
 
   projects: [
-    // ── V1 smoke tests ────────────────────────────────────────────────────
+    // ── Root smoke tests (canonical index.html → V2) ─────────────────────
     {
       name: 'v1-chromium-desktop',
       testMatch: 'e2e/smoke.spec.ts',
@@ -54,9 +54,8 @@ export default defineConfig({
       testMatch: 'e2e/v2/**/*.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
-        // V2 is served at index.v2.html
         // `?e2e=1` bypasses the EntryGate so tests can load Home immediately.
-        baseURL: 'http://localhost:5173/index.v2.html?e2e=1',
+        baseURL: 'http://localhost:5173/?e2e=1',
       },
     },
     {
@@ -64,7 +63,7 @@ export default defineConfig({
       testMatch: 'e2e/v2/**/*.spec.ts',
       use: {
         ...devices['Pixel 5'],
-        baseURL: 'http://localhost:5173/index.v2.html?e2e=1',
+        baseURL: 'http://localhost:5173/?e2e=1',
       },
     },
   ],

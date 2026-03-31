@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom/client'
 import AppV2 from './AppV2'
 
 /**
- * V2 entry point.
- * This mounts into the same #root element but from a separate HTML file
- * (index.v2.html), so the V1 entry point (src/main.tsx) is never touched.
+ * Canonical app entry — mounted from index.html.
  */
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

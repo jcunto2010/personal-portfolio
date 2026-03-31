@@ -1,7 +1,7 @@
 /**
  * Drei useGLTF with V2 loader extensions (KHR_materials_pbrSpecularGlossiness plugin, etc.).
  * Draco + Meshopt enabled. Decoder Draco servido desde `/draco/` (mismo origen) para cumplir CSP
- * (`connect-src` no permite gstatic en index.v2.html). Ver `scripts/copy-draco.mjs`.
+ * (`connect-src` no permite gstatic en index.html). Ver `scripts/copy-draco.mjs`.
  */
 import { useGLTF } from '@react-three/drei'
 import { extendGltfLoaderWithV2Extensions } from './gltfLoaderExtensions'

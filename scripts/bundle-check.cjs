@@ -4,7 +4,7 @@
  *
  * Reads the Vite build output from dist/ and validates:
  *
- * T-005 — Initial JS (gzip): script + modulepreload from index.v2.html
+ * T-005 — Initial JS (gzip): script + modulepreload from index.html
  *   The legacy PRD target was 300 KB gzip, which assumed a much smaller vendor
  *   graph. With React 19, react-router-dom, reactflow, lucide-react, etc., the
  *   unified `vendor` chunk alone is ~2.2 MB gzip (see ANALYZE build). The budget
@@ -14,7 +14,7 @@
  *   stays off the critical path (it loads via lazy routes / dynamic imports).
  *
  * Lazy route chunks (HomeV2, SolarScene, motion, three-bundle, …) are excluded
- * from T-005 unless listed in index.v2.html.
+ * from T-005 unless listed in index.html.
  */
 
 const fs = require('fs')
@@ -25,7 +25,7 @@ const zlib = require('zlib')
 
 const DIST_DIR = path.resolve(__dirname, '../dist')
 const ASSETS_DIR = path.join(DIST_DIR, 'assets')
-const V2_HTML = path.join(DIST_DIR, 'index.v2.html')
+const ENTRY_HTML = path.join(DIST_DIR, 'index.html')
 
 /**
  * T-005 — Max total gzip size for initial JS (script + all modulepreloads).
@@ -86,21 +86,21 @@ function main() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log('  T-005 / T-005b Bundle Check — Portfolio V2')
   console.log(`  T-005:  initial JS (gzip) ≤ ${kb(BUDGET_INITIAL_JS_GZIP_BYTES)} KB`)
-  console.log('  T-005b: no `three-bundle` in modulepreload (index.v2.html)')
+  console.log('  T-005b: no `three-bundle` in modulepreload (index.html)')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log('')
 
-  if (!fs.existsSync(V2_HTML)) {
-    console.error('ERROR: dist/index.v2.html not found. Run `npm run build` first.')
+  if (!fs.existsSync(ENTRY_HTML)) {
+    console.error('ERROR: dist/index.html not found. Run `npm run build` first.')
     process.exit(1)
   }
 
   // ── T-005b: three-bundle must not be preloaded ─────────────────────────────
-  const preloadHrefs = parseModulePreloadHrefs(V2_HTML)
+  const preloadHrefs = parseModulePreloadHrefs(ENTRY_HTML)
   const threeBundlePreloads = preloadHrefs.filter((h) => h.includes('three-bundle'))
   const t005bPass = threeBundlePreloads.length === 0
 
-  console.log('T-005b — modulepreload list (index.v2.html):')
+  console.log('T-005b — modulepreload list (index.html):')
   console.log('─────────────────────────────────────────────────────')
   if (preloadHrefs.length === 0) {
     console.log('  (none)')
@@ -137,8 +137,8 @@ function main() {
   }
   console.log('')
 
-  // ── V2 initial chunks (referenced in index.v2.html) ────────────────────────
-  const initialAssetUrls = parseInitialChunksFromHTML(V2_HTML)
+  // ── V2 initial chunks (referenced in index.html) ────────────────────────────
+  const initialAssetUrls = parseInitialChunksFromHTML(ENTRY_HTML)
   const initialJsUrls = initialAssetUrls.filter((u) => u.endsWith('.js'))
 
   console.log('T-005 — V2 INITIAL JS (script + modulepreload):')

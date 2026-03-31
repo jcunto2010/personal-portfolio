@@ -13,16 +13,13 @@ import { LocaleProvider } from './lib/localeContext'
 /**
  * AppV2 — root of Portfolio V2.
  *
- * Mounted at a separate HTML entry point (index.v2.html → main.v2.tsx)
- * so the original V1 (src/main.tsx → src/App.tsx) is completely untouched.
+ * Mounted from index.html → main.v2.tsx (canonical app entry).
  *
  * Uses HashRouter so the router reads the hash fragment (#/, #/projects, etc.)
- * rather than the real pathname. This prevents the 404 that occurs when
- * BrowserRouter tries to match "/index.v2.html" against declared routes.
+ * rather than the real pathname (SPA-friendly on static hosts).
  *
- * Migration path: when V2 is promoted to replace V1, swap HashRouter for
- * BrowserRouter with basename="/" and update the server/Vite config to
- * serve index.v2.html as the SPA fallback.
+ * Migration path: swap HashRouter for BrowserRouter with basename="/" when
+ * moving to history-based routing with server fallback to index.html.
  *
  * The `.v2-root` class activates all V2 CSS custom properties defined
  * in tokens/tokens.css.

@@ -70,10 +70,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        // V1 — original entry point (unchanged)
         main: resolve(__dirname, 'index.html'),
-        // V2 — isolated entry point
-        v2: resolve(__dirname, 'index.v2.html'),
       },
       output: {
         manualChunks: vendorManualChunks,

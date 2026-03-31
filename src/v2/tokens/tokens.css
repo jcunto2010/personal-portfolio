@@ -56,7 +56,7 @@
   }
 }
 
-/* V2 global base — only active when index.v2.html is the entry point.
+/* V2 global base — active with index.html → main.v2.tsx as the entry point.
    Minimal reset: just kill the default margin.
    DO NOT set overflow:hidden here — it breaks the immersive scroll container.
    DO NOT set height:100% here — it can cause 0-height collapses.

@@ -12,7 +12,7 @@
 
 # ── Security headers — T-007 ────────────────────────────────────────────────
 # Applied to every response served from /dist.
-# CSP is also set via <meta> in index.v2.html for completeness.
+# CSP is also set via <meta> in index.html for completeness.
 # Note: unsafe-eval is required by Three.js/WebGL GLSL shader compilation.
 [[headers]]
   for = "/*"

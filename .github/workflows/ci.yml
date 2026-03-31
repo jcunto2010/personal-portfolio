@@ -78,9 +78,8 @@ jobs:
         with:
           name: dist-v2-bundle
           path: |
-            dist/index.v2.html
-            dist/assets/v2-*.js
-            dist/assets/client-*.js
+            dist/index.html
+            dist/assets/main-*.js
           retention-days: 7
 
   v2-lighthouse:
@@ -105,7 +104,7 @@ jobs:
         run: npm run build
 
       - name: Run Lighthouse CI
-        # Uses .lighthouserc.cjs — serves dist/ statically and audits index.v2.html.
+        # Uses .lighthouserc.cjs — serves dist/ statically and audits index.html.
         # Assertions defined in config: Performance ≥ 85, A11y ≥ 95, SEO ≥ 95.
         # LCP ≤ 2500 ms, CLS ≤ 0.1, INP ≤ 200 ms (warn).
         run: npx lhci autorun --config=.lighthouserc.cjs
