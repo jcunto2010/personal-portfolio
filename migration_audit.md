@@ -154,3 +154,149 @@ El archivo ya contenía `24` y coincidía con el índice de Git; **no hubo modif
 
 - Conviene validar el próximo deploy en GitHub Pages y en Netlify tras el merge; si algún plugin o script dependía de APIs solo en 18/20, fallaría en pipeline.
 - Cualquier otra referencia a Node (Docker, documentación externa) queda fuera del alcance de este commit.
+
+---
+
+# Auditoría de migración: `index.v2.html` como `index.html` canónico (único entry point)
+
+## Contexto
+
+El proyecto tenía **dos HTML de entrada** en el código fuente:
+
+| Archivo | Punto de montaje |
+|---------|------------------|
+| `index.html` | V1 — `src/main.tsx` |
+| `index.v2.html` | V2 — `src/v2/main.v2.tsx` |
+
+Objetivo: que **V2 sea el único entry point** también en el árbol fuente (no solo tras post-procesos de build como copiar `index.v2.html` sobre `dist/index.html`). Tras el cambio, **`index.html` monta siempre V2**; `src/main.tsx` y el árbol V1 pueden seguir existiendo en el repo pero **ningún HTML los referencia**.
+
+## Modificaciones realizadas
+
+### 1. `index.html`
+
+Se reemplazó el contenido por el que tenía `index.v2.html`: CSP (meta T-007), metadatos SEO, Open Graph, Twitter Card, canonical, etc. El script de entrada queda:
+
+```html
+<script type="module" src="/src/v2/main.v2.tsx"></script>
+```
+
+### 2. Eliminación de `index.v2.html` y script de promoción
+
+```bash
+git rm index.v2.html scripts/promote-v2-index.mjs
+```
+
+- `index.v2.html` deja de existir; la entrada única es `index.html`.
+- `scripts/promote-v2-index.mjs` copiaba V2 sobre `dist/index.html` tras el build; al generar ya solo `dist/index.html` con Vite, dejó de ser necesario.
+
+### 3. `vite.config.ts`
+
+En `build.rollupOptions.input` quedó una sola entrada:
+
+```ts
+input: {
+  main: resolve(__dirname, 'index.html'),
+},
+```
+
+Se eliminaron la entrada `v2: resolve(__dirname, 'index.v2.html')` y los comentarios que distinguían V1/V2 en ese bloque.
+
+### 4. Build, CI y herramientas alineadas con `dist/index.html`
+
+Con un solo input Rollup llamado `main`, el **chunk de entrada** en producción pasa de `v2-*.js` a **`main-*.js`**. Se actualizó lo dependiente de rutas y del HTML de salida:
+
+| Área | Cambio |
+|------|--------|
+| `scripts/bundle-check.cjs` | Lee `dist/index.html` (constante `ENTRY_HTML`); mensajes y comentarios referencian `index.html`. |
+| `.github/workflows/ci.yml` | Artefacto: `dist/index.html` y `dist/assets/main-*.js` (antes `index.v2.html`, `v2-*.js`, `client-*.js`). |
+| `.lighthouserc.cjs` | URL de recolección: `http://localhost/` (servidor estático sobre `dist/`). |
+| `playwright.config.ts` | Proyectos V2: `baseURL` `http://localhost:5173/?e2e=1` (antes `.../index.v2.html?e2e=1`). |
+| `e2e/v2/home.spec.ts` | Comentarios de entry point y `baseURL` alineados con la raíz. |
+| `e2e/smoke.spec.ts` | Navegación a `/?e2e=1`; aserciones sobre V2 (`.v2-root`, `#chapter-intro`, `h1`) en lugar de `data-testid="app-root"` de V1. |
+| `package.json` | `build:vercel`: solo `npm run build`. `bundlesize`: patrón `./dist/assets/main-*.js` (se quitó `v2-*.js` y `client-*.js`, este último ya no aparece en el build actual). |
+| `netlify.toml` | Comentario CSP: referencia a `index.html` en lugar de `index.v2.html`. |
+
+### 5. Comentarios en código V2 (coherencia documental)
+
+Ajustes menores en: `src/v2/AppV2.tsx`, `src/v2/main.v2.tsx`, `src/v2/solar/useGLTFV2.ts`, `src/v2/tokens/tokens.css`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto; `dist/index.html` único HTML de salida; sin `dist/index.v2.html`. |
+| `npm run bundle:check` | Correcto (T-005 presupuesto gzip inicial + T-005b sin `three-bundle` en `modulepreload`). |
+| Playwright | Smoke (`e2e/smoke.spec.ts`, proyecto desktop) y prueba representativa de Home V2 (`loads correctly — v2-root`) pasaron en verificación local. |
+| Nombre del chunk de entrada | `main-*.js` en lugar de `v2-*.js` (consecuencia del `input.main` en Rollup). |
+| Archivos en el commit | **16 archivos** modificados o eliminados (incluye borrado de `index.v2.html` y `scripts/promote-v2-index.mjs`). |
+
+## Commit
+
+- **Hash:** `7561188`
+- **Mensaje:** `feat: promote index.v2.html as canonical index.html (V1 entry removed)`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+
+## Notas
+
+- Documentación en `.md` del repo (p. ej. `README.md`, informes de auditoría bajo `docs/`) puede seguir mencionando `index.v2.html` o URLs antiguas; conviene actualizarlas en commits posteriores si se busca consistencia narrativa.
+- `src/main.tsx` y componentes V1 no se eliminaron en este cambio; solo dejaron de tener entry HTML. Una limpieza explícita de V1 sería otra tarea.
+
+---
+
+# Auditoría de migración: `HashRouter` → `BrowserRouter` en App V2
+
+## Contexto
+
+Con V1 y V2 coexistiendo en el mismo dominio, V2 usaba **`HashRouter`** para que las rutas vivieran en el fragmento (`/#/projects/...`) y el servidor estático no devolviera 404 en recargas directas.
+
+Tras unificar el entry en `index.html` solo para V2, tiene sentido usar **`BrowserRouter`** con rutas limpias (`/projects/reservo-ai`, etc.). El despliegue debe seguir sirviendo `index.html` para cualquier ruta de aplicación.
+
+## Modificaciones realizadas
+
+### 1. `src/v2/AppV2.tsx`
+
+- Import: `HashRouter` → `BrowserRouter`.
+- JSX: `<HashRouter>` / `</HashRouter>` → `<BrowserRouter>` / `</BrowserRouter>`.
+- JSDoc: párrafo sobre `HashRouter` sustituido por la descripción de `BrowserRouter` con `basename='/'` y la nota de que el servidor redirige todo a `index.html`, ya configurado en **`vercel.json`** (`rewrites`) y **`netlify.toml`** (`[[redirects]]` `from = "/*"` → `/index.html` con `status = 200`).
+
+### 2. `playwright.config.ts`
+
+Los proyectos `v2-chromium-desktop` y `v2-mobile-chrome` **ya tenían** `baseURL: 'http://localhost:5173/?e2e=1'` tras la migración del index canónico; **no fue necesario cambiar** el valor respecto al enunciado de esta tarea (el antiguo `index.v2.html` ya no aplicaba).
+
+### 3. E2E bajo `e2e/v2/`
+
+| Archivo | Cambio |
+|---------|--------|
+| `home.spec.ts` | Comentarios de cabecera: entry `/?e2e=1`, router `BrowserRouter` y rutas limpias. |
+| `navigation.spec.ts` | `page.goto('#/…')` → `page.goto('/…?e2e=1')` para `/projects`, detalle y flujos de vuelta; aserción de URL tras `goBack` usa `pathname === '/projects'`; nombres de tests y comentarios alineados con rutas sin hash. |
+| `axe.spec.ts` | Comentarios de URLs; mismos `goto` con rutas absolutas y `?e2e=1` fuera de home. |
+
+**Motivo de `?e2e=1` en cada `goto` no vacío:** con `baseURL` que incluye query, una navegación a `'/projects'` resuelve a `http://localhost:5173/projects` y **pierde** el flag que desactiva `EntryGate`; añadir `?e2e=1` mantiene el bypass.
+
+### 4. Documentación / tooling menor
+
+- `src/v2/pages/HomeV2/HomeV2.tsx`: comentario de deep-link de `#/?chapter=…` → `/?chapter=…`; texto sobre conflictos con `HashRouter` sustituido por una formulación neutra respecto al path.
+- `.lighthouserc.cjs`: comentarios actualizados (V2 con historial, no hash).
+
+### 5. Servidor de desarrollo (Vite)
+
+Sin cambios en `vite.config.ts`: el valor por defecto de Vite **`appType: 'spa'`** aplica *HTML fallback* en dev, coherente con rutas directas como `/projects`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto (tras verificación local en esta sesión). |
+| Playwright `e2e/v2` (proyecto `v2-chromium-desktop`) | **23 tests** pasaron (home, navegación, axe, reduced-motion). |
+| Producción estática | Netlify y Vercel ya reescriben a `index.html`; **GitHub Pages** con el flujo actual (`deploy-pages` sobre `dist`) puede seguir sin SPA fallback nativo para paths profundos — queda fuera del alcance de este cambio si el sitio público no usa Pages para rutas compartibles. |
+
+## Commit
+
+- **Mensaje:** `refactor: migrate AppV2 from HashRouter to BrowserRouter`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** obtener con `git log -1 --oneline --grep "BrowserRouter"` (o `git log -1` sobre el commit que introduce esta sección en `migration_audit.md`).
+
+## Notas
+
+- Enlaces internos en la app ya usaban `react-router-dom` con paths tipo `/projects/:slug`; no requirieron cambios.
+- Cualquier bookmark o enlace externo antiguo con `/#/…` dejará de coincidir con la app; conviene actualizar enlaces compartidos o añadir redirección client-side solo si hay necesidad explícita.

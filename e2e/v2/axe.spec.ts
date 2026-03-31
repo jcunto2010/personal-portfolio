@@ -7,10 +7,12 @@
  * they are surfaced as console warnings with [AXE-WARN] prefix.
  *
  * Pages audited:
- *   - Home V2   (#/)
- *   - Projects  (#/projects)
- *   - Reservo.AI detail  (#/projects/reservo-ai)
- *   - StartupConnect detail  (#/projects/startupconnect)
+ *   - Home V2   (/)
+ *   - Projects  (/projects)
+ *   - Reservo.AI detail  (/projects/reservo-ai)
+ *   - StartupConnect detail  (/projects/startupconnect)
+ *
+ * Non-home URLs append ?e2e=1 so EntryGate stays bypassed under Playwright baseURL resolution.
  *
  * Known intentional exclusions (axe `exclude`):
  *   - `.v2-webgl-layer` — canvas element is aria-hidden; axe has a false-positive
@@ -89,7 +91,7 @@ test.describe('Axe accessibility audit — V2', () => {
   // ── Projects listing ──────────────────────────────────────────────────────
 
   test('Projects page — zero critical/serious Axe violations', async ({ page }) => {
-    await page.goto('#/projects')
+    await page.goto('/projects?e2e=1')
     await page.waitForSelector('h1, h2', { timeout: 15000 })
     await page.waitForTimeout(1000)
 
@@ -104,7 +106,7 @@ test.describe('Axe accessibility audit — V2', () => {
   // ── Reservo.AI detail ─────────────────────────────────────────────────────
 
   test('Reservo.AI detail — zero critical/serious Axe violations', async ({ page }) => {
-    await page.goto('#/projects/reservo-ai')
+    await page.goto('/projects/reservo-ai?e2e=1')
     await page.waitForSelector('h1, h2', { timeout: 15000 })
     await page.waitForTimeout(1000)
 
@@ -119,7 +121,7 @@ test.describe('Axe accessibility audit — V2', () => {
   // ── StartupConnect detail ─────────────────────────────────────────────────
 
   test('StartupConnect detail — zero critical/serious Axe violations', async ({ page }) => {
-    await page.goto('#/projects/startupconnect')
+    await page.goto('/projects/startupconnect?e2e=1')
     await page.waitForSelector('h1, h2', { timeout: 15000 })
     await page.waitForTimeout(1000)
 

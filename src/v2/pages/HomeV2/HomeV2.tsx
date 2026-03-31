@@ -17,11 +17,10 @@ import { ClassicRebuildPage } from '../../components/ClassicRebuild/ClassicRebui
  * WebGL ambient layer wired in T-003.
  *
  * Internal chapter navigation uses programmatic scroll (scrollToChapter)
- * instead of native hash anchors. This avoids conflicts with HashRouter,
- * which interprets every `#` fragment as a route path.
+ * instead of native hash anchors so chapter IDs never collide with the URL path.
  *
  * To deep-link to a chapter, append ?chapter=<id> to the Home route:
- *   #/?chapter=chapter-notes
+ *   /?chapter=chapter-notes
  */
 export default function HomeV2() {
   return <ClassicRebuildPage />

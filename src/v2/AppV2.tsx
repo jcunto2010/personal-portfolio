@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { Suspense } from 'react'
 import {
   LazyHomeV2,
@@ -15,11 +15,9 @@ import { LocaleProvider } from './lib/localeContext'
  *
  * Mounted from index.html → main.v2.tsx (canonical app entry).
  *
- * Uses HashRouter so the router reads the hash fragment (#/, #/projects, etc.)
- * rather than the real pathname (SPA-friendly on static hosts).
- *
- * Migration path: swap HashRouter for BrowserRouter with basename="/" when
- * moving to history-based routing with server fallback to index.html.
+ * Uses BrowserRouter with basename='/'. All routes are served from the root.
+ * The server must redirect all paths to index.html — already configured in
+ * vercel.json and netlify.toml.
  *
  * The `.v2-root` class activates all V2 CSS custom properties defined
  * in tokens/tokens.css.
@@ -36,7 +34,7 @@ function V2Layout() {
 export default function AppV2() {
   return (
     <LocaleProvider>
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<V2Layout />}>
             <Route
@@ -74,7 +72,7 @@ export default function AppV2() {
             />
           </Route>
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </LocaleProvider>
   )
 }

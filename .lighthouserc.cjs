@@ -2,7 +2,7 @@
  * Lighthouse CI configuration — Portfolio V2
  * T-005: CI/CD + LHCI + bundle check
  *
- * Targets index.html (V2 entry point, HashRouter-based).
+ * Targets index.html (V2 entry point, BrowserRouter / history URLs).
  *
  * Performance budgets aligned with PRD:
  *   LCP  <= 2500 ms
@@ -17,7 +17,7 @@ module.exports = {
     collect: {
       // Serve the built dist folder with a static server
       staticDistDir: './dist',
-      // V2 entry point; uses HashRouter (routes in #/)
+      // V2 entry point (SPA fallback serves index.html for all paths)
       url: ['http://localhost/'],
       numberOfRuns: 2,
       settings: {
