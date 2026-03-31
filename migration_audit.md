@@ -658,3 +658,45 @@ Git no versiona directorios vacíos; tras eliminar los archivos, **`git rm -r sr
 ## Notas
 
 - Si se añaden tests V2, conviene un setup bajo `src/v2/test/setup.ts` (p. ej. `jest-dom`) y referenciarlo en `setupFiles` de nuevo.
+
+---
+
+# Auditoría de migración: eliminación de `loadingscreen/` (app huérfana)
+
+## Contexto
+
+En la raíz del repo existía la carpeta **`loadingscreen/`**: mini-aplicación React con muchos componentes **shadcn/ui** (accordion, calendar, chart, carousel, etc.) y un `SpaceLoadingScreen` duplicado frente al canónico en **`src/v2/components/SpaceLoadingScreen/`**. No formaba parte del build principal (`index.html` → V2).
+
+## Verificación de referencias
+
+| Ámbito | Comprobación |
+|--------|----------------|
+| `vite.config.ts` | Sin menciones de `loadingscreen`; `build.rollupOptions.input` solo `index.html`. |
+| `package.json` (`scripts`) | Sin scripts ni rutas hacia `loadingscreen/`. |
+| `.github/workflows/` | `ci.yml`, `deploy.yml`, `dependabot.yml` sin referencias a `loadingscreen`. |
+| Búsqueda en repo | Cadena literal `loadingscreen` solo en archivos bajo esa carpeta (antes del borrado). |
+
+## Modificaciones realizadas
+
+```bash
+git rm -r loadingscreen/
+```
+
+**Alcance:** 55 archivos eliminados del índice (app, `styles/`, kit `ui/`, etc.).
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto tras eliminar `loadingscreen/`. |
+| UI de carga en producción | Sigue usando `src/v2/components/SpaceLoadingScreen/`. |
+
+## Commit
+
+- **Mensaje:** `chore: remove orphaned loadingscreen/ directory`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- Cualquier documentación o notas locales que describieran `loadingscreen/` como playground de diseño pueden ignorarse o actualizarse aparte; no bloquean el build.
