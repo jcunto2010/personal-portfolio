@@ -609,3 +609,52 @@ git rm -r src/features/
 
 - Documentación del repo que citaba `src/features/case-studies/` o imports desde `Header` V1 puede quedar obsoleta; no afecta al build.
 - La nota bajo la auditoría de eliminación de `src/components/` se actualizó para remitir a esta sección en lugar de afirmar que el módulo seguía presente.
+
+---
+
+# Auditoría de migración: utilidades V1 (`shared/assert`, `test/setup`, `lib/utils`)
+
+## Contexto
+
+Restos de infraestructura V1: helper `assert`, su test, setup de Vitest con `@testing-library/jest-dom`, y `cn()` en `src/lib/utils.ts` (equivalente ligero a clsx, sin uso en el árbol actual).
+
+## 1. `src/lib/utils.ts` y V2
+
+Búsqueda en **`src/v2/`** de `from '../lib/utils'`, `from '../../lib/utils'` y patrones similares hacia `lib/utils`.
+
+**Resultado:** ningún import. No existe `src/v2/lib/utils.ts`. Búsqueda de **`cn(`** en `src/`: solo la definición en `utils.ts` (código no referenciado).
+
+**Decisión:** eliminar `src/lib/utils.ts` sin moverlo a V2.
+
+## 2. Archivos eliminados (`git rm`)
+
+```bash
+git rm src/shared/assert.ts src/shared/assert.test.ts src/test/setup.ts src/lib/utils.ts
+```
+
+## 3. `vitest.config.ts`
+
+- Se quitó `setupFiles: ['src/test/setup.ts']` (el archivo dejaba de existir).
+- Tras borrar el único `*.test.ts` bajo `src/`, `vitest run` fallaba con «No test files found». Se añadió **`passWithNoTests: true`** para que `npm run test:unit` siga siendo usable en CI hasta que haya tests unitarios bajo `src/`.
+
+## 4. Carpetas vacías
+
+Git no versiona directorios vacíos; tras eliminar los archivos, **`git rm -r src/shared/`**, **`src/test/`** y **`src/lib/`** no aplican como pathspec (no hay árbol que borrar). Las carpetas vacías en disco pueden borrarse manualmente si aparecen; no forman parte del índice.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| V2 → `src/lib/utils` | Sin uso. |
+| `npm run build` | Correcto. |
+| `npm run test:unit` | Correcto con `passWithNoTests: true` (0 archivos de test). |
+
+## Commit
+
+- **Mensaje:** `chore(v1-removal): remove V1 test utilities and shared lib`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- Si se añaden tests V2, conviene un setup bajo `src/v2/test/setup.ts` (p. ej. `jest-dom`) y referenciarlo en `setupFiles` de nuevo.
