@@ -9,6 +9,7 @@ lerna-debug.log*
 
 # Lighthouse CI
 .lighthouseci/
+.tmp_lhci/
 
 node_modules
 dist
