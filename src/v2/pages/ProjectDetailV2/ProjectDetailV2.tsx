@@ -6,9 +6,8 @@ import styles from './ProjectDetailV2.module.css'
 /**
  * /projects/:slug — V2 project case-study page.
  *
- * Content migrated from V1 sources:
- *   - Reservo.AI:     src/components/project-sections/ProjectReservo.tsx
- *   - StartupConnect: src/components/project-sections/ProjectStartupFlow.tsx
+ * Content migrated from legacy project-section components (removed with V1 tree).
+ *   - Reservo.AI / StartupConnect narratives are inlined in this module and data files.
  *
  * Case-study narrative content per project is defined inline below as
  * a clean data structure, keeping the presentation layer separate.

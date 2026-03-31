@@ -4,7 +4,7 @@ import { CaseStudyLayout } from '../layout/CaseStudyLayout'
 import { TechStackOrbit } from '../components/TechStackOrbit'
 import { CodeShowcase } from '../components/CodeShowcase'
 import { ImpactMetrics } from '../components/ImpactMetrics'
-import FlowStepper from '../../../components/shared/FlowStepper'
+import FlowStepper from '../components/FlowStepper'
 
 const RIVERPOD_SNIPPET = `// Reservo.AI – Booking state with Riverpod
 final bookingProvider = StateNotifierProvider<

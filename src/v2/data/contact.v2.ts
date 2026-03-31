@@ -1,5 +1,5 @@
 /**
- * V2 Contact data — used by ClassicRebuildPage, Footer, and src/v2/components/Contact/Contact.tsx.
+ * V2 Contact data — used by ClassicRebuildPage and src/v2/components/Contact/Contact.tsx.
  */
 
 import type { V2Locale } from '../lib/localeContext'

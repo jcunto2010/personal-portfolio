@@ -43,8 +43,8 @@ import styles from './SolarScene.module.css'
 import { useLocale } from '../lib/localeContext'
 import { useAppMode } from '../lib/appModeContext'
 import { useJourneyLoader } from '../lib/useJourneyLoader'
-import RotatePrompt from '../../components/RotatePrompt'
-import OnboardingTutorial from '../../components/OnboardingTutorial'
+import RotatePrompt from '../components/RotatePrompt'
+import OnboardingTutorial from '../components/OnboardingTutorial'
 import { getPlanetPhaseInfo } from './planetPhaseInfo'
 import {
   NEBULA_STARS_TEXTURE_URL,

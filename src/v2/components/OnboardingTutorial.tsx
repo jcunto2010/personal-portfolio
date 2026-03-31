@@ -9,7 +9,7 @@
 
 import { useCallback, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useLocale, type V2Locale } from '../v2/lib/localeContext'
+import { useLocale, type V2Locale } from '../lib/localeContext'
 
 /** Alineado con `src/v2/tokens/tokens.css` — Proxima Nova en V2 */
 const FONT_BODY =

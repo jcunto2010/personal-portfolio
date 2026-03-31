@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useLocale } from '../v2/lib/localeContext'
+import { useLocale } from '../lib/localeContext'
 
 export interface RotatePromptProps {
   /** `true` cuando el preload de assets (p. ej. GLBs iniciales) ha terminado. */

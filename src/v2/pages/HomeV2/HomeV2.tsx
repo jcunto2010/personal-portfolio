@@ -3,11 +3,10 @@ import { ClassicRebuildPage } from '../../components/ClassicRebuild/ClassicRebui
 /**
  * Home V2 — Cosmic Editorial
  *
- * Real content migrated from V1 sources:
- *   - Hero: src/components/Hero.tsx
+ * Real content migrated from legacy V1 sources (see ClassicRebuild / data modules):
  *   - Skills: src/data/skills.ts
  *   - Experience: src/data/experience.ts
- *   - Contact: src/v2/components/Contact/Contact.tsx + Footer.tsx
+ *   - Contact: src/v2/components/Contact/Contact.tsx (+ ClassicRebuild footer block)
  *
  * Scroll layer (T-002):
  *   - Lenis provides smooth scroll via `useLenis`.

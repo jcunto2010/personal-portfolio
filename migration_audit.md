@@ -455,3 +455,63 @@ Así los tipos de Vite (`import.meta.env`, assets, etc.) siguen aplicando a todo
 
 - La documentación en varios `.md` sigue mencionando `src/main.tsx` o `src/index.css` como referencia histórica o guía; no bloquea el build. Actualizar esos documentos sería una tarea opcional aparte.
 - El resto del árbol V1 bajo `src/` (componentes, páginas legadas, etc.) **no** forma parte de este commit; solo se retiraron el entry y estilos globales V1 listados arriba.
+
+---
+
+# Auditoría de migración: eliminación de `src/components/` (V1)
+
+## Contexto
+
+La carpeta `src/components/` contenía únicamente la UI legada V1. V2 vive en `src/v2/components/`. Objetivo: eliminar por completo `src/components/` con `git rm -r`, preservando cualquier módulo que V2 (u otro código activo) importara desde rutas bajo ese árbol.
+
+## Búsqueda global previa
+
+| Módulo | Hallazgo |
+|--------|----------|
+| `OnboardingTutorial`, `RotatePrompt` | Importados en `src/v2/solar/SolarScene.tsx` vía `../../components/…` (resolvía a `src/components/`, no a `src/v2/components/`). |
+| `NeuralBackground` | Importado en `src/v2/components/ClassicRebuild/ClassicRebuildPage.tsx` desde `src/components/NeuralBackground`. |
+| `FlowStepper` | Importado en `src/features/case-studies/pages/ReservoCaseStudy.tsx` desde `src/components/shared/FlowStepper`. |
+
+No hubo otros imports TypeScript desde `src/components/` fuera de los anteriores (las rutas `../../components/…` en `src/v2/pages/HomeV2/` apuntan a `src/v2/components/`).
+
+## Modificaciones realizadas
+
+### 1. Reubicación antes del borrado
+
+- **`OnboardingTutorial.tsx`**, **`RotatePrompt.tsx`**, **`NeuralBackground.tsx`** → `src/v2/components/` (imports internos ajustados: `../lib/localeContext` en lugar de `../v2/lib/…`).
+- **`FlowStepper.tsx`** → `src/features/case-studies/components/FlowStepper.tsx` (único consumidor activo fuera del árbol solar / ClassicRebuild).
+
+### 2. Imports actualizados
+
+- `SolarScene.tsx`: `../components/OnboardingTutorial` y `../components/RotatePrompt`.
+- `ClassicRebuildPage.tsx`: `../NeuralBackground`.
+- `ReservoCaseStudy.tsx`: `../components/FlowStepper`.
+
+### 3. Comentarios de documentación
+
+- `HomeV2.tsx`, `contact.v2.ts`, `ProjectDetailV2.tsx`: comentarios alineados con la desaparición de rutas `src/components/…`.
+
+### 4. Eliminación del árbol V1
+
+```bash
+git rm -r src/components/
+```
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto (`tsc && vite build`) tras reubicación y `git rm -r`. |
+| `PhoneMockup.tsx` | Eliminado con la carpeta; solo lo usaban componentes V1 ya borrados (`ProjectReservo`, `ProjectStartupFlow`). |
+| Historial Git | Git puede registrar `FlowStepper`, `NeuralBackground`, `OnboardingTutorial` y `RotatePrompt` como renombres desde `src/components/` hacia las nuevas rutas. |
+
+## Commit
+
+- **Mensaje:** `chore(v1-removal): remove all V1 component files`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- Documentación del repo (`CHECKLIST.md`, `SCREENSHOTS_GUIDE.md`, secciones antiguas de esta auditoría que citan `OnboardingTutorial` bajo `src/components/`) puede quedar desactualizada; no afecta al build.
+- La feature `case-studies` sigue existiendo bajo `src/features/case-studies/`; si deja de usarse en rutas públicas, una limpieza posterior podría retirarla por separado.
