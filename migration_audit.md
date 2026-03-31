@@ -401,3 +401,57 @@ No hay otras menciones de `index.v2.html` ni de URLs con `v2` en el archivo.
 ## Notas
 
 - Si un clon antiguo aún tenía `url: ['http://localhost/index.v2.html']`, este commit lo sustituye de facto por la raíz más los comentarios aclaratorios; en el historial de esta rama el `url` correcto ya figuraba desde antes.
+
+---
+
+# Auditoría de migración: eliminación del entry point V1 (`main.tsx`, `App.tsx`, `index.css`)
+
+## Contexto
+
+Con V2 como única entrada (`index.html` → `src/v2/main.v2.tsx`), los archivos raíz de V1 en `src/` dejaron de ser necesarios. Objetivo: eliminarlos del repositorio y conservar la referencia de tipos de Vite en el árbol V2.
+
+## Búsqueda de referencias (fuera de `src/`)
+
+Se buscó en el proyecto referencias a `main.tsx`, `App.tsx`, `index.css` y `vite-env.d.ts` en configuraciones, scripts y tests (extensiones `.ts`, `.tsx`, `.js`, `.mjs`, `.cjs`, `.json`, `.html`).
+
+**Resultado:** ningún archivo **fuera de** `src/` importa o referencia esas rutas como módulos. Las únicas menciones están en documentación (`.md`), por ejemplo `README.md`, `QUICKSTART.md`, `PROJECT_SUMMARY.md`, `DEPLOYMENT.md`, `public/fonts/README.md` y entradas históricas de esta misma auditoría.
+
+- `index.html` ya apunta a `/src/v2/main.v2.tsx` (no a `src/main.tsx`).
+- `tsconfig.json` incluye `"src"` en bloque; `src/v2/types/` ya contenía `css-modules.d.ts`.
+
+## Modificaciones realizadas
+
+### 1. Eliminación con `git rm`
+
+```bash
+git rm src/main.tsx src/App.tsx src/index.css src/vite-env.d.ts
+```
+
+### 2. `src/v2/types/vite-env.d.ts` (nuevo)
+
+No existía `vite-env.d.ts` bajo `src/v2/types/`. Se añadió el mismo contenido que tenía `src/vite-env.d.ts`:
+
+```ts
+/// <reference types="vite/client" />
+```
+
+Así los tipos de Vite (`import.meta.env`, assets, etc.) siguen aplicando a todo `src/` vía `include: ["src"]`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Imports rotos en código (TS/JS fuera de `src/`) | Ninguno detectado en la búsqueda global indicada. |
+| `npm run build` | Correcto (`tsc && vite build`) tras los cambios. |
+| Tipos Vite | Conservados en `src/v2/types/vite-env.d.ts`. |
+
+## Commit
+
+- **Mensaje:** `chore(v1-removal): remove V1 entry point files (main.tsx, App.tsx, index.css)`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- La documentación en varios `.md` sigue mencionando `src/main.tsx` o `src/index.css` como referencia histórica o guía; no bloquea el build. Actualizar esos documentos sería una tarea opcional aparte.
+- El resto del árbol V1 bajo `src/` (componentes, páginas legadas, etc.) **no** forma parte de este commit; solo se retiraron el entry y estilos globales V1 listados arriba.
