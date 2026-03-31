@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:vercel": "npm run build",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -15,18 +14,17 @@
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:v2": "playwright test --project=v2-chromium-desktop --project=v2-mobile-chrome",
-    "test:e2e:v1": "playwright test --project=v1-chromium-desktop --project=v1-mobile-chrome",
+    "test:e2e:suite": "playwright test --project=v2-chromium-desktop --project=v2-mobile-chrome",
     "bundle:check": "node scripts/bundle-check.cjs",
     "copy:draco": "node scripts/copy-draco.mjs",
     "prebuild": "npm run copy:draco",
     "lhci": "lhci autorun",
     "postinstall": "patch-package",
-    "ci:v2": "npm run build && npm run bundle:check"
+    "ci": "npm run build && npm run bundle:check"
   },
   "bundlesize": [
     {
-      "path": "./dist/assets/main-*.js",
+      "path": "./dist/assets/v2-*.js",
       "maxSize": "50 kB",
       "compression": "gzip"
     }

@@ -107,11 +107,9 @@ personal_portfolio/
 
 The repo ships [vercel.json](vercel.json) (Vite build, `dist`, SPA rewrites). **Production branch** is set in the Vercel UI (**Settings → Environments → Production → Branch Tracking**), not in that file.
 
-**Root URL is V2** — the build command runs `build:vercel`, which builds both entries then copies [index.v2.html](index.v2.html) over `dist/index.html`. Otherwise Vercel would serve V1 at `/` (static `index.html` wins over rewrites).
+**Build** — `vercel.json` uses `npm run build` (TypeScript + Vite). There is a single SPA entry: [index.html](index.html) mounts the portfolio app (`src/v2/main.v2.tsx`). SPA rewrites send all paths to `/index.html`.
 
-**Optional: keep v1 on its own URL** — add a **second** Vercel project with **Production Branch** = `main` and override **Build Command** to `npm run build` (no `build:vercel`) so `/` stays V1. Custom domains: **Settings → Domains** on each project.
-
-The v1 line on `main` is anchored with tag **`v1.0.0`** on GitHub (`git show v1.0.0`).
+The legacy V1 line is preserved in Git with tag **`v1.0.0`** (`git show v1.0.0`).
 
 CLI (optional):
 

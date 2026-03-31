@@ -300,3 +300,69 @@ Sin cambios en `vite.config.ts`: el valor por defecto de Vite **`appType: 'spa'`
 
 - Enlaces internos en la app ya usaban `react-router-dom` con paths tipo `/projects/:slug`; no requirieron cambios.
 - Cualquier bookmark o enlace externo antiguo con `/#/…` dejará de coincidir con la app; conviene actualizar enlaces compartidos o añadir redirección client-side solo si hay necesidad explícita.
+
+---
+
+# Auditoría de migración: limpieza de scripts y CI tras retirada de V1 como entry
+
+## Contexto
+
+Con un solo `index.html` y sin `index.v2.html` ni `promote-v2-index.mjs`, quedaban **nombres y scripts heredados** (`build:vercel`, `ci:v2`, `test:e2e:v1` / `test:e2e:v2`, artefactos `main-*.js`, comentarios «V2 ·» en CI, etc.). Objetivo: alinear `package.json`, Vercel y GitHub Actions con el flujo actual sin distinción operativa V1/V2 en tooling.
+
+## Modificaciones realizadas
+
+### 1. `package.json` — `scripts`
+
+| Acción | Detalle |
+|--------|---------|
+| Eliminado | `build:vercel` (redundante con `npm run build`). |
+| Renombrado | `ci:v2` → **`ci`**, valor `npm run build && npm run bundle:check` (no existía otro script `ci`). |
+| Eliminado | `test:e2e:v1`. |
+| Renombrado | `test:e2e:v2` → **`test:e2e:suite`** (mismos proyectos Playwright `v2-chromium-desktop` y `v2-mobile-chrome`). |
+
+### 2. `package.json` — `bundlesize`
+
+- Entrada única: `./dist/assets/v2-*.js`, `maxSize` 50 kB gzip (se elimina cualquier referencia a `client-*.js` de V1; en el árbol previo solo existía `main-*.js`).
+
+**Nota técnica:** para que el chunk de entrada vuelva a llamarse `v2-*.js` y coincida con `bundlesize` y el artefacto de CI, en **`vite.config.ts`** la clave de `build.rollupOptions.input` pasó de `main` a **`v2`** (mismo `index.html`).
+
+### 3. `vercel.json`
+
+- `buildCommand`: `npm run build:vercel` → **`npm run build`**.
+
+### 4. `.github/workflows/ci.yml`
+
+- Comentarios del bloque T-005: sin «V2-specific»; nombres de job más neutros (`Bundle budget check…`, `Lighthouse CI…`).
+- Artefacto bundle: nombre `dist-bundle`; paths `dist/index.html` y **`dist/assets/v2-*.js`** (alineado con Rollup).
+- Artefacto Lighthouse: `lighthouse-reports-v2` → **`lighthouse-reports`**.
+- No había step que ejecutara `test:e2e:v1`; el job E2E sigue usando `npm run test:e2e` (todos los proyectos Playwright).
+- Comentario del step Lighthouse ya refería `index.html` (sin `index.v2.html`).
+
+### 5. `scripts/promote-v2-index.mjs`
+
+- El archivo **ya había sido eliminado** en el commit de index canónico (`git rm` en esa migración). En esta tarea `git rm scripts/promote-v2-index.mjs` **no aplica** (pathspec inexistente en el índice).
+
+### 6. Documentación de despliegue
+
+- **`README.md`** (sección Deployment / Vercel): texto actualizado a un solo entry `index.html` y `npm run build`; eliminado el párrafo obsoleto sobre `build:vercel` + copia de `index.v2.html`.
+- **`DEPLOYMENT.md`**: comando de build en Vercel alineado con `npm run build`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Genera de nuevo el chunk de entrada `dist/assets/v2-*.js` (clave Rollup `v2`). |
+| `npm run bundle:check` | Correcto (sigue leyendo `dist/index.html`). |
+| `npm run ci` | Equivalente a build + bundle check; ejecutable en local/CI. |
+| `git rm scripts/promote-v2-index.mjs` | No requerido — archivo ausente del repo. |
+
+## Commit
+
+- **Mensaje:** `chore: clean up build scripts and CI after V1 removal`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon.
+
+## Notas
+
+- Los **nombres internos** de proyectos Playwright (`v2-chromium-desktop`, etc.) no se renombraron en esta tarea; solo cambió el script npm `test:e2e:suite`.
+- La auditoría histórica anterior que menciona `input.main` y `main-*.js` describe el estado **intermedio** entre index canónico y esta limpieza; el estado actual vuelve a usar la clave **`v2`** en Rollup solo como nombre de chunk, no como segundo HTML.
