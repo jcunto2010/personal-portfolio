@@ -745,3 +745,55 @@ git rm -r src/v2/pages/SmokeTest/
 ## Notas
 
 - Documentos en `docs/audit-plan-fixes.md` y `docs/audit-plan-fixes-2.md` pueden seguir mencionando `SmokeTestGLB` o `/smoke-test` en contexto histórico de auditoría; no afectan al build.
+
+---
+
+# Auditoría de migración: URL de audio externa (`VITE_AUDIO_URL`)
+
+## Contexto
+
+El archivo `public/assets/audio/shona-theme.mp3` (~12,8 MB) infla el repositorio, los clones y el deploy. Se prepara el código para que la fuente del audio sea configurable vía variable de entorno, con fallback al asset local bajo `/public`, hasta que el MP3 se suba a un CDN (Cloudflare R2, Cloudinary, etc.) y se defina la URL definitiva.
+
+## Búsqueda de referencias
+
+| Criterio | Resultado |
+|----------|-----------|
+| `shona-theme.mp3` / `audio/` en código | La ruta canónica estaba solo en **`src/v2/lib/useAudioShell.ts`** como constante `AUDIO_SRC`. Comentarios en `HomeV2Shell.tsx` mencionan el nombre del tema sin ruta de archivo. |
+
+## Modificaciones realizadas
+
+### 1. `src/v2/lib/useAudioShell.ts`
+
+- Sustituida la constante por `AUDIO_URL = import.meta.env.VITE_AUDIO_URL ?? '/assets/audio/shona-theme.mp3'`.
+- `audio.src` usa `AUDIO_URL` (misma semántica de carga diferida que antes).
+
+### 2. `src/v2/types/vite-env.d.ts`
+
+- Añadida la propiedad opcional `VITE_AUDIO_URL` en `ImportMetaEnv` para tipado explícito.
+
+### 3. `env.example`
+
+- Contenido reemplazado por la plantilla acordada: bloque **Audio** (`VITE_AUDIO_URL`), **Analytics** (`VITE_GA4_MEASUREMENT_ID`), **Error tracking** (`VITE_SENTRY_DSN`), **App version** (`VITE_APP_VERSION`), con referencias a `docs/t008-observability-activation.md` donde aplica.
+
+### 4. `.gitignore`
+
+- **Sin cambios:** el patrón `*.local` ya ignora `.env.local` (y con ello un archivo local con `VITE_AUDIO_URL`). También se ignoran `.env`, `.env.production.local`, etc.
+
+### 5. Asset MP3
+
+- **No eliminado** en esta tarea; el commit incluye nota en el cuerpo del mensaje para quitarlo del repo cuando el CDN esté listo.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto (`tsc && vite build`). |
+| Comportamiento sin `VITE_AUDIO_URL` | Sigue sirviendo `/assets/audio/shona-theme.mp3` desde `public/`. |
+| Producción futura | Basta definir `VITE_AUDIO_URL` en el entorno de build (p. ej. CI) apuntando al CDN. |
+
+## Commit
+
+- **Mensaje:** `refactor: externalize audio URL via VITE_AUDIO_URL env var (CDN-ready)`
+- **Cuerpo (nota):** el MP3 en `public/` no se elimina en este commit; retirarlo del historial/versionado cuando la URL del CDN esté operativa.
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).

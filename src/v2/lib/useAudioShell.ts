@@ -18,7 +18,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-const AUDIO_SRC = '/assets/audio/shona-theme.mp3'
+const AUDIO_URL =
+  import.meta.env.VITE_AUDIO_URL ?? '/assets/audio/shona-theme.mp3'
 const DEFAULT_VOLUME = 0.4
 
 export type AudioState = 'idle' | 'loading' | 'ready' | 'playing' | 'error'
@@ -123,7 +124,7 @@ export function useAudioShell(): AudioShell {
     })
 
     // Setting src triggers the actual fetch.
-    audio.src = AUDIO_SRC
+    audio.src = AUDIO_URL
     patchDiag({ srcAssigned: true })
 
     audioRef.current = audio
