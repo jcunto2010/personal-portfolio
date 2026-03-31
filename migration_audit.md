@@ -366,3 +366,38 @@ Con un solo `index.html` y sin `index.v2.html` ni `promote-v2-index.mjs`, quedab
 
 - Los **nombres internos** de proyectos Playwright (`v2-chromium-desktop`, etc.) no se renombraron en esta tarea; solo cambió el script npm `test:e2e:suite`.
 - La auditoría histórica anterior que menciona `input.main` y `main-*.js` describe el estado **intermedio** entre index canónico y esta limpieza; el estado actual vuelve a usar la clave **`v2`** en Rollup solo como nombre de chunk, no como segundo HTML.
+
+---
+
+# Auditoría de migración: Lighthouse CI — URL en la raíz (sin `index.v2.html`)
+
+## Contexto
+
+Lighthouse CI debe auditar la misma entrada que producción: **`dist/index.html`** en la ruta **`/`** del servidor estático que usa LHCI sobre `staticDistDir: './dist'`. Tras eliminar `index.v2.html`, cualquier `url` que apunte a `http://localhost/index.v2.html` sería inválida.
+
+## Modificaciones realizadas
+
+### 1. `.lighthouserc.cjs`
+
+- **`url`:** en el árbol actual **ya estaba** definido como `['http://localhost/']` (alineado con la migración a `BrowserRouter` y al index canónico). En esta tarea se **reafirma** explícitamente y se evita regresiones documentales.
+- **Comentarios:** el bloque de cabecera y el comentario junto a `url` se actualizan para dejar claro que la recolección es la **raíz del sitio** (`/` → `index.html`) y que **no** debe usarse la ruta legada `/index.v2.html`.
+
+No hay otras menciones de `index.v2.html` ni de URLs con `v2` en el archivo.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Valor funcional de `url` | `http://localhost/` (sin cambio respecto al estado previo en repo). |
+| Coherencia con `dist/` | Solo existe `index.html` en la raíz de `dist/`; LHCI sirve ese documento en `/`. |
+| Riesgo de URL rota | Eliminado a nivel de documentación en el propio config (referencia explícita a no usar `index.v2.html`). |
+
+## Commit
+
+- **Mensaje:** `chore: update Lighthouse CI URL from index.v2.html to root`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon.
+
+## Notas
+
+- Si un clon antiguo aún tenía `url: ['http://localhost/index.v2.html']`, este commit lo sustituye de facto por la raíz más los comentarios aclaratorios; en el historial de esta rama el `url` correcto ya figuraba desde antes.

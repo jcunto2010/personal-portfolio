@@ -2,7 +2,9 @@
  * Lighthouse CI configuration — Portfolio V2
  * T-005: CI/CD + LHCI + bundle check
  *
- * Targets index.html (V2 entry point, BrowserRouter / history URLs).
+ * Collect URL is the site root: `http://localhost/`. LHCI serves `./dist` statically;
+ * `/` resolves to `index.html` (canonical SPA entry, BrowserRouter / history URLs).
+ * Do not use a legacy path such as `/index.v2.html` — that file is removed from the repo.
  *
  * Performance budgets aligned with PRD:
  *   LCP  <= 2500 ms
@@ -17,7 +19,7 @@ module.exports = {
     collect: {
       // Serve the built dist folder with a static server
       staticDistDir: './dist',
-      // V2 entry point (SPA fallback serves index.html for all paths)
+      // Root URL (dist/index.html); same entry as production hosts with SPA fallback
       url: ['http://localhost/'],
       numberOfRuns: 2,
       settings: {
