@@ -1,0 +1,38 @@
+.block {
+  margin-top: var(--v2-space-5);
+  padding: var(--v2-space-4);
+  border: 1px solid var(--v2-color-border-soft);
+  border-radius: var(--v2-radius-md);
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.title {
+  margin: 0 0 0.8rem;
+  font-family: var(--v2-font-display);
+  font-size: 1rem;
+  color: var(--v2-color-base-text);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--v2-color-muted-text);
+}
+
+.dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--v2-color-cyan);
+  flex: 0 0 auto;
+}

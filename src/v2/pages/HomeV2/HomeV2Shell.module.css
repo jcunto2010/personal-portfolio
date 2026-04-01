@@ -1,0 +1,10 @@
+/* HomeV2Shell — Phase 2
+   Shell itself has no visual surface.
+   SolarScene owns its own CSS module.  */
+
+/* Minimal dark screen shown while the SolarScene lazy chunk loads */
+.solarSceneLoading {
+  width: 100%;
+  height: 100vh;
+  background: #030712;
+}

@@ -1,17 +1,18 @@
 ## Completed
-- [x] Hero section with 3D interactive gradient
-- [x] Skills section
-- [x] Project sections (Reservo.AI, EmprendIA, Xmotics)
-- [x] Editorial design with scroll-triggered animations
-- [x] Experience section linked to projects
-- [x] Contact section with form
-- [x] Footer with social links
-- In @src/components/project-sections/ProjectStartupFlow.tsx at line 1, The import statement in ProjectStartupFlow.tsx is missing useRef although the component uses it in multiple places (e.g., refs referenced around lines 12, 256, 303, 334-336, 386); update the React import at the top of the file (the line that currently imports useEffect, useState, Suspense, useCallback) to also include useRef so all references to useRef in the component (including any refs used inside the ProjectStartupFlow component and helper functions) resolve and prevent the runtime error.
 
-# Portfolio Checklist- [x] Custom domain (www.jonathancuntodiaz.com)
+- [x] Editorial home (ClassicRebuildPage) — hero, about, skills, timeline, projects, contact
+- [x] Immersive mode — solar/WebGL experience (`src/v2/solar/`)
+- [x] Entry gate — mode selection, locale, audio preferences
+- [x] Projects — Reservo.AI & StartupConnect (data-driven, `src/v2/data/projects.v2.ts`)
+- [x] Project detail routes (`/projects/:slug`) with case-study layouts
+- [x] Contact — mailto + WhatsApp (`src/v2/data/contact.v2.ts`, `Contact` component)
+- [x] Footer / copyright in editorial shell
+- [x] Custom domain (www.jonathancuntodiaz.com)
 - [x] DNS configuration (Namecheap)
-- [x] Favicon (JC logo)
-- [x] SEO meta tags
+- [x] Favicon (`public/favicon.ico`)
+- [x] SEO meta tags (`index.html`)
+
+# Portfolio Checklist
 
 ---
 
@@ -20,69 +21,57 @@
 ### High Priority
 
 #### 1. Enable HTTPS
+
 - [ ] Go to GitHub repo → Settings → Pages
 - [ ] Click "Check again" on DNS (should pass now)
 - [ ] Check "Enforce HTTPS" box
 - [ ] Verify site loads with padlock icon
 
-#### 2. Project Screenshots
-Replace placeholders with real screenshots:
+#### 2. Project Screenshots & Assets
 
-**Reservo.AI:**
-- [ ] 3 phone mockups in hero section
-- [ ] App screens grid (6 screenshots)
+Replace or add real assets under `public/assets/projects/` and wire them in data:
 
-**EmprendIA:**
-- [ ] Laptop mockup in hero
-- [ ] Infinite scroll gallery screenshots (6-8 images)
+**Reservo.AI (`reservo-ai`):**
 
-**Xmotics:**
-- [ ] Monitor mockup in hero
-- [ ] Infinite scroll gallery screenshots (6-8 images)
+- [ ] Cover and thumbnails referenced in `src/v2/data/projects.v2.ts` (`coverImage`, `thumbnails[]`)
+- [ ] Case-study screen images in `src/v2/pages/ProjectDetailV2/ProjectDetailV2.tsx` (`screens[]` for slug `reservo-ai`)
 
-**Screenshot locations:**
-- Add images to `public/assets/projects/`
-- Update image paths in:
-  - `src/components/project-sections/ProjectReservo.tsx`
-  - `src/components/project-sections/ProjectEmprendIA.tsx`
-  - `src/components/project-sections/ProjectXmotics.tsx`
+**StartupConnect (`startupconnect`):**
+
+- [ ] Same pattern: `projects.v2.ts` + `ProjectDetailV2.tsx` (`startupconnect`)
+
+Recommended: **WebP** under `public/assets/projects/<slug>/` (see `SCREENSHOTS_GUIDE.md`).
 
 ---
 
 ### Medium Priority
 
 #### 3. Social Share Image
-- [ ] Create `og-image.png` (1200x630px)
-- [ ] Add to `public/` folder
-- [ ] Shows when sharing link on LinkedIn, Twitter, WhatsApp, etc.
 
-#### 4. Contact Form Backend
-Currently the form only logs to console. Options:
-- [ ] **Formspree** (free tier) - easiest
-- [ ] **EmailJS** - sends directly to your email
-- [ ] **Netlify Forms** (if migrating from GitHub Pages)
+- [ ] Create `og-image.png` (1200x630px) if you want a custom Open Graph image
+- [ ] Add to `public/` and reference from `index.html` (`og:image` / `twitter:image`)
+
+#### 4. Contact Channel (Optional)
+
+The contact UI uses **mailto** and **WhatsApp** links from `contact.v2.ts`. If you need a hosted form (Formspree, EmailJS, Netlify Forms), integrate it in `src/v2/components/Contact/Contact.tsx` and document env vars.
 
 #### 5. Experience Details
-- [ ] Add more details to experience descriptions if needed
-- [ ] Update technologies list if any changed
+
+- [ ] Edit `src/v2/data/experience.v2.ts` if roles or dates change
 
 ---
 
 ### Low Priority / Nice to Have
 
-#### 6. Lottie Animation (Reservo.AI)
-- [ ] Install `lottie-react`: `npm install lottie-react`
-- [ ] Add Lottie JSON file to `public/assets/animations/`
-- [ ] Embed in ProjectReservo.tsx
+#### 6. Performance
 
-#### 7. Performance Optimization
 - [ ] Compress images before adding
 - [ ] Test on mobile devices
-- [ ] Run Lighthouse audit
+- [ ] Run Lighthouse (`npm run lhci` when configured)
 
-#### 8. Analytics
-- [ ] Add Google Analytics or Plausible
-- [ ] Track visitor engagement
+#### 7. Analytics
+
+- [ ] Telemetry hooks exist under `src/v2/lib/telemetry/` — wire GA4/Sentry per your privacy policy
 
 ---
 
@@ -98,6 +87,9 @@ npm run build
 # Check TypeScript errors
 npx tsc --noEmit
 
+# E2E (Playwright)
+npm run test:e2e
+
 # Push changes to deploy
 git add .
 git commit -m "Your message"
@@ -106,17 +98,20 @@ git push
 
 ---
 
-## File Locations
+## File Locations (V2)
 
 | What | Where |
 |------|-------|
-| Project sections | `src/components/project-sections/` |
-| Experience data | `src/data/experience.ts` |
-| Contact info | `src/components/Contact.tsx` |
-| Footer links | `src/components/Footer.tsx` |
-| SEO/Meta tags | `index.html` |
-| Screenshots | `public/assets/projects/` |
-| Favicon | `public/favicon.svg` |
+| App entry | `index.html` → `src/v2/main.v2.tsx` → `src/v2/AppV2.tsx` |
+| Editorial home content | `src/v2/components/ClassicRebuild/ClassicRebuildPage.tsx` (hero copy, nav, sections) |
+| Projects data | `src/v2/data/projects.v2.ts` |
+| Skills, experience, contact | `src/v2/data/skills.v2.ts`, `experience.v2.ts`, `contact.v2.ts` |
+| Project detail / case study | `src/v2/pages/ProjectDetailV2/ProjectDetailV2.tsx` |
+| Routes | `src/v2/router/routes.tsx` |
+| Contact UI | `src/v2/components/Contact/Contact.tsx` |
+| SEO / meta | `index.html` |
+| Screenshots & static assets | `public/assets/projects/` |
+| Favicon | `public/favicon.ico` |
 
 ---
 

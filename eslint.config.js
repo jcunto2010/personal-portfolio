@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules'] },
+  { ignores: ['dist', 'node_modules', 'public/draco/**'] },
 
   js.configs.recommended,
 
@@ -46,6 +46,61 @@ export default tseslint.config(
     files: ['*.config.{js,ts}', 'postcss.config.js'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+
+  // Provider + hook in one module, or route config + lazy components — valid pattern; HMR rule is noisy here.
+  {
+    files: [
+      'src/v2/lib/appModeContext.tsx',
+      'src/v2/lib/localeContext.tsx',
+      'src/v2/router/routes.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  // Node.js CJS scripts — scripts/ and *.cjs files run in Node, not the browser.
+  // Enable Node globals and relax browser-only rules.
+  {
+    files: ['scripts/**/*.cjs', '*.cjs'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-undef': 'off',
+      'no-console': 'off',
+    },
+  },
+
+  // Node.js ESM scripts — scripts/*.mjs runs in Node (type:module), not the browser.
+  {
+    files: ['scripts/**/*.mjs', '*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        URL: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off',
+      'no-console': 'off',
     },
   },
 )

@@ -1,0 +1,565 @@
+/* EntryGate — intro overlay (Figma design)
+   Full-viewport black background; starfield and content are in JSX.
+   All intro layout/type/buttons use this module so V2 (no Tailwind) renders correctly. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Starfield container */
+.starfield {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.star {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: #fff;
+  border-radius: 9999px;
+}
+
+/* Global name so inline `animation: introFadeIn …` in TSX matches (CSS Modules hash scoped keys). */
+@keyframes :global(introFadeIn) {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes starFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: var(--endOpacity, 1);
+  }
+}
+
+@keyframes introH1FloatIn {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.starFadeIn {
+  will-change: opacity;
+  animation: starFadeIn 1.2s ease forwards;
+}
+
+.introH1In {
+  will-change: transform;
+  animation: introH1FloatIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Main content column — centered, full width for layout */
+.introContent {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
+  font-family: var(--v2-font-body, 'Inter', system-ui, sans-serif);
+  font-style: italic;
+}
+
+.introTitleBlock {
+  max-width: 42rem;
+  text-align: center;
+}
+
+.introTitleInner {
+  margin-bottom: 1.5rem;
+}
+
+.introH1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--v2-font-display, 'Inter', system-ui, sans-serif);
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.introName {
+  font-weight: 300;
+  color: #00d9a3;
+}
+
+.introDivider {
+  height: 1px;
+  width: 6rem;
+  margin: 0 auto 1rem;
+  background: linear-gradient(to right, transparent, rgba(0, 217, 163, 0.5), transparent);
+}
+
+.introRole {
+  margin: 0 0 0.75rem;
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.introDesc {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Buttons column */
+.introButtons {
+  display: flex;
+  width: 100%;
+  max-width: 28rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Top-right language toggle (intro only, outside immersive mode) */
+.languageSwitcherWrap {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  z-index: 20;
+}
+
+.introBtnImmersiveWrap {
+  position: relative;
+  width: 100%;
+}
+
+.introBtnImmersive {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 1.25rem 2.5rem;
+  padding-right: 6.25rem;
+  border: 1px solid rgba(0, 217, 163, 0.4);
+  border-radius: 9999px;
+  background: linear-gradient(to right, rgba(0, 155, 125, 0.25), rgba(0, 217, 163, 0.25));
+  color: #fff;
+  font-style: italic;
+  cursor: pointer;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.introBtnImmersiveWrap:hover .introBtnImmersive {
+  border-color: rgba(0, 217, 163, 0.7);
+  transform: scale(1.03);
+}
+
+.introBtnImmersiveWrap:active .introBtnImmersive {
+  transform: scale(0.97);
+}
+
+.introBtnImmersiveInner {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.introBtnImmersiveText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.introBtnImmersiveRow {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.introBtnImmersiveLabel {
+  letter-spacing: 0.025em;
+}
+
+.introBtnImmersiveBadge {
+  font-size: 0.75rem;
+  color: #00f5c3;
+}
+
+.introBtnImmersiveSub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.introAudioToggle {
+  position: absolute;
+  top: 50%;
+  right: 2.5rem;
+  z-index: 2;
+  margin: 0;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.2s ease;
+}
+
+.introAudioToggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.introAudioToggleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.introBtnClassic {
+  padding: 1.25rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  cursor: pointer;
+  transition: border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.introBtnClassic:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.03);
+}
+
+.introBtnClassic:active {
+  transform: scale(0.97);
+}
+
+.introBtnClassicText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.introBtnClassicLabel {
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+}
+
+.introBtnClassicSub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.introFooter {
+  margin-top: 2rem;
+  font-family: var(--v2-font-display, 'Inter', system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.introCorner {
+  position: fixed;
+  width: 3rem;
+  height: 3rem;
+  border-color: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.introCornerTopLeft {
+  top: 2rem;
+  left: 2rem;
+  border-left: 1px solid;
+  border-top: 1px solid;
+}
+
+.introCornerBottomRight {
+  right: 2rem;
+  bottom: 2rem;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+/* Hover gradient sweep (optional, for immersive button) */
+.introBtnImmersiveSweep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(0, 217, 163, 0), rgba(0, 217, 163, 0.3), rgba(0, 217, 163, 0));
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.introBtnImmersiveWrap:hover .introBtnImmersiveSweep {
+  transform: translateX(100%);
+}
+
+/* Legacy (unused by intro) ───────────────────────────── */
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--v2-space-8);
+  text-align: center;
+  font-family: var(--v2-font-display, 'Inter', system-ui, sans-serif);
+}
+
+.heroSection {
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: clamp(2.4rem, 4vw, 3rem);
+  font-weight: var(--v2-font-weight-display);
+  color: var(--v2-color-base-text);
+  margin: 0 0 var(--v2-space-3);
+  line-height: 1.05;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--v2-color-muted-text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Mode selection ─────────────────────────────── */
+
+.modeSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v2-space-4);
+}
+
+.modeOptions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--v2-space-4);
+}
+
+.modeOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v2-space-1);
+  padding: var(--v2-space-5) var(--v2-space-6);
+  border-radius: var(--v2-radius-lg);
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: rgba(7, 11, 26, 0.9);
+  color: var(--v2-color-muted-text);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease,
+    transform 0.12s ease;
+  text-align: center;
+}
+
+.modeOption:hover {
+  border-color: rgba(226, 232, 240, 0.9);
+  color: var(--v2-color-base-text);
+  transform: translateY(-1px);
+}
+
+.modeOptionSelected {
+  border-color: var(--v2-color-violet);
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.9), rgba(8, 14, 34, 0.98));
+  color: var(--v2-color-base-text);
+}
+
+.modeLabel {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.modeDescription {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--v2-color-muted-text);
+}
+
+.modeOptionSelected .modeDescription {
+  color: rgba(226, 232, 240, 0.9);
+}
+
+.modeOption:focus-visible {
+  outline: 2px solid var(--v2-color-cyan);
+  outline-offset: 3px;
+}
+
+/* ── Audio + CTA column ─────────────────────────── */
+
+.controlsColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--v2-space-4);
+}
+
+.audioRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v2-space-3);
+  font-size: 0.8rem;
+  color: var(--v2-color-muted-text);
+}
+
+.audioText {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--v2-space-1);
+}
+
+.audioLabel {
+  font-weight: 500;
+  color: var(--v2-color-base-text);
+}
+
+.audioNote {
+  opacity: 0.8;
+}
+
+.audioToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.audioIndicator {
+  width: 36px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid var(--v2-color-border-soft);
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.audioIndicator::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.audioToggleOn .audioIndicator {
+  background: var(--v2-color-cyan);
+  border-color: var(--v2-color-cyan);
+}
+
+.audioToggleOn .audioIndicator::after {
+  transform: translateX(14px);
+  background: #fff;
+}
+
+/* ── CTA + fullscreen hint ──────────────────────── */
+
+.enterBtn {
+  width: 100%;
+  padding: var(--v2-space-4) var(--v2-space-8);
+  border-radius: var(--v2-radius-lg);
+  border: none;
+  background: linear-gradient(135deg, var(--v2-color-violet), var(--v2-color-deep-blue));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.18s ease;
+}
+
+.enterBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 32px rgba(76, 81, 191, 0.45);
+}
+
+.enterBtn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.fullscreenHint {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--v2-color-muted-text);
+  cursor: pointer;
+  text-align: center;
+}
+
+.fullscreenHint:hover {
+  color: var(--v2-color-base-text);
+}
+
+.fullscreenActive {
+  color: var(--v2-color-cyan);
+}
+
+/* ── Reduced motion ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .modeOption,
+  .audioIndicator,
+  .enterBtn {
+    transition: none !important;
+  }
+}
+
+/* ── Layout for larger screens ───────────────────── */
+
+@media (min-width: 768px) {
+  .content {
+    gap: var(--v2-space-10);
+  }
+
+  .audioRow {
+    font-size: 0.82rem;
+  }
+}

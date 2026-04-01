@@ -1,0 +1,22 @@
+/* GPU-friendly rotation: only transform, runs on compositor */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinReverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.spinnerOuter {
+  animation: spin 2s linear infinite;
+  will-change: transform;
+}
+
+.spinnerInner {
+  animation: spinReverse 1.5s linear infinite;
+  will-change: transform;
+}

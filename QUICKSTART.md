@@ -1,16 +1,17 @@
 # Quick Start Guide
 
-Get your portfolio website up and running in minutes!
+Get your portfolio website up and running in minutes.
 
 ## Prerequisites
 
-- Node.js 18+ installed
-- npm or yarn package manager
+- **Node.js 24+** (see [`.nvmrc`](.nvmrc))
+- npm `>=10`
 - Git (optional, for version control)
 
 ## Installation
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
@@ -18,103 +19,96 @@ npm install
 ## Development
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
 
 The site will be available at `http://localhost:5173`
 
+The app mounts from **`index.html`** → **`src/v2/main.v2.tsx`** (single V2 entry; there is no `main.tsx` or `index.v2.html` in the current tree).
+
 ## Customization Checklist
 
-Before deploying, update the following with your personal information:
+Before deploying, update the following with your personal information.
 
-### 1. Personal Information
+### 1. Personal Information & Hero
 
-**File: `src/components/Hero.tsx`**
-- Update your name
-- Update your title/role
-- Update your description/tagline
-- Update social media links (GitHub, LinkedIn)
+**File: `src/v2/components/ClassicRebuild/ClassicRebuildPage.tsx`**
 
-**File: `src/components/Contact.tsx`**
-- Update email address
-- Update phone number
-- Update location
-- Update social media links
+- The `ui` object holds localized strings (EN/ES): name, subtitle, intro, hero heading, hero main text, CTAs, about copy, footer text.
+- **Hero portrait:** `ClassicHero` `imageSrc` (default `"/assets/projects/johnny_hero.webp"`) — place your image under `public/` and update the path.
+- **Social links:** passed into `ClassicHero` (`socialLinks`); defaults use `contactV2` for GitHub/LinkedIn — adjust Instagram/X URLs there if needed.
 
-**File: `src/components/Footer.tsx`**
-- Update social media links
-- Verify copyright year
+### 2. Contact
 
-### 2. Skills
+**File: `src/v2/data/contact.v2.ts`**
 
-**File: `src/data/skills.ts`**
-- Add/remove technologies you know
-- Organize by categories (Languages, Frameworks, Tools)
-- Import icons from `react-icons/si` for technology logos
+- Email, WhatsApp link, display phone, location, GitHub, LinkedIn.
 
-### 3. Projects
+**File: `src/v2/components/Contact/Contact.tsx`**
 
-**File: `src/data/projects.ts`**
-- Add your actual projects
-- Update project descriptions
-- Add GitHub repository URLs
-- Add live demo URLs
-- Upload project screenshots to `public/assets/projects/`
-- Update image paths to match your screenshots
+- UI for mailto, WhatsApp, and copy actions; uses `contactV2` and locale-aware drafts.
 
-**Tip:** For project images, use:
-- Format: JPG or PNG
-- Recommended size: 800x600px or 16:9 aspect ratio
-- Optimize images for web
+### 3. Skills
 
-### 4. Experience
+**File: `src/v2/data/skills.v2.ts`**
 
-**File: `src/data/experience.ts`**
-- Add your work experience
-- Update job titles and companies
-- Update employment dates
-- Add key achievements
-- List technologies used in each role
+- Add/remove skills; `iconKey` values map to icons in `ClassicRebuildPage` (`getSkillIcon`).
 
-### 5. Meta Tags & SEO
+### 4. Projects
+
+**File: `src/v2/data/projects.v2.ts`**
+
+- Each project: `slug`, `title`, `coverImage`, `thumbnails`, URLs, `featured`, localized `descriptionEs` / `highlightsEs` as needed.
+- Put images under **`public/assets/projects/<slug>/`** and reference paths like `/assets/projects/reservo/*.webp`.
+
+**Case-study pages:** narrative and extra screens live in **`src/v2/pages/ProjectDetailV2/ProjectDetailV2.tsx`** (per-slug content).
+
+### 5. Experience
+
+**File: `src/v2/data/experience.v2.ts`**
+
+- Roles, companies, periods, descriptions, technologies.
+
+### 6. Meta Tags & SEO
 
 **File: `index.html`**
-- Update the page title
-- Update meta description
-- Update Open Graph tags
-- Add favicon (replace `/vite.svg`)
 
-### 6. Domain & Contact
+- Page title, meta description, Open Graph, Twitter cards.
+- Favicon: **`/favicon.ico`** (not `/vite.svg`).
 
-**File: `README.md` and `DEPLOYMENT.md`**
-- Update all references to your domain
-- Update contact information
-- Update social media usernames
+### 7. Domain & Docs
+
+**Files: `README.md`, `DEPLOYMENT.md`**
+
+- Update domain references and deployment notes if you fork the repo.
 
 ## Build for Production
 
-Create an optimized production build:
 ```bash
 npm run build
 ```
 
-Preview the production build locally:
+Preview locally:
+
 ```bash
 npm run preview
 ```
 
 ## Deploy
 
-Choose your preferred hosting platform:
+Choose your preferred hosting platform.
 
 ### Quick Deploy to Vercel
+
 ```bash
 npm install -g vercel
 vercel
 ```
 
 ### Quick Deploy to Netlify
+
 ```bash
 npm install -g netlify-cli
 netlify deploy
@@ -122,104 +116,62 @@ netlify deploy
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions.
 
-## Project Structure
+## Project Structure (V2)
 
 ```
-src/
-├── components/       # React components for each section
-│   ├── Header.tsx   # Navigation
-│   ├── Hero.tsx     # Landing section
-│   ├── Skills.tsx   # Skills showcase
-│   ├── Projects.tsx # Project portfolio
-│   ├── Experience.tsx # Work history
-│   ├── Contact.tsx  # Contact form
-│   └── Footer.tsx   # Footer
-├── data/            # Data files (edit these!)
-│   ├── skills.ts    # Your skills
-│   ├── projects.ts  # Your projects
-│   └── experience.ts # Your experience
-├── App.tsx          # Main app
-├── index.css        # Tailwind styles
-└── main.tsx         # Entry point
+src/v2/
+├── main.v2.tsx          # Entry (imported from index.html)
+├── AppV2.tsx            # Router shell
+├── router/routes.tsx    # Routes (home, projects, etc.)
+├── data/                # skills.v2.ts, projects.v2.ts, experience.v2.ts, contact.v2.ts
+├── components/          # ClassicRebuild, Contact, EntryGate, Hero, etc.
+├── pages/               # HomeV2, ProjectDetailV2, …
+├── solar/               # Immersive 3D scene (lazy-loaded)
+└── tokens/              # Design tokens
 ```
 
 ## Tips for Customization
 
 ### Changing Colors
 
-Edit `tailwind.config.js` to change the color scheme:
-```javascript
-theme: {
-  extend: {
-    colors: {
-      primary: {
-        // Your colors here
-      },
-    },
-  },
-}
-```
+Edit **`tailwind.config.js`** and/or **`src/v2/tokens/tokens.css`** to match your palette.
 
 ### Adding Icons
 
-All icons come from `react-icons`. Browse available icons at:
-https://react-icons.github.io/react-icons/
+Editorial skills use **`react-icons`** (`Si*` exports) via `ClassicRebuildPage`. Other UI may use **`lucide-react`**.
 
-Import and use:
-```typescript
-import { FaIcon } from 'react-icons/fa'
-```
+### Contact
 
-### Email Service Integration
-
-To make the contact form functional, see the "Email Service Setup" section in [DEPLOYMENT.md](DEPLOYMENT.md).
-
-Popular options:
-- EmailJS (recommended for beginners)
-- Formspree
-- Netlify Forms (if using Netlify)
+Default flow is **mailto + WhatsApp** (no backend). For hosted forms, see [DEPLOYMENT.md](DEPLOYMENT.md) and extend `Contact.tsx`.
 
 ## Troubleshooting
 
 ### Port already in use
-If port 5173 is in use, Vite will automatically use the next available port.
+
+Vite will try the next available port if `5173` is taken.
 
 ### Build errors
-- Clear cache: `rm -rf node_modules dist && npm install`
-- Check Node version: `node --version` (should be 18+)
-- Check for TypeScript errors: `npx tsc --noEmit`
+
+- Clear install: remove `node_modules` and `dist`, then `npm install`
+- Node: `node --version` (should be 24+)
+- TypeScript: `npx tsc --noEmit`
 
 ### Tailwind classes not working
-- Restart dev server: `Ctrl+C` then `npm run dev`
-- Check `tailwind.config.js` content paths
+
+- Restart dev server
+- `tailwind.config.js` content paths must include `./src/**/*.{ts,tsx}` and `./index.html`
 
 ## Next Steps
 
-1. ✅ Customize all content with your information
-2. ✅ Add your project screenshots
-3. ✅ Test contact form
-4. ✅ Test on mobile devices
-5. ✅ Build and preview
-6. ✅ Deploy to your hosting platform
-7. ✅ Configure custom domain
-8. ✅ Set up email service
-9. ✅ Add analytics (optional)
+1. Customize data files and `ClassicRebuildPage` copy
+2. Add or replace images under `public/assets/projects/`
+3. Test contact links (mailto / WhatsApp)
+4. Test on mobile and in both editorial and immersive modes
+5. `npm run build` and `npm run preview`
+6. Deploy and configure DNS / HTTPS
 
 ## Resources
 
 - [React Documentation](https://react.dev)
 - [Tailwind CSS Documentation](https://tailwindcss.com)
 - [Vite Documentation](https://vitejs.dev)
-- [React Icons](https://react-icons.github.io/react-icons/)
-
-## Support
-
-If you encounter issues:
-1. Check the documentation files (README.md, DEPLOYMENT.md)
-2. Review Vite and React documentation
-3. Check browser console for errors
-4. Verify Node.js version is 18+
-
----
-
-Happy coding! 🚀
