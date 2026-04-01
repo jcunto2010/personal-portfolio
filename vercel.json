@@ -1,5 +1,4 @@
 {
-  "//": "Headers defined here must stay in sync with scripts/security-headers.mjs\nSee: docs/security-roadmap.md for planned CSP hardening.",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
