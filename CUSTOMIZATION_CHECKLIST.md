@@ -1,261 +1,104 @@
-# Customization Checklist for Your Portfolio
+# Customization Checklist for Your Portfolio (V2)
 
-Use this checklist to track your progress as you customize the portfolio with your personal information.
+Use this checklist while you customize the **V2** codebase (`src/v2/`). Legacy paths such as `src/components/Hero.tsx`, `src/data/projects.ts`, or `src/main.tsx` **do not exist** in this project.
 
-## 📝 Content Updates
+## Content updates
 
-### Personal Information
-- [ ] Update your full name in `src/components/Hero.tsx`
-- [ ] Update your professional title/role in `src/components/Hero.tsx`
-- [ ] Write your personal description/tagline in `src/components/Hero.tsx`
-- [ ] Update page title in `index.html` (currently "Jonathan Cunto Diaz - Frontend Developer")
-- [ ] Update meta description in `index.html`
+### Personal information & hero
 
-### Contact Information
-- [ ] Update email address in `src/components/Contact.tsx` (currently: contact@jonathancuntodiaz.com)
-- [ ] Update phone number in `src/components/Contact.tsx` (currently: +1 (555) 123-4567)
-- [ ] Update location in `src/components/Contact.tsx` (currently: "Your City, Country")
-- [ ] Update email in `src/components/Footer.tsx`
+**Primary file: `src/v2/components/ClassicRebuild/ClassicRebuildPage.tsx`**
 
-### Social Media Links
+- [ ] Name, subtitle, intro, hero heading, hero body (`heroMainText`), CTAs, about paragraphs, timeline intro, footer copyright — update the `ui` object (EN and ES strings).
+- [ ] Hero image: `ClassicHero` prop `imageSrc` (default `"/assets/projects/johnny_hero.webp"`) — place file under `public/` and adjust path.
+- [ ] Social icons in hero: `socialLinks` array (GitHub/LinkedIn read from `contactV2`; change Instagram/X URLs if needed).
 
-**Update in `src/components/Hero.tsx`:**
-- [ ] GitHub profile URL (line ~85)
-- [ ] LinkedIn profile URL (line ~93)
+**`index.html`**
 
-**Update in `src/components/Footer.tsx`:**
-- [ ] GitHub profile URL (line ~17)
-- [ ] LinkedIn profile URL (line ~18)
-- [ ] Twitter/X profile URL (line ~19)
-- [ ] Email address (line ~20)
+- [ ] `<title>` and meta description
+- [ ] Open Graph / Twitter meta if you change branding
+- [ ] Favicon: **`/favicon.ico`** (replace file in `public/` rather than `vite.svg`)
 
-**Update in `src/components/Contact.tsx`:**
-- [ ] GitHub profile URL (line ~93)
-- [ ] LinkedIn profile URL (line ~94)
-- [ ] Twitter/X profile URL (line ~95)
+### Contact & social
 
-## 💼 Professional Content
+**`src/v2/data/contact.v2.ts`**
 
-### Skills (`src/data/skills.ts`)
-- [ ] Review the list of technologies
-- [ ] Add any missing skills you have
-- [ ] Remove any technologies you don't use
-- [ ] Ensure categories are correct (language/framework/tool)
-- [ ] Verify icon imports from react-icons
+- [ ] `email`, `whatsapp`, `whatsappDisplay`, `location`, `github`, `linkedin`
 
-### Projects (`src/data/projects.ts`)
-Current: 4 sample projects
+**`src/v2/components/Contact/Contact.tsx`**
 
-For each project:
-- [ ] **Project 1**: Update title, description, technologies, URLs
-- [ ] **Project 2**: Update title, description, technologies, URLs
-- [ ] **Project 3**: Update title, description, technologies, URLs
-- [ ] **Project 4**: Update title, description, technologies, URLs
+- [ ] Only if you change behavior (e.g. add a third-party form); default uses mailto + WhatsApp helpers from `contact.v2.ts`.
 
-Or add your own:
-- [ ] Add new project entries
-- [ ] Remove sample projects
-- [ ] Mark your best projects as `featured: true`
-- [ ] Ensure all GitHub URLs are correct
-- [ ] Ensure all demo URLs are correct
+## Professional content
 
-### Experience (`src/data/experience.ts`)
-Current: 3 sample positions
+### Skills — `src/v2/data/skills.v2.ts`
 
-For each position:
-- [ ] **Position 1**: Update role, company, period, description
-- [ ] **Position 2**: Update role, company, period, description
-- [ ] **Position 3**: Update role, company, period, description
+- [ ] Add/remove entries; keep `category` (`language` | `framework` | `tool`) and `iconKey` aligned with icons mapped in `ClassicRebuildPage.tsx` (`getSkillIcon`).
 
-Or add your own:
-- [ ] Add your actual work experience
-- [ ] Remove sample entries
-- [ ] Update achievements for each role
-- [ ] Update technologies used
-- [ ] Ensure dates are current and correct
+### Projects — `src/v2/data/projects.v2.ts`
 
-## 🖼️ Visual Content
+- [ ] For each project: `slug`, `title`, `tagline`, `description`, `coverImage`, `thumbnails`, URLs, `featured`, optional ES fields.
+- [ ] Image paths are served from **`public/`** — e.g. `/assets/projects/reservo/main screen.webp`.
 
-### Project Images
-- [ ] Create/gather screenshots of your projects (recommended: 800x600px)
-- [ ] Optimize images for web (compress to reduce file size)
-- [ ] Upload images to `public/assets/projects/`
-- [ ] Name files appropriately (e.g., `ecommerce.jpg`, `portfolio.png`)
-- [ ] Update image paths in `src/data/projects.ts`
+### Project detail / case studies — `src/v2/pages/ProjectDetailV2/ProjectDetailV2.tsx`
+
+- [ ] Long-form copy and `screens[]` image paths per slug (`reservo-ai`, `startupconnect`). Keep paths consistent with files under `public/assets/projects/`.
+
+### Experience — `src/v2/data/experience.v2.ts`
+
+- [ ] Roles, companies, periods, descriptions, `technologies` bullets, optional `descriptionEs`.
+
+## Visual content
+
+### Project images
+
+- [ ] Optimize images (WebP recommended)
+- [ ] Store under **`public/assets/projects/<slug>/`**
+- [ ] Update **`projects.v2.ts`** and **`ProjectDetailV2.tsx`** references together
 
 ### Favicon
-- [ ] Create or generate a favicon
-- [ ] Replace `public/vite.svg` with your favicon
-- [ ] Update favicon reference in `index.html` if needed
 
-### Logo (Optional)
-- [ ] Design a personal logo
-- [ ] Update "JCD" initials in `src/components/Header.tsx` with your logo/initials
+- [ ] Replace **`public/favicon.ico`**
+- [ ] Confirm `index.html` uses `<link rel="icon" href="/favicon.ico" />`
 
-## 🎨 Styling (Optional)
+## Styling (optional)
 
-### Colors
-- [ ] Review the current blue color scheme
-- [ ] If desired, update colors in `tailwind.config.js`
-- [ ] Test new colors across all sections
-- [ ] Ensure sufficient contrast for accessibility
+- [ ] **`tailwind.config.js`** — theme extensions
+- [ ] **`src/v2/tokens/tokens.css`** — design tokens / `.v2-root` variables
 
-### Fonts (Optional)
-- [ ] Current font: Inter from Google Fonts
-- [ ] If desired, choose a different font
-- [ ] Update font import in `index.html`
-- [ ] Update font-family in `tailwind.config.js`
+## Technical (optional)
 
-## ⚙️ Technical Setup
+### Analytics / telemetry
 
-### Email Service
-- [ ] Choose an email service (EmailJS, Formspree, or Netlify Forms)
-- [ ] Sign up for the service
-- [ ] Get API keys/credentials
-- [ ] Create `.env.local` file with credentials
-- [ ] Update `src/components/Contact.tsx` with service integration
-- [ ] Test contact form functionality
+- [ ] `src/v2/lib/telemetry/` — wire only with consent / privacy policy
 
-### Analytics (Optional)
-- [ ] Set up Google Analytics account
-- [ ] Get tracking ID
-- [ ] Add tracking code (see DEPLOYMENT.md)
-- [ ] Test analytics are working
+### Environment variables
 
-### Environment Variables
-- [ ] Copy `env.example` to `.env.local`
-- [ ] Fill in your API keys and credentials
-- [ ] Add production environment variables to hosting platform
-- [ ] Verify `.env.local` is in `.gitignore`
+- [ ] If you add API keys: copy **`env.example`** → **`.env.local`**, document in hosting, keep secrets out of git
 
-## 🚀 Pre-Deployment
+## Pre-deployment
 
-### Testing
-- [ ] Test site locally: `npm run dev`
-- [ ] Test all navigation links work
-- [ ] Test all external links open correctly
-- [ ] Test contact form validation
-- [ ] Test on mobile device or mobile view
-- [ ] Test on tablet size
-- [ ] Test on desktop
-- [ ] Check all images load properly
-- [ ] Verify no console errors in browser
-- [ ] Test smooth scroll behavior
+- [ ] `npm run dev` — editorial + immersive flows, locale switcher
+- [ ] `npm run build` — clean build
+- [ ] `npm run preview` — smoke-test production assets
+- [ ] `npm run test:e2e` — optional full Playwright run
 
-### Build
-- [ ] Run production build: `npm run build`
-- [ ] Verify build succeeds with no errors
-- [ ] Preview build locally: `npm run preview`
-- [ ] Test the preview build thoroughly
+## Deployment
 
-### Content Review
-- [ ] Proofread all text content
-- [ ] Check for spelling and grammar errors
-- [ ] Verify all dates are current
-- [ ] Ensure professional tone throughout
-- [ ] Check that all links work
+- [ ] Follow **`DEPLOYMENT.md`**
+- [ ] HTTPS and custom domain on your host (Vercel / Netlify / etc.)
 
-## 🌐 Deployment
-
-### Git Repository
-- [ ] Initialize git repository: `git init`
-- [ ] Create `.gitignore` (already created)
-- [ ] Make initial commit
-- [ ] Create GitHub repository
-- [ ] Push to GitHub: `git remote add origin <url>` and `git push -u origin main`
-
-### Hosting Platform
-- [ ] Choose hosting platform (Vercel, Netlify, GitHub Pages)
-- [ ] Create account on chosen platform
-- [ ] Deploy site (see DEPLOYMENT.md for instructions)
-- [ ] Verify deployment successful
-- [ ] Check live site works correctly
-
-### Custom Domain
-- [ ] Add custom domain in hosting platform
-- [ ] Get DNS configuration from hosting platform
-- [ ] Update DNS records at domain registrar
-- [ ] Add both root domain and www subdomain
-- [ ] Wait for DNS propagation (24-48 hours)
-- [ ] Verify domain works
-- [ ] Verify SSL certificate is active (https://)
-
-## 📊 Post-Deployment
-
-### Testing Live Site
-- [ ] Visit live site at your domain
-- [ ] Test all functionality on live site
-- [ ] Test contact form on live site
-- [ ] Test on different devices
-- [ ] Test on different browsers (Chrome, Firefox, Safari, Edge)
-- [ ] Check mobile responsiveness on live site
-
-### SEO & Sharing
-- [ ] Test Open Graph tags (share on social media and check preview)
-- [ ] Submit to Google Search Console
-- [ ] Create sitemap (optional)
-- [ ] Test page load speed (Google PageSpeed Insights)
-
-### Share Your Portfolio
-- [ ] Add portfolio URL to LinkedIn profile
-- [ ] Add portfolio URL to GitHub profile
-- [ ] Add portfolio URL to resume
-- [ ] Share on social media
-- [ ] Update email signature with portfolio link
-
-## 🔄 Maintenance
-
-### Regular Updates
-- [ ] Set reminder to update content quarterly
-- [ ] Add new projects as you complete them
-- [ ] Update work experience when you change jobs
-- [ ] Keep skills section current
-- [ ] Check and fix any broken links
-
-### Monitoring
-- [ ] Set up uptime monitoring (optional)
-- [ ] Check analytics regularly
-- [ ] Review and respond to contact form submissions
-- [ ] Update dependencies: `npm update`
-
-## ✅ Final Check
-
-Before considering your portfolio "done":
-- [ ] All personal information is accurate
-- [ ] All links work (internal and external)
-- [ ] Contact form sends emails successfully
-- [ ] Site is deployed and accessible at your domain
-- [ ] SSL/HTTPS is working
-- [ ] Mobile version looks good
-- [ ] No console errors
-- [ ] Page loads quickly
-- [ ] Content is professional and error-free
-- [ ] You're proud to share it!
-
----
-
-## 📝 Notes Section
-
-Use this space for notes as you work through the checklist:
+## Notes
 
 ```
-Date Started: ___________
+Date started: ___________
 
-Important Notes:
--
--
--
-
-Issues Encountered:
--
+Important notes:
 -
 -
 
-Date Completed: ___________
+Date completed: ___________
 ```
 
 ---
 
-**Congratulations on completing your portfolio!** 🎉
-
-Remember: Your portfolio is never truly "done" - it's a living document that grows with your career. Keep it updated with your latest projects and achievements!
+**Tip:** See **`QUICKSTART.md`** and **`SCREENSHOTS_GUIDE.md`** for paths and asset conventions.
