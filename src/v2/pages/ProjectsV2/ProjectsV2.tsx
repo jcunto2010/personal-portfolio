@@ -4,9 +4,9 @@ import { useLocale } from '../../lib/localeContext'
 import styles from './ProjectsV2.module.css'
 
 /**
- * /projects — V2 projects index page.
+ * /projects — projects index page.
  * Lists all MVP projects with links to individual case studies.
- * Full content migration happens in T-004.
+ * Additional projects and copy pass are tracked in T-004.
  */
 export default function ProjectsV2() {
   const { locale } = useLocale()

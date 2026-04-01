@@ -1,7 +1,7 @@
 /**
- * V2 Skills — migrated from src/data/skills.ts.
- * Icons are NOT imported here to keep this file framework-agnostic.
- * The icon binding lives in the UI layer.
+ * Skills catalog for the editorial home page.
+ * Icons are NOT imported here to keep this file framework-agnostic;
+ * icon binding lives in the UI layer.
  */
 
 export type SkillCategory = 'language' | 'framework' | 'tool'

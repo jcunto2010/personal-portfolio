@@ -12,11 +12,10 @@ import { LocaleProvider } from './lib/localeContext'
 /**
  * AppV2 — root of Portfolio V2.
  *
- * Mounted from index.html → main.v2.tsx (canonical app entry).
+ * V2 is the sole application entry point (mounted from index.html → main.v2.tsx).
  *
- * Uses BrowserRouter with basename='/'. All routes are served from the root.
- * The server must redirect all paths to index.html — already configured in
- * vercel.json and netlify.toml.
+ * BrowserRouter with basename='/'. The server must redirect all paths to
+ * index.html (SPA fallback) — configured in vercel.json and netlify.toml.
  *
  * The `.v2-root` class activates all V2 CSS custom properties defined
  * in tokens/tokens.css.

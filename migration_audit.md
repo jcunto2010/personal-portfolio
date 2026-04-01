@@ -985,3 +985,38 @@ El `README.md` anterior describía el proyecto en inglés, con estructura genér
 - **Mensaje:** `docs: rewrite README.md for V2 single-version setup`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: comentarios V2 sin referencias a V1 ni notas de migración obsoletas
+
+## Contexto
+
+Tras retirar V1 del árbol de fuentes, seguían comentarios en `src/v2/` que hablaban de convivencia con V1, rutas `src/data/*` eliminadas, «Fase 0» de smoke test, o redacción de «migración» que ya no aportaba. El objetivo fue dejar descripciones técnicas del comportamiento actual y conservar marcas `[NV] Phase …` donde siguen siendo trabajo futuro, sin confundirlas con versionado del sitio.
+
+## Modificaciones realizadas
+
+- **`AppV2.tsx`:** bloque de cabecera unificado: único punto de entrada, `BrowserRouter` + `basename '/'`, SPA fallback en `vercel.json` / `netlify.toml`.
+- **`ProjectDetailV2.tsx`:** comentarios de archivo y JSX sin V1; `[NV]` referido a verificación de rutas bajo `public/`.
+- **`projects.v2.ts`, `skills.v2.ts`, `experience.v2.ts`:** cabeceras sin contraste con V1 ni `src/data` inexistente.
+- **`HomeV2.tsx`, `ProjectsV2.tsx`:** texto centrado en composición editorial y tarea T-004, sin «migrated from V1».
+- **`tokens.css`:** alcance `.v2-root` explicado frente al tema Tailwind global, sin «variables V1».
+- **`router/routes.tsx`:** comentario descriptivo de `HomeV2Shell` (sin «Phase 1+»); comprobado que no queda texto «Fase 0 — smoke test…».
+- **`planetRegistry.ts`:** «Fase 0» sustituido por formulación de validación inicial de GLB.
+- **`CameraRig.tsx`, `shotConfig.ts`:** «migration» renombrado a wiring incremental / discrete-shot (no confundir con migración V1→V2).
+- **`SolarScene.tsx`:** línea `[NV] Phase 4` del blackhole alineada con el estado real (loop principal implementado; polish TBD). Resto de `[NV] Phase 4` sin cambio de intención.
+- **`WebGLLayer.tsx`:** revisado; no contiene `[NV] Phase` ni referencias a V1 (sin cambios).
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Búsqueda `V1` en `src/v2/` | Sin coincidencias en comentarios; solo `v1` como variable en shader GLSL (`BlackholeShaderMesh.tsx`). |
+| `npm run build` | Correcto (`tsc && vite build`). |
+| WebGLLayer / `[NV]` | Comentarios futuros revisados en `SolarScene` y `HomeV2Shell`; no referían a V1. |
+
+## Commit
+
+- **Mensaje:** `chore: remove V1-related comments and stale migration notes from V2 code`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).

@@ -1,8 +1,7 @@
 /**
- * V2 Projects — source of truth for Portfolio V2.
+ * Projects — source of truth for the portfolio app.
  *
  * Only MVP projects are listed here (Reservo.AI + StartupConnect).
- * This is intentionally separate from src/data/projects.ts (V1).
  * Additional projects will be added in T-004 after content review.
  */
 

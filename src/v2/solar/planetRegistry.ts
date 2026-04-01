@@ -22,7 +22,7 @@
  * The camera rig will dolly from z=0 (Sun) toward z=-MAX_Z (Blackhole).
  * X / Y offsets add slight lateral variation so bodies don't stack on axis.
  *
- * Scale notes (from Fase 0 smoke test bounding-box data):
+ * Scale notes (from initial GLB smoke-test bounding-box validation):
  *   - All GLBs validated with bounding boxes ~1–3 units; scale multipliers
  *     here are intentional artistic choices, not physical accuracy.
  *   - Moon is smaller than Earth; Sun is the largest.

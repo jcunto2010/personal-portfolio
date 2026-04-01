@@ -1,5 +1,5 @@
 /**
- * V2 Experience — migrated from src/data/experience.ts.
+ * Work experience entries for the editorial home page.
  */
 
 export interface ExperienceV2 {

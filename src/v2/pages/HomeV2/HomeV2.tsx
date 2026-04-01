@@ -1,9 +1,9 @@
 import { ClassicRebuildPage } from '../../components/ClassicRebuild/ClassicRebuildPage'
 
 /**
- * Home V2 — Cosmic Editorial
+ * Home — Cosmic Editorial
  *
- * Real content migrated from legacy V1 sources (see ClassicRebuild / data modules):
+ * Editorial content is composed from ClassicRebuild and data modules:
  *   - Skills: src/v2/data/skills.v2.ts
  *   - Experience: src/v2/data/experience.v2.ts
  *   - Contact: src/v2/components/Contact/Contact.tsx (+ ClassicRebuild footer block)

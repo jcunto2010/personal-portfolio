@@ -12,7 +12,7 @@
  *   3. The Suspense fallback prop must only contain pure Three.js mesh components
  *      (no drei Html, no useThree calls).
  *
- * [NV] Phase 4: full blackhole reset loop.
+ * [NV] Phase 4+: blackhole reset loop — core path shipped; polish / edge cases TBD.
  * [NV] Phase 4: audio controls HUD.
  * [NV] Phase 4: lateral camera drift per planet.
  */

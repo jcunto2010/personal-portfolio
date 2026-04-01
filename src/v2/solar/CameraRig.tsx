@@ -949,7 +949,7 @@ export function CameraRig({
     // ── LEGACY PATH (future planets not yet wired to discrete system) ──────────
     // Unchanged. Only reached when discreteCurrentShotId is something other than
     // 'sun', 'mercury', or 'venus' — which currently never happens since the
-    // discrete system starts at 'sun'. Preserved for future planet migration.
+    // discrete system starts at 'sun'. Preserved for wiring more planets into the discrete-shot path.
 
     void getShotById(_legacyShotId ?? 'sun')  // keep import alive
 

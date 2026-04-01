@@ -6,7 +6,7 @@
  *
  * Scroll ranges match the existing PLANET_REGISTRY focus windows EXACTLY so
  * the CameraRig can continue using planetRegistry data while we incrementally
- * migrate to full shot-based control.
+ * adopt full shot-based control incrementally.
  *
  * Sun shot: ALL values copied verbatim from PLANET_REGISTRY + CameraRig.tsx.
  *   - INTRO_START = [18, 14, 22]  (from CameraRig.tsx)

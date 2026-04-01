@@ -4,16 +4,15 @@ import { useLocale } from '../../lib/localeContext'
 import styles from './ProjectDetailV2.module.css'
 
 /**
- * /projects/:slug — V2 project case-study page.
+ * /projects/:slug — project case-study page.
  *
- * Content migrated from legacy project-section components (removed with V1 tree).
- *   - Reservo.AI / StartupConnect narratives are inlined in this module and data files.
+ * Reservo.AI / StartupConnect narratives are inlined in this module and data files.
  *
  * Case-study narrative content per project is defined inline below as
  * a clean data structure, keeping the presentation layer separate.
  *
- * Note: cover images reference existing V1 assets already in /public.
- * [NV] = asset exists in V1 public folder but not yet confirmed in V2 public.
+ * Cover and inline images use paths under /public.
+ * [NV] = asset path should be double-checked against the deployed public folder.
  */
 
 interface CaseStudySection {
@@ -360,14 +359,14 @@ export default function ProjectDetailV2() {
               </ol>
             </section>
 
-            {/* App Screens — images referenced from existing V1 public assets [NV: confirm paths] */}
+            {/* App Screens — images under /public [NV: confirm paths in deploy] */}
             <section className={styles.section} aria-labelledby="cs-screens-heading">
               <h2 id="cs-screens-heading" className={styles.sectionHeading}>{ui.appScreensHeading}</h2>
               <p className={styles.sectionSubtitle}>{ui.appScreensSubtitle}</p>
               <ul className={styles.screensGrid} aria-label={ui.applicationScreenshotsAria}>
                 {caseStudy.screens.map((screen) => (
                   <li key={screen.name} className={styles.screenItem}>
-                    {/* [NV] Image asset — path from V1 public/assets; confirm copied to V2 public */}
+                    {/* [NV] Image asset — verify path exists under public/ in production */}
                     <div className={styles.screenImageWrap} aria-hidden="true">
                       <div className={styles.screenImagePlaceholder}>
                         <span>{screen.name[0]}</span>
