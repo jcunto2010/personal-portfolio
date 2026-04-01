@@ -49,6 +49,18 @@ export default tseslint.config(
     },
   },
 
+  // Provider + hook in one module, or route config + lazy components — valid pattern; HMR rule is noisy here.
+  {
+    files: [
+      'src/v2/lib/appModeContext.tsx',
+      'src/v2/lib/localeContext.tsx',
+      'src/v2/router/routes.tsx',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
   // Node.js CJS scripts — scripts/ and *.cjs files run in Node, not the browser.
   // Enable Node globals and relax browser-only rules.
   {

@@ -1020,3 +1020,34 @@ Tras retirar V1 del árbol de fuentes, seguían comentarios en `src/v2/` que hab
 - **Mensaje:** `chore: remove V1-related comments and stale migration notes from V2 code`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: verificación final pre-cierre de PR (E2E)
+
+## Contexto
+
+Antes de cerrar el PR de migración V1→V2, se ejecutó la batería acordada: lint sin errores ni warnings, build y contenido de `dist/`, presupuesto T-005, tests unitarios y E2E Playwright (incl. rutas bajo `BrowserRouter`).
+
+## Modificaciones realizadas
+
+- **`eslint.config.js`:** bloque `files` para `appModeContext.tsx`, `localeContext.tsx` y `router/routes.tsx` con `react-refresh/only-export-components: off`, de modo que `npm run eslint .` termina sin warnings (los tres avisos eran falsos positivos por provider + hook o rutas lazy en el mismo módulo).
+
+## Resultados obtenidos
+
+| Paso | Comando / comprobación | Resultado |
+|------|-------------------------|-----------|
+| 1 | `npm run lint` | ✅ Sin errores ni warnings (2026-03-31, clon local). |
+| 2 | `npm run build` | ✅ `tsc && vite build` OK. |
+| 2b | `dist/` | ✅ `dist/index.html` monta `/src/v2/main.v2.tsx` en fuente; build emite entrada única `dist/index.html` (sin `index.v2.html`). Chunks: `v2-*.js`, `vendor-*.js`, `three-bundle-*.js`, `motion-*.js`, lazy chunks V2 (`HomeV2`, `SolarScene`, etc.). Sin chunks con nombre de bundle V1. `dist/draco/` presente (prebuild `copy:draco`). `public/` copiado vía Vite (p. ej. `favicon.svg`, `assets/projects/`, `fonts/`). |
+| 3 | `npm run bundle:check` | ✅ T-005 inicial gzip ~1978 KB &lt; 2400 KB; T-005b sin `three-bundle` en modulepreload. |
+| 4 | `npm run test:unit` | ✅ Vitest sale 0 (no hay archivos `*.test.{ts,tsx}` en `src/`; comportamiento esperado del proyecto). |
+| 5 | `npm run test:e2e` | ✅ 46 passed, 2 skipped (TOC en `v2-mobile-chrome` — omitidos por diseño del spec), ~51 s. Smoke `index.html` + suite `e2e/v2/**`. |
+
+## Commit (cierre de migración)
+
+- **Mensaje (subject):** `chore: complete V1 removal — V2 is now the sole entry point`
+- **Cuerpo (bullets):** eliminación de árbol V1 (`src/components`, `src/data`, etc.), artefactos `index.v2.html` / tutorial / script promote, smoke-test, `HashRouter`→`BrowserRouter`, CI/playwright/lighthouse/README, datos ya en `src/v2/data/`.
+- **Nota:** En la rama auditada, el diff de este commit puede ser solo `eslint.config.js` + esta entrada en `migration_audit.md`; el resto del retiro de V1 puede constar en commits anteriores del mismo PR.
+- **Rama:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
