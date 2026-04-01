@@ -842,3 +842,35 @@ Varios PNG bajo `public/assets/projects/` y `public/og-image.png` sumaban más d
 
 - `SCREENSHOTS_GUIDE.md` puede seguir mostrando ejemplos con `.png`; son ilustrativos, no rutas activas del build actual.
 - Iconos y favicons bajo `public/assets/projects/` (p. ej. `favicon-16x16.png`) no formaron parte de esta conversión.
+
+---
+
+# Auditoría de migración: eliminación de dependencia `reactflow`
+
+## Contexto
+
+El paquete **`reactflow`** (~350 KB minificado) permanecía en `dependencies` tras el retiro de los case studies de V1. No se usaba en el código actual.
+
+## Búsqueda
+
+| Ámbito | Comando / resultado |
+|--------|---------------------|
+| `src/v2/` | `grep` (patrones `reactflow`, `ReactFlow`, `react-flow`) — **sin coincidencias** |
+| `src/` completo | Misma búsqueda — **sin coincidencias** |
+
+## Modificaciones realizadas
+
+- `npm uninstall reactflow` (también eliminó ~55 paquetes transitivos del árbol de dependencias).
+- `package.json` y `package-lock.json` actualizados por npm.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto (`tsc && vite build`). |
+
+## Commit
+
+- **Mensaje:** `chore: remove unused reactflow dependency (saves ~350KB)`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
