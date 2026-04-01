@@ -906,3 +906,28 @@ El paquete **`reactflow`** (~350 KB minificado) permanecía en `dependencies` tr
 - **Mensaje:** `chore: remove default Vite placeholder favicon`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `a323aea`
+
+---
+
+# Auditoría de migración: roadmap de seguridad (CSP `unsafe-eval`)
+
+## Contexto
+
+La CSP actual incluye `'unsafe-eval'` en `script-src` por la compilación en runtime de shaders GLSL (Three.js / R3F). El comentario en `index.html` ya apunta a retirarlo cuando los shaders estén pre-compilados. Esta tarea solo documenta el camino; **no** se modificó código de aplicación ni cabeceras desplegadas.
+
+## Modificaciones realizadas
+
+- Nuevo archivo `docs/security-roadmap.md`: estado pendiente, prioridad alta, motivación técnica, pasos numerados (pre-compilación GLSL, offscreen worker, revisión Three.js 0.170+, eliminación en `index.html`, `netlify.toml`, `vercel.json`, validación Lighthouse) y enlaces de referencia (three.js#23723, web.dev/csp).
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Cambios en CSP / build | Ninguno (solo documentación). |
+| `npm run build` | No requerido para esta tarea; el roadmap no afecta el pipeline. |
+
+## Commit
+
+- **Mensaje:** `docs: add security roadmap for CSP unsafe-eval removal`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
