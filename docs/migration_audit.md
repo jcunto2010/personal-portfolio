@@ -144,7 +144,7 @@ En `[build.environment]`, `NODE_VERSION` pasó de `"18"` a `"24"`.
 
 - **Mensaje:** `chore: unify Node.js version to 24 across all environments`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
-- **Alcance:** 3 archivos — `.github/workflows/deploy.yml` y `netlify.toml` modificados; `migration_audit.md` añadido al repositorio (incluye también las auditorías anteriores de `.tmp_lhci/` y `public/tutorial/`). El hash abreviado del objeto commit puede verse con `git log -1 --oneline` en el clon (puede variar si se usa `git commit --amend`).
+- **Alcance:** 3 archivos — `.github/workflows/deploy.yml` y `netlify.toml` modificados; `migration_audit.md` añadido al repositorio en la raíz (hoy `docs/migration_audit.md`; incluye también las auditorías anteriores de `.tmp_lhci/` y `public/tutorial/`). El hash abreviado del objeto commit puede verse con `git log -1 --oneline` en el clon (puede variar si se usa `git commit --amend`).
 
 ### `.nvmrc`
 
@@ -296,7 +296,7 @@ Sin cambios en `vite.config.ts`: el valor por defecto de Vite **`appType: 'spa'`
 
 - **Mensaje:** `refactor: migrate AppV2 from HashRouter to BrowserRouter`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
-- **Hash abreviado:** obtener con `git log -1 --oneline --grep "BrowserRouter"` (o `git log -1` sobre el commit que introduce esta sección en `migration_audit.md`).
+- **Hash abreviado:** obtener con `git log -1 --oneline --grep "BrowserRouter"` (o `git log -1` sobre el commit que introduce esta sección en `docs/migration_audit.md`).
 
 ## Notas
 
@@ -1050,7 +1050,7 @@ Antes de cerrar el PR de migración V1→V2, se ejecutó la batería acordada: l
 
 - **Mensaje (subject):** `chore: complete V1 removal — V2 is now the sole entry point`
 - **Cuerpo (bullets):** eliminación de árbol V1 (`src/components`, `src/data`, etc.), artefactos `index.v2.html` / tutorial / script promote, smoke-test, `HashRouter`→`BrowserRouter`, CI/playwright/lighthouse/README, datos ya en `src/v2/data/`.
-- **Nota:** En la rama auditada, el diff de este commit puede ser solo `eslint.config.js` + esta entrada en `migration_audit.md`; el resto del retiro de V1 puede constar en commits anteriores del mismo PR.
+- **Nota:** En la rama auditada, el diff de este commit puede ser solo `eslint.config.js` + esta entrada en `docs/migration_audit.md`; el resto del retiro de V1 puede constar en commits anteriores del mismo PR.
 - **Rama:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
 
@@ -1070,3 +1070,15 @@ En `playwright.config.ts`, los proyectos que ejecutan `e2e/smoke.spec.ts` se lla
 ## Commit
 
 - **Mensaje:** `chore: rename Playwright smoke projects to remove v1 label`
+
+---
+
+# Auditoría de migración: ubicación de `migration_audit.md`
+
+## Modificaciones realizadas
+
+- **`migration_audit.md`:** movido de la raíz del repositorio a **`docs/migration_audit.md`**. Las referencias internas al propio documento usan la ruta `docs/migration_audit.md`.
+
+## Commit
+
+- **Mensaje:** `chore: move migration_audit.md to docs/`
