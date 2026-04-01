@@ -874,3 +874,35 @@ El paquete **`reactflow`** (~350 KB minificado) permanecía en `dependencies` tr
 - **Mensaje:** `chore: remove unused reactflow dependency (saves ~350KB)`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: eliminación de `public/vite.svg` (placeholder de Vite)
+
+## Contexto
+
+`public/vite.svg` es el logo SVG que `npm create vite` deja en `public/`. El sitio usa `<link rel="icon" href="/favicon.ico" />` en `index.html`; no había referencias en código ni en assets servidos al mismo nivel que el proyecto.
+
+## Búsqueda
+
+| Ámbito | Comando / resultado |
+|--------|---------------------|
+| `src/`, `public/`, `index.html` | Equivalente a `grep -r "vite.svg" src/ public/ index.html` — **sin coincidencias** (en Windows PowerShell no se dispuso de `grep` en PATH; la verificación se hizo con búsqueda en el repo sobre esas rutas). |
+
+**Nota:** `QUICKSTART.md` y `CUSTOMIZATION_CHECKLIST.md` mencionan sustituir `/vite.svg` o `public/vite.svg` como guía para nuevos proyectos; no son referencias de runtime en el build.
+
+## Modificaciones realizadas
+
+- `git rm public/vite.svg`
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `npm run build` | Correcto (`tsc && vite build`). |
+
+## Commit
+
+- **Mensaje:** `chore: remove default Vite placeholder favicon`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `a323aea`
