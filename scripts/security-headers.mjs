@@ -1,0 +1,20 @@
+export const SECURITY_HEADERS = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "connect-src 'self' blob:",
+    "font-src 'self'",
+    "worker-src 'self' blob:",
+    "frame-src 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; '),
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+}

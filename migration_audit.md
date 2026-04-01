@@ -931,3 +931,30 @@ La CSP actual incluye `'unsafe-eval'` en `script-src` por la compilación en run
 - **Mensaje:** `docs: add security roadmap for CSP unsafe-eval removal`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: `scripts/security-headers.mjs` como referencia única
+
+## Contexto
+
+Las cabeceras de seguridad en producción están duplicadas en `netlify.toml` y `vercel.json`; cualquier cambio exige mantener ambos archivos alineados. Se añade un módulo ESM con el objeto `SECURITY_HEADERS` como **fuente de verdad documentada** (sincronización manual hasta automatizar generación).
+
+## Modificaciones realizadas
+
+- **Nuevo** `scripts/security-headers.mjs`: exporta `SECURITY_HEADERS` (X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, Content-Security-Policy como directivas unidas con `; `, Strict-Transport-Security).
+- **`netlify.toml`:** dos líneas de comentario TOML (`#`) bajo el bloque T-007: sincronía con `scripts/security-headers.mjs` y enlace a `docs/security-roadmap.md` para endurecimiento futuro de CSP.
+- **`vercel.json`:** clave convencional `"//"` (JSON válido; el estándar no admite `//` como comentario de línea) con el mismo texto en dos frases separadas por `\n`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| `vercel.json` | `JSON.parse` correcto (sin comentarios `//` nativos). |
+| `npm run build` | Correcto (`tsc && vite build`). |
+
+## Commit
+
+- **Mensaje:** `docs: add security-headers.mjs as single source of truth reference`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
