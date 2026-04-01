@@ -38,12 +38,12 @@ export default defineConfig({
   projects: [
     // ── Root smoke tests (canonical index.html → V2) ─────────────────────
     {
-      name: 'v1-chromium-desktop',
+      name: 'smoke-chromium-desktop',
       testMatch: 'e2e/smoke.spec.ts',
       use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'v1-mobile-chrome',
+      name: 'smoke-mobile-chrome',
       testMatch: 'e2e/smoke.spec.ts',
       use: { ...devices['Pixel 5'] },
     },

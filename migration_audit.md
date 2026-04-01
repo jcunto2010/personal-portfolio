@@ -226,7 +226,7 @@ Ajustes menores en: `src/v2/AppV2.tsx`, `src/v2/main.v2.tsx`, `src/v2/solar/useG
 |--------|-----------|
 | `npm run build` | Correcto; `dist/index.html` único HTML de salida; sin `dist/index.v2.html`. |
 | `npm run bundle:check` | Correcto (T-005 presupuesto gzip inicial + T-005b sin `three-bundle` en `modulepreload`). |
-| Playwright | Smoke (`e2e/smoke.spec.ts`, proyecto desktop) y prueba representativa de Home V2 (`loads correctly — v2-root`) pasaron en verificación local. |
+| Playwright | Smoke (`e2e/smoke.spec.ts`, proyecto `smoke-chromium-desktop`) y prueba representativa de Home V2 (`loads correctly — v2-root`) pasaron en verificación local. |
 | Nombre del chunk de entrada | `main-*.js` en lugar de `v2-*.js` (consecuencia del `input.main` en Rollup). |
 | Archivos en el commit | **16 archivos** modificados o eliminados (incluye borrado de `index.v2.html` y `scripts/promote-v2-index.mjs`). |
 
@@ -262,6 +262,8 @@ Tras unificar el entry en `index.html` solo para V2, tiene sentido usar **`Brows
 ### 2. `playwright.config.ts`
 
 Los proyectos `v2-chromium-desktop` y `v2-mobile-chrome` **ya tenían** `baseURL: 'http://localhost:5173/?e2e=1'` tras la migración del index canónico; **no fue necesario cambiar** el valor respecto al enunciado de esta tarea (el antiguo `index.v2.html` ya no aplicaba).
+
+Los proyectos de smoke (`e2e/smoke.spec.ts`) se denominan `smoke-chromium-desktop` y `smoke-mobile-chrome` (antes `v1-chromium-desktop` y `v1-mobile-chrome`; el prefijo `v1` era confuso tras apuntar el smoke al índice canónico V2).
 
 ### 3. E2E bajo `e2e/v2/`
 
@@ -1051,3 +1053,20 @@ Antes de cerrar el PR de migración V1→V2, se ejecutó la batería acordada: l
 - **Nota:** En la rama auditada, el diff de este commit puede ser solo `eslint.config.js` + esta entrada en `migration_audit.md`; el resto del retiro de V1 puede constar en commits anteriores del mismo PR.
 - **Rama:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: renombre de proyectos Playwright smoke
+
+## Contexto
+
+En `playwright.config.ts`, los proyectos que ejecutan `e2e/smoke.spec.ts` se llamaban `v1-chromium-desktop` y `v1-mobile-chrome` aunque el smoke ya validaba V2 sobre el índice canónico; el prefijo `v1` en el nombre era engañoso.
+
+## Modificaciones realizadas
+
+- **`playwright.config.ts`:** `v1-chromium-desktop` → **`smoke-chromium-desktop`**; `v1-mobile-chrome` → **`smoke-mobile-chrome`**.
+- **`package.json`:** sin cambios — `test:e2e:suite` sigue filtrando solo los proyectos `v2-chromium-desktop` y `v2-mobile-chrome`.
+
+## Commit
+
+- **Mensaje:** `chore: rename Playwright smoke projects to remove v1 label`
