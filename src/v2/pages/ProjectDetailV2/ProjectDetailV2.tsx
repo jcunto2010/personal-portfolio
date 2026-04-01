@@ -65,10 +65,10 @@ const caseStudiesEn: Record<string, ProjectCaseStudy> = {
       { label: 'Confirmation', description: 'Review details and confirm booking with automated reminders.' },
     ],
     screens: [
-      { name: 'Home', image: '/assets/projects/reservo/home.png' },
-      { name: 'Shop Selection', image: '/assets/projects/reservo/shop.png' },
-      { name: 'Calendar', image: '/assets/projects/reservo/calendar.png' },
-      { name: 'Booking Summary', image: '/assets/projects/reservo/book summary.png' },
+      { name: 'Home', image: '/assets/projects/reservo/home.webp' },
+      { name: 'Shop Selection', image: '/assets/projects/reservo/shop.webp' },
+      { name: 'Calendar', image: '/assets/projects/reservo/calendar.webp' },
+      { name: 'Booking Summary', image: '/assets/projects/reservo/book summary.webp' },
     ],
   },
   'startupconnect': {
@@ -97,10 +97,10 @@ const caseStudiesEn: Record<string, ProjectCaseStudy> = {
       { label: 'Ecosystem Growth', description: 'Manage connections, update profiles, and grow your network.' },
     ],
     screens: [
-      { name: 'Login', image: '/assets/projects/startupconnect/login.png' },
-      { name: 'Feed', image: '/assets/projects/startupconnect/feed.png' },
-      { name: 'Matching', image: '/assets/projects/startupconnect/matching.png' },
-      { name: 'Community Rooms', image: '/assets/projects/startupconnect/community rooms.png' },
+      { name: 'Login', image: '/assets/projects/startupconnect/login.webp' },
+      { name: 'Feed', image: '/assets/projects/startupconnect/feed.webp' },
+      { name: 'Matching', image: '/assets/projects/startupconnect/matching.webp' },
+      { name: 'Community Rooms', image: '/assets/projects/startupconnect/community rooms.webp' },
     ],
   },
 }
@@ -132,10 +132,10 @@ const caseStudiesEs: Record<string, ProjectCaseStudy> = {
       { label: 'Confirmación', description: 'Revisa los detalles y confirma la reserva con recordatorios automatizados.' },
     ],
     screens: [
-      { name: 'Home', image: '/assets/projects/reservo/home.png' },
-      { name: 'Selección de tiendas', image: '/assets/projects/reservo/shop.png' },
-      { name: 'Calendario', image: '/assets/projects/reservo/calendar.png' },
-      { name: 'Resumen de reserva', image: '/assets/projects/reservo/book summary.png' },
+      { name: 'Home', image: '/assets/projects/reservo/home.webp' },
+      { name: 'Selección de tiendas', image: '/assets/projects/reservo/shop.webp' },
+      { name: 'Calendario', image: '/assets/projects/reservo/calendar.webp' },
+      { name: 'Resumen de reserva', image: '/assets/projects/reservo/book summary.webp' },
     ],
   },
   'startupconnect': {
@@ -164,10 +164,10 @@ const caseStudiesEs: Record<string, ProjectCaseStudy> = {
       { label: 'Crecimiento del ecosistema', description: 'Gestiona conexiones, actualiza perfiles y haz crecer tu red.' },
     ],
     screens: [
-      { name: 'Inicio de sesión', image: '/assets/projects/startupconnect/login.png' },
-      { name: 'Feed', image: '/assets/projects/startupconnect/feed.png' },
-      { name: 'Matching', image: '/assets/projects/startupconnect/matching.png' },
-      { name: 'Salas de la comunidad', image: '/assets/projects/startupconnect/community rooms.png' },
+      { name: 'Inicio de sesión', image: '/assets/projects/startupconnect/login.webp' },
+      { name: 'Feed', image: '/assets/projects/startupconnect/feed.webp' },
+      { name: 'Matching', image: '/assets/projects/startupconnect/matching.webp' },
+      { name: 'Salas de la comunidad', image: '/assets/projects/startupconnect/community rooms.webp' },
     ],
   },
 }

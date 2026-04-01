@@ -207,7 +207,7 @@ export function ClassicRebuildPage() {
           mainText={ui.heroMainText}
           ctaPrimary={{ label: ui.ctaWork, onClick: () => scrollToSection('chapter-reservo') }}
           ctaSecondary={{ label: ui.ctaContact, onClick: () => scrollToSection('chapter-contact') }}
-          imageSrc="/assets/projects/johnny_hero.png"
+          imageSrc="/assets/projects/johnny_hero.webp"
           imageAlt="Jonathan hero portrait"
           socialLinks={[
             { icon: Github, href: contactV2.github, label: 'GitHub' },

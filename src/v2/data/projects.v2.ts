@@ -35,7 +35,7 @@ export const projectsV2: ProjectV2[] = [
     tagline: 'AI-powered appointment booking platform with conversational interface.',
     description:
       'A multiplatform Flutter application designed to simplify appointment booking flows for service businesses. Powered by Google Gemini, it enables conversational scheduling, contextual suggestions, and personalized reminders. The product includes real-time AI chat, biometric authentication, push notifications, and a polished onboarding built with Rive and Lottie.',
-    coverImage: '/assets/projects/reservo/main screen.png',
+    coverImage: '/assets/projects/reservo/main screen.webp',
     technologies: [
       'Flutter',
       'Dart',
@@ -67,9 +67,9 @@ export const projectsV2: ProjectV2[] = [
       'Flujo de reserva unificado con validación de horarios',
     ],
     thumbnails: [
-      { src: '/assets/projects/reservo/home.png', alt: 'Reservo.AI — pantalla Home' },
-      { src: '/assets/projects/reservo/calendar.png', alt: 'Reservo.AI — vista calendario' },
-      { src: '/assets/projects/reservo/shop.png', alt: 'Reservo.AI — selección de tiendas' },
+      { src: '/assets/projects/reservo/home.webp', alt: 'Reservo.AI — pantalla Home' },
+      { src: '/assets/projects/reservo/calendar.webp', alt: 'Reservo.AI — vista calendario' },
+      { src: '/assets/projects/reservo/shop.webp', alt: 'Reservo.AI — selección de tiendas' },
     ],
     codeSnippetEn:
       `const steps = [
@@ -100,7 +100,7 @@ export const projectsV2: ProjectV2[] = [
     tagline: 'LinkedIn meets Tinder — a social network for the startup ecosystem.',
     description:
       'A professional networking platform combining LinkedIn-style networking with swipe-based discovery to create relevant connections between founders, investors, and mentors. It includes a social feed, public/private communities, real-time messaging, and a guided onboarding that improves profile quality and matching accuracy.',
-    coverImage: '/assets/projects/startupconnect/feed.png',
+    coverImage: '/assets/projects/startupconnect/feed.webp',
     technologies: [
       'React',
       'TypeScript',
@@ -131,9 +131,9 @@ export const projectsV2: ProjectV2[] = [
       'Onboarding progresivo para mejorar calidad de perfiles',
     ],
     thumbnails: [
-      { src: '/assets/projects/startupconnect/login.png', alt: 'StartupConnect — inicio de sesión' },
-      { src: '/assets/projects/startupconnect/feed.png', alt: 'StartupConnect — feed de la comunidad' },
-      { src: '/assets/projects/startupconnect/matching.png', alt: 'StartupConnect — pantalla de matching' },
+      { src: '/assets/projects/startupconnect/login.webp', alt: 'StartupConnect — inicio de sesión' },
+      { src: '/assets/projects/startupconnect/feed.webp', alt: 'StartupConnect — feed de la comunidad' },
+      { src: '/assets/projects/startupconnect/matching.webp', alt: 'StartupConnect — pantalla de matching' },
     ],
     codeSnippetEn:
       `const steps = [

@@ -797,3 +797,48 @@ El archivo `public/assets/audio/shona-theme.mp3` (~12,8 MB) infla el repositorio
 - **Cuerpo (nota):** el MP3 en `public/` no se elimina en este commit; retirarlo del historial/versionado cuando la URL del CDN esté operativa.
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: imágenes de proyecto en WebP
+
+## Contexto
+
+Varios PNG bajo `public/assets/projects/` y `public/og-image.png` sumaban más de ~3 MB de peso descargable en el primer render. Se convirtieron los assets de proyecto a **WebP** (calidad **82**) con **`npx sharp-cli`**, se actualizaron las referencias en código y se retiraron del índice los PNG sustituidos, **excepto** `public/og-image.png`, reservado para `og:image` y `twitter:image` en `index.html` (compatibilidad con crawlers).
+
+## Herramienta
+
+- `npx sharp-cli -i <entrada.png> -o <directorio> -f webp -q 82` por cada archivo.
+- No se versionó `og-image.webp`: la vista previa social sigue usando solo `og-image.png`; el WebP generado se eliminó para no duplicar el asset.
+
+## Archivos convertidos y referencias actualizadas
+
+| Ámbito | Archivos / cambios |
+|--------|---------------------|
+| Hero | `johnny_hero.webp` ← `ClassicRebuildPage.tsx` |
+| Tutorial solar | `sun-no-card.webp`, `sun-with-card.webp`, `mercury-card.webp` ← `OnboardingTutorial.tsx` |
+| Datos de proyectos | `projects.v2.ts` — `coverImage`, `thumbnails` (Reservo + StartupConnect) |
+| Detalle de proyecto | `ProjectDetailV2.tsx` — galerías EN/ES |
+| Reservo (5) | `book summary`, `calendar`, `home`, `main screen`, `shop` |
+| StartupConnect (7) | `chats`, `community rooms`, `create post`, `dashboard`, `feed`, `login`, `matching` |
+
+`index.html`: sin cambios en URLs absolutas a `https://www.jonathancuntodiaz.com/og-image.png`.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| PNG eliminados del tree (git rm) | 16 archivos bajo `assets/projects/` (no `og-image.png`). |
+| WebP añadidos | 16 archivos; tamaño agregado aproximado **~0,54 MB** (medido en el clon). |
+| `npm run build` | Correcto (`tsc && vite build`). |
+
+## Commit
+
+- **Mensaje:** `perf: convert project images to WebP format`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+## Notas
+
+- `SCREENSHOTS_GUIDE.md` puede seguir mostrando ejemplos con `.png`; son ilustrativos, no rutas activas del build actual.
+- Iconos y favicons bajo `public/assets/projects/` (p. ej. `favicon-16x16.png`) no formaron parte de esta conversión.
