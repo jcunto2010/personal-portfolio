@@ -958,3 +958,30 @@ Las cabeceras de seguridad en producción están duplicadas en `netlify.toml` y 
 - **Mensaje:** `docs: add security-headers.mjs as single source of truth reference`
 - **Rama al momento de la auditoría:** `v2/cosmic-editorial`
 - **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
+
+---
+
+# Auditoría de migración: README para setup de V2 como única versión
+
+## Contexto
+
+El `README.md` anterior describía el proyecto en inglés, con estructura genérica bajo `src/components` y menciones a V1 (p. ej. tag `v1.0.0`) y al montaje en `main.v2.tsx` como convivencia de versiones. Con V2 como única versión activa, la documentación debía reflejar modos inmersivo/editorial, stack real, scripts de `package.json`, deploy y CI sin narrar un paralelismo V1/V2.
+
+## Modificaciones realizadas
+
+- **README.md:** título en español «Jonathan Cunto Díaz — Portfolio V2»; intro con modo inmersivo (R3F / WebGL progresivo) y modo editorial (CSS / Framer Motion); sección de stack (React 19, Vite 7, TypeScript, Three.js 0.183, Lenis, CSS Modules, Tailwind 3, React Router v7); comandos documentados (`npm install`, `dev`, `build`, `test:unit`, `test:e2e`, `bundle:check`, `lhci`); deploy Vercel / Netlify y referencia a `.github/workflows/ci.yml`; árbol `src/v2/` con `components`, `data`, `hooks`, `lib`, `pages`, `solar`, `tokens`, `router`; bloques breves de requisitos (Node/npm), entrada `index.html` → `src/v2/main.v2.tsx`, convenciones y licencia.
+- Eliminado del README: flujo detallado de GitHub Pages como opción principal, tabla de personalización apuntando a rutas V1 (`src/components/Hero.tsx`, etc.) y texto que enmarcaba V1 como línea legada en el mismo árbol de fuentes.
+
+## Resultados obtenidos
+
+| Aspecto | Resultado |
+|--------|-----------|
+| Alineación con el repo | Scripts y versiones coinciden con `package.json` (p. ej. `three` ^0.183.2, `vite` ^7.x, `react-router-dom` ^7.x). |
+| Estructura | El árbol documentado coincide con carpetas bajo `src/v2/` (incl. `hooks/`). |
+| CI | Referencia a `ci.yml` verificada: existe en `.github/workflows/`. |
+
+## Commit
+
+- **Mensaje:** `docs: rewrite README.md for V2 single-version setup`
+- **Rama al momento de la auditoría:** `v2/cosmic-editorial`
+- **Hash abreviado:** `git log -1 --oneline` tras el commit en el clon (mensaje arriba).
