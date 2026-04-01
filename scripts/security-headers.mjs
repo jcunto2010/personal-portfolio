@@ -9,6 +9,7 @@ export const SECURITY_HEADERS = {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "connect-src 'self' blob:",
+    "media-src 'self' https://*.r2.dev",
     "font-src 'self'",
     "worker-src 'self' blob:",
     "frame-src 'none'",
