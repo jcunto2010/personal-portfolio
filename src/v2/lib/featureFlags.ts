@@ -25,7 +25,7 @@ function queryFlag(key: string, fallback: boolean): boolean {
 export const featureFlags = {
   enableWebGL:  queryFlag('webgl', true), // T-003: WebGL on by default; ?webgl=0 disables
   enablePWA:    false,
-  enableGA4:    false,
+  enableGA4:    true,
   enableSentry: false,
 } as const
 

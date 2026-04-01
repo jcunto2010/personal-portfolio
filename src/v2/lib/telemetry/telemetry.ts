@@ -57,16 +57,14 @@ export async function initTelemetry(): Promise<TelemetryHandles> {
   }
 
   // ── GA4 ──────────────────────────────────────────────────────────────────
-  // Bloqueado por flag. Descomentar y sustituir stub cuando se active.
-  //
-  // if (featureFlags.enableGA4 && consent.analytics) {
-  //   const measurementId = import.meta.env.VITE_GA4_MEASUREMENT_ID
-  //   if (measurementId) {
-  //     const { loadGA4 } = await import('./ga4')
-  //     _handles.analytics = await loadGA4(measurementId)
-  //     status.ga4Loaded = true
-  //   }
-  // }
+  if (featureFlags.enableGA4 && consent.analytics) {
+    const measurementId = import.meta.env.VITE_GA4_MEASUREMENT_ID
+    if (measurementId) {
+      const { loadGA4 } = await import('./ga4')
+      _handles.analytics = await loadGA4(measurementId)
+      status.ga4Loaded = true
+    }
+  }
   void featureFlags.enableGA4  // referencia para evitar tree-shaking del flag
 
   // ── Sentry ───────────────────────────────────────────────────────────────

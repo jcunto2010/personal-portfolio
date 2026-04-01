@@ -5,10 +5,10 @@ export const SECURITY_HEADERS = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://www.googletagmanager.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
-    "connect-src 'self' blob:",
+    "img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com",
+    "connect-src 'self' blob: https://www.google-analytics.com https://www.googletagmanager.com",
     "media-src 'self' https://*.r2.dev",
     "font-src 'self'",
     "worker-src 'self' blob:",
