@@ -25,7 +25,7 @@ export interface ConsentState {
 }
 
 export const DEFAULT_CONSENT: ConsentState = {
-  analytics: false,
+  analytics: true,
   errorTracking: false,
   decidedAt: null,
   hasDecided: false,

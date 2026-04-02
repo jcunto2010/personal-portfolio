@@ -1,16 +1,9 @@
 /**
  * T-008 — Telemetry Orchestrator
  *
- * ESTADO ACTUAL: COMPLETAMENTE INACTIVO.
- * Este módulo coordina el ciclo de vida de la observabilidad:
- *   1. Lee los feature flags.
- *   2. Verifica el consentimiento del usuario.
- *   3. Solo si ambos están habilitados, carga el proveedor real.
- *
- * En esta fase: featureFlags.enableGA4 = false, featureFlags.enableSentry = false.
- * initTelemetry() retorna inmediatamente con los stubs sin hacer nada.
- *
- * No se llama a loadGA4() ni a loadSentry(). Cero tráfico a terceros.
+ * GA4: si `enableGA4` y `VITE_GA4_MEASUREMENT_ID`, se carga sin comprobar consentimiento
+ * (portafolio personal; consentimiento implícito).
+ * Sentry sigue desactivado hasta activar flag + consentimiento explícito cuando exista UI.
  */
 
 import { featureFlags } from '../featureFlags'
@@ -35,19 +28,7 @@ let _handles: TelemetryHandles = {
   status: { ga4Loaded: false, sentryLoaded: false, consentGiven: false },
 }
 
-/**
- * Inicializa la capa de telemetría.
- *
- * ACTUALMENTE: retorna stubs inmediatamente porque los flags están en false.
- *
- * Para activar en el futuro:
- *   1. Setear featureFlags.enableGA4 = true y/o featureFlags.enableSentry = true.
- *   2. Asegurarse de que el usuario haya otorgado consentimiento (setConsent).
- *   3. Descomentar las llamadas a loadGA4() / loadSentry() en este módulo.
- *   4. Proporcionar VITE_GA4_MEASUREMENT_ID y/o VITE_SENTRY_DSN como env vars.
- *
- * Ver docs/t008-observability-activation.md.
- */
+/** Inicializa la capa de telemetría (GA4 según flags/env; Sentry según doc T-008). */
 export async function initTelemetry(): Promise<TelemetryHandles> {
   const consent = getConsent()
   const status: TelemetryStatus = {
@@ -56,8 +37,8 @@ export async function initTelemetry(): Promise<TelemetryHandles> {
     consentGiven: consent.hasDecided && (consent.analytics || consent.errorTracking),
   }
 
-  // ── GA4 ──────────────────────────────────────────────────────────────────
-  if (featureFlags.enableGA4 && consent.analytics) {
+  // ── GA4 (sin gate de consentimiento en portafolio personal) ───────────────
+  if (featureFlags.enableGA4) {
     const measurementId = import.meta.env.VITE_GA4_MEASUREMENT_ID
     if (measurementId) {
       const { loadGA4 } = await import('./ga4')
