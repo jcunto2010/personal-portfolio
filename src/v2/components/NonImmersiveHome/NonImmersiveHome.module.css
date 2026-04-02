@@ -10,37 +10,19 @@
   width: 100%;
 }
 
-/* Mode switcher pill — bottom-right corner */
-.modeSwitcher {
+/* Top-left HUD — aligned with immersive SolarScene controls */
+.hudStack {
   position: fixed;
-  bottom: var(--v2-space-6);
-  right: var(--v2-space-6);
+  top: 1.25rem;
+  left: 1.25rem;
   z-index: 100;
   display: flex;
-  align-items: center;
-  gap: var(--v2-space-2);
-  padding: var(--v2-space-2) var(--v2-space-4);
-  border-radius: 999px;
-  border: 1px solid var(--v2-color-border-soft);
-  background: rgba(13, 19, 38, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  cursor: pointer;
-  font-family: var(--v2-font-body);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--v2-color-muted-text);
-  letter-spacing: 0.06em;
-  transition: all 0.2s ease;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  pointer-events: none;
 }
 
-.modeSwitcher:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  color: var(--v2-color-base-text);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .modeSwitcher {
-    transition: none !important;
-  }
+.hudStack > * {
+  pointer-events: auto;
 }

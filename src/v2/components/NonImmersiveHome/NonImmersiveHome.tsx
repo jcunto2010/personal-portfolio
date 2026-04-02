@@ -5,19 +5,13 @@
  * Classic (non-immersive) mode.
  *
  * Currently it is a thin pass-through wrapper around the existing HomeV2
- * content. In future phases this component may include:
- *   - Reduced-motion variants of chapter transitions
- *   - A simplified ambient background (CSS-only, no WebGL)
- *   - Mode-switch affordance (persistent floating pill)
- *
- * The onSwitchMode prop wires the mode-switch pill to the parent
- * HomeV2 state, allowing the user to jump back to the Entry Gate
- * or directly to immersive mode without reloading.
- *
- * [NV] Phase 2: replace placeholder pill with a persistent HUD that
- *       includes audio controls and mode toggle.
+ * content. Adds a top-left HUD (aligned with immersive) to return to the
+ * Entry Gate via onSwitchMode.
  */
 
+import { ArrowLeft } from 'lucide-react'
+import { useLocale } from '../../lib/localeContext'
+import { ExpandOnHoverIconButton } from '../ui/ExpandOnHoverIconButton'
 import styles from './NonImmersiveHome.module.css'
 
 interface NonImmersiveHomeProps {
@@ -26,21 +20,23 @@ interface NonImmersiveHomeProps {
 }
 
 export function NonImmersiveHome({ onSwitchMode, children }: NonImmersiveHomeProps) {
+  const { locale } = useLocale()
+  const menuLabel =
+    locale === 'es' ? 'Regresar a menú principal' : 'Return to main menu'
+
   return (
     <div className={styles.root}>
       {children}
 
-      {/* Mode-switch pill — lets user re-open the Entry Gate */}
-      <button
-        type="button"
-        className={styles.modeSwitcher}
-        onClick={onSwitchMode}
-        aria-label="Switch experience mode"
-        title="Switch to immersive mode or change preferences"
-      >
-        <span aria-hidden="true">⚙</span>
-        Switch mode
-      </button>
+      <div className={styles.hudStack}>
+        <ExpandOnHoverIconButton
+          variant="classic"
+          label={menuLabel}
+          ariaLabel={menuLabel}
+          icon={<ArrowLeft strokeWidth={2} />}
+          onClick={onSwitchMode}
+        />
+      </div>
     </div>
   )
 }

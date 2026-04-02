@@ -38,7 +38,9 @@ import { DebugHUD } from './DebugHUD'
 import { BlackholeCinematicOverlay } from './BlackholeCinematicOverlay'
 import { WarpStarfield } from './WarpStarfield'
 import { BlackholeShaderMesh } from './BlackholeShaderMesh'
+import { ArrowLeft, Volume2, VolumeX } from 'lucide-react'
 import type { AudioDiagnostics } from '../lib/useAudioShell'
+import { ExpandOnHoverIconButton } from '../components/ui/ExpandOnHoverIconButton'
 import styles from './SolarScene.module.css'
 import { useLocale } from '../lib/localeContext'
 import { useAppMode } from '../lib/appModeContext'
@@ -475,6 +477,8 @@ export interface SolarSceneProps {
   audioDiagnostics?: AudioDiagnostics
   /** Called when initial GLBs are loaded and the journey is ready. Used by shell to hide loading overlay. */
   onReady?: () => void
+  /** Wired to AppMode `audioEnabled` from the shell (immersive HUD mute toggle). */
+  onSetAudioEnabled?: (enabled: boolean) => void
 }
 
 const DEFAULT_AUDIO_DIAG: AudioDiagnostics = {
@@ -494,7 +498,10 @@ export function SolarScene({
   audioEnabled = false,
   audioDiagnostics = DEFAULT_AUDIO_DIAG,
   onReady,
+  onSetAudioEnabled,
 }: SolarSceneProps) {
+  const { locale } = useLocale()
+
   const [webglAvailable] = useState<boolean>(() => {
     try {
       const canvas = document.createElement('canvas')
@@ -513,6 +520,8 @@ export function SolarScene({
   }, [webglAvailable, onReady])
 
   if (!webglAvailable) {
+    const menuLabel =
+      locale === 'es' ? 'Regresar a menú principal' : 'Return to main menu'
     return (
       <div className={styles.solarSceneRoot} style={{ display: 'grid', placeItems: 'center', background: '#030712' }}>
         <div style={{ textAlign: 'center', color: '#e2e8f0', fontFamily: 'monospace', padding: '2rem' }}>
@@ -520,21 +529,15 @@ export function SolarScene({
           <p style={{ margin: '0.75rem 0 1.5rem', opacity: 0.75, fontSize: '0.85rem' }}>
             Cambia a modo clásico o revisa la aceleración por hardware.
           </p>
-          <button
-            type="button"
-            onClick={onSwitchMode}
-            style={{
-              padding: '0.55rem 1.2rem',
-              borderRadius: '999px',
-              border: '1px solid rgba(226,232,240,0.35)',
-              background: 'rgba(255,255,255,0.08)',
-              color: '#e2e8f0',
-              cursor: 'pointer',
-              fontFamily: 'monospace',
-            }}
-          >
-            ← Volver al selector de modo
-          </button>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <ExpandOnHoverIconButton
+              variant="immersive"
+              label={menuLabel}
+              ariaLabel={menuLabel}
+              icon={<ArrowLeft strokeWidth={2} />}
+              onClick={onSwitchMode}
+            />
+          </div>
         </div>
       </div>
     )
@@ -548,6 +551,7 @@ export function SolarScene({
       audioEnabled={audioEnabled}
       audioDiagnostics={audioDiagnostics}
       onReady={onReady}
+      onSetAudioEnabled={onSetAudioEnabled}
     />
   )
 }
@@ -559,8 +563,28 @@ function SolarSceneWebGL({
   audioEnabled = false,
   audioDiagnostics = DEFAULT_AUDIO_DIAG,
   onReady,
+  onSetAudioEnabled,
 }: SolarSceneProps) {
   const { locale } = useLocale()
+
+  const menuLabel =
+    locale === 'es' ? 'Regresar a menú principal' : 'Return to main menu'
+  const muteLabel =
+    audioEnabled
+      ? locale === 'es'
+        ? 'Silenciar'
+        : 'Mute'
+      : locale === 'es'
+        ? 'Activar sonido'
+        : 'Unmute'
+  const muteAria =
+    audioEnabled
+      ? locale === 'es'
+        ? 'Silenciar sonido'
+        : 'Mute sound'
+      : locale === 'es'
+        ? 'Activar sonido'
+        : 'Unmute sound'
 
   const immersiveScrollRegionLabel = useMemo(
     () =>
@@ -1629,15 +1653,31 @@ function SolarSceneWebGL({
         </div>
       )}
 
-      {/* DOM overlays */}
-      <button
-        type="button"
-        className={styles.switchModeBtn}
-        onClick={onSwitchMode}
-        aria-label="Switch to Classic mode"
-      >
-        ← Classic mode
-      </button>
+      {/* DOM overlays — top-left HUD (menu + audio) */}
+      <div className={styles.hudStack}>
+        <ExpandOnHoverIconButton
+          variant="immersive"
+          label={menuLabel}
+          ariaLabel={menuLabel}
+          icon={<ArrowLeft strokeWidth={2} />}
+          onClick={onSwitchMode}
+        />
+        {onSetAudioEnabled && (
+          <ExpandOnHoverIconButton
+            variant="immersive"
+            label={muteLabel}
+            ariaLabel={muteAria}
+            icon={
+              audioEnabled ? (
+                <Volume2 strokeWidth={2} />
+              ) : (
+                <VolumeX strokeWidth={2} />
+              )
+            }
+            onClick={() => onSetAudioEnabled(!audioEnabled)}
+          />
+        )}
+      </div>
 
       <div
         className={styles.progressBar}
@@ -1667,7 +1707,7 @@ function SolarSceneWebGL({
       {IS_DEBUG && (
         <div style={{
           position: 'absolute',
-          top: '4.75rem',
+          top: '8.5rem',
           left: '1.25rem',
           zIndex: 1000,
           background: 'rgba(0,0,0,0.7)',

@@ -401,6 +401,7 @@ function HomeV2Inner() {
                 audioEnabled={audioEnabled}
                 audioDiagnostics={audio.diagnostics}
                 onReady={() => setImmersiveSceneReady(true)}
+                onSetAudioEnabled={setAudioEnabled}
               />
             </Suspense>
           </ImmersiveErrorBoundary>
