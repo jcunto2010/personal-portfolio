@@ -3,6 +3,7 @@ import { Github, Instagram, Linkedin, Twitter } from 'lucide-react'
 import type { IconType } from 'react-icons'
 import * as SiIcons from 'react-icons/si'
 import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
+import { ClassicFocus } from '../ClassicFocus/ClassicFocus'
 import { ClassicHero } from '../ClassicHero/ClassicHero'
 import { ClassicTimeline } from '../ClassicTimeline/ClassicTimeline'
 import NeuralBackground from '../NeuralBackground'
@@ -88,35 +89,35 @@ export function ClassicRebuildPage() {
     subtitle: isEs ? 'Frontend Developer' : 'Frontend Developer',
     intro:
       isEs
-        ? 'Creo aplicaciones y experiencias digitales enfocadas en claridad, rendimiento y resultado de negocio.'
-        : 'I build digital products focused on clarity, performance, and business outcomes.',
+        ? 'Ingeniero con background en producto y datos que cruzó al desarrollo de software — y construyó el puente completo.'
+        : 'Engineer with a product and data background who crossed into software development — and built the whole bridge.',
     aboutTitle: isEs ? 'Acerca de' : 'About',
     about1:
       isEs
-        ? 'Soy un desarrollador frontend y mobile con enfoque en producto. Me involucro desde la definición hasta la entrega para que cada funcionalidad sea útil, medible y mantenible.'
-        : 'I am a frontend and mobile developer with a product mindset. I stay involved from definition to delivery so every feature is useful, measurable, and maintainable.',
+        ? 'Soy Ingeniero Industrial reconvertido en desarrollador de software. Pasé años trabajando en producto, datos y automatización antes de escribir mi primera línea de Flutter — y esa trayectoria cambió cómo construyo: entiendo el negocio, el dato y el código al mismo tiempo.'
+        : 'I am an Industrial Engineer turned software developer. I spent years working in product, data, and automation before writing my first line of Flutter — and that path changed how I build: I understand the business, the data, and the code at the same time.',
     about2:
       isEs
-        ? 'Actualmente lidero el desarrollo de Reservo.AI y colaboro en productos donde la velocidad de ejecución y la calidad visual son igual de importantes.'
-        : 'I currently lead development for Reservo.AI and collaborate on products where execution speed and visual quality are equally important.',
+        ? 'Construí Reservo.AI completamente desde cero — aprendiendo Flutter en el proceso — integrando IA con Google Gemini, autenticación biométrica y un backend en Firebase. Ese proyecto fue mi escuela acelerada de desarrollo móvil real.'
+        : 'I built Reservo.AI entirely from scratch — learning Flutter along the way — integrating AI with Google Gemini, biometric authentication, and a Firebase backend. That project was my accelerated school in real mobile development.',
     about3:
       isEs
-        ? 'Mi trabajo conecta diseño, ingeniería y producto para que cada lanzamiento sea consistente, rápido y fácil de evolucionar.'
-        : 'My work connects design, engineering, and product so every release is consistent, fast, and easy to evolve.',
+        ? 'También diseño en Figma, automaticé pipelines ETL en Python con impacto medible y lideré equipos técnicos. El desarrollo de software es mi dirección, pero llego con contexto que la mayoría de devs no tiene.'
+        : 'I also design in Figma, automated ETL pipelines in Python with measurable impact, and led technical teams. Software development is my direction, but I arrive with context most devs don\'t have.',
     aboutHighlights: isEs
       ? [
-          '4+ años construyendo productos web y mobile.',
-          'Experiencia en arquitectura frontend escalable.',
-          'Enfoque fuerte en performance, DX y mantenibilidad.',
-          'Colaboración directa con diseño, negocio y stakeholders.',
-          'Entrega end-to-end: discovery, build, QA y release.',
+          'Ing. Industrial + desarrollador de software: negocio, datos y código en uno.',
+          'Automaticé pipelines ETL en Python con -80% de carga operativa.',
+          'Construí Reservo.AI desde cero: Flutter, Gemini AI, Firebase, Rive.',
+          'Experiencia real como Product Owner y Business Analyst en empresas.',
+          'Diseño en Figma, gestión Agile/Scrum y despliegues en producción.',
         ]
       : [
-          '4+ years building web and mobile products.',
-          'Experience designing scalable frontend architecture.',
-          'Strong focus on performance, DX, and maintainability.',
-          'Direct collaboration with design, business, and stakeholders.',
-          'End-to-end delivery: discovery, build, QA, and release.',
+          'Industrial Engineer + software developer: business, data, and code in one.',
+          'Automated ETL pipelines in Python, cutting operational load by 80%.',
+          'Built Reservo.AI from scratch: Flutter, Gemini AI, Firebase, Rive.',
+          'Real experience as Product Owner and Business Analyst at companies.',
+          'Figma design, Agile/Scrum management, and production deployments.',
         ],
     skillsTitle: isEs ? 'Skills' : 'Skills',
     experienceTitle: isEs ? 'Experiencia' : 'Experience',
@@ -125,8 +126,8 @@ export function ClassicRebuildPage() {
     github: isEs ? 'Código en GitHub' : 'Source on GitHub',
     heroMainText:
       isEs
-        ? 'Desarrollo experiencias web y mobile con enfoque en producto, performance y diseño. Trabajo de extremo a extremo: desde arquitectura frontend hasta entrega en producción.'
-        : 'I build web and mobile experiences with a product, performance, and design mindset. I work end-to-end, from frontend architecture to production delivery.',
+        ? 'Ingeniero Industrial reconvertido en desarrollador de software. Entiendo los productos desde el negocio, los datos y el código — y construyo los tres. Actualmente enfocado en frontend moderno y apps mobile con IA.'
+        : 'Industrial Engineer turned software developer. I understand products from the business, data, and code sides — and I build all three. Currently focused on modern frontend and AI-powered mobile apps.',
     // E2E suite asserts the single h1 contains "Jonathan".
     heroHeading: isEs ? 'Jonathan Cunto Díaz' : 'Jonathan Cunto Díaz',
     ctaWork: isEs ? 'View my work' : 'View my work',
@@ -228,6 +229,10 @@ export function ClassicRebuildPage() {
         ctaSecondary={{ label: ui.aboutCtaContact, onClick: () => scrollToSection('chapter-contact') }}
       />
 
+      <section id="classic-focus">
+        <ClassicFocus locale={locale} />
+      </section>
+
       <section className={styles.section} id="classic-skills">
         <h2>{ui.skillsTitle}</h2>
         <div className={styles.skillsSliders}>
@@ -265,7 +270,11 @@ export function ClassicRebuildPage() {
       <section className={styles.section} id="chapter-notes">
         <ClassicTimeline
           heading={ui.experienceTitle}
-          intro={isEs ? 'Roles y aprendizajes a lo largo del tiempo.' : 'Roles and learnings over time.'}
+          intro={
+            isEs
+              ? 'De Ingeniería Industrial al desarrollo de software — pasando por producto, datos y automatización.'
+              : 'From Industrial Engineering to software development — through product, data, and automation.'
+          }
           entries={experienceV2.map((exp) => ({
             title: exp.role,
             subtitle: `${exp.period} \u00b7 ${exp.company}`,
