@@ -1104,8 +1104,10 @@ function SolarSceneWebGL({
     }
 
     if (cameraPhase !== 'blackhole-hold') {
-      window.requestAnimationFrame(() => setBlackholePanelVisible(false))
-      setBlackholeRumbleActive(false)
+      window.requestAnimationFrame(() => {
+        setBlackholePanelVisible(false)
+        setBlackholeRumbleActive(false)
+      })
       return
     }
 
@@ -1134,9 +1136,12 @@ function SolarSceneWebGL({
       return
     }
 
-    // Trigger camera rumble
-    setBlackholeRumbleActive(true)
-    const rumbleOff = window.setTimeout(() => setBlackholeRumbleActive(false), 3000)
+    // Trigger camera rumble (defer to next frame — avoids setState in effect body)
+    let rumbleOff = 0
+    const rumbleRafId = window.requestAnimationFrame(() => {
+      setBlackholeRumbleActive(true)
+      rumbleOff = window.setTimeout(() => setBlackholeRumbleActive(false), 3000)
+    })
 
     // Synthesize gravity sound — two sine oscillators at 55Hz + 40Hz
     if (audioEnabled && typeof window !== 'undefined' && 'AudioContext' in window) {
@@ -1176,14 +1181,15 @@ function SolarSceneWebGL({
         osc2.stop(ctx.currentTime + 3.1)
 
         window.setTimeout(() => ctx.close(), 3200)
-      } catch (_) {
+      } catch {
         // AudioContext not available or blocked — fail silently
       }
     }
 
     return () => {
+      window.cancelAnimationFrame(rumbleRafId)
       window.clearTimeout(rumbleOff)
-      setBlackholeRumbleActive(false)
+      window.requestAnimationFrame(() => setBlackholeRumbleActive(false))
     }
   }, [blackholeCinematicPhase, audioEnabled])
 

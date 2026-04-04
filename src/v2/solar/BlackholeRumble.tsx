@@ -13,7 +13,7 @@
  *   - prefers-reduced-motion: amplitude = 0 if active.
  */
 import { useEffect, useRef } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 
 interface BlackholeRumbleProps {
   active: boolean
@@ -62,10 +62,9 @@ function fractalNoise(t: number, phase: number): number {
 }
 
 export function BlackholeRumble({ active }: BlackholeRumbleProps) {
-  const { camera } = useThree()
-
   const elapsedRef       = useRef(0)
   const runningRef       = useRef(false)
+  const resetRollRef     = useRef(false)
   const nextImpulseRef   = useRef(0)       // time of next impulse check
   const impulseActiveRef = useRef(false)
   const impulseStartRef  = useRef(0)
@@ -85,12 +84,16 @@ export function BlackholeRumble({ active }: BlackholeRumbleProps) {
       impulseActiveRef.current = false
     } else {
       runningRef.current = false
-      // Reset camera roll on deactivation
-      camera.rotation.z = 0
+      resetRollRef.current = true
     }
-  }, [active, camera])
+  }, [active])
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
+    const { camera } = state
+    if (resetRollRef.current) {
+      camera.rotation.z = 0
+      resetRollRef.current = false
+    }
     if (!runningRef.current || prefersReduced.current) return
 
     elapsedRef.current += delta
@@ -98,7 +101,7 @@ export function BlackholeRumble({ active }: BlackholeRumbleProps) {
 
     if (t >= RUMBLE_DURATION) {
       runningRef.current = false
-      camera.rotation.z = 0
+      resetRollRef.current = true
       return
     }
 
