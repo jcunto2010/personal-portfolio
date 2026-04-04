@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PlanetConfig } from './planetRegistry'
 import { useLocale } from '../lib/localeContext'
 import { getPlanetSectionLabel } from './planetSectionLabel'
+import { getPlanetContent } from './planetContent'
 import { getProjectBySlug } from '../data/projects.v2'
 import styles from './SunInfoPanel.module.css'
 
@@ -9,13 +10,14 @@ export interface SunInfoPanelProps {
   config: PlanetConfig
   open: boolean
   align?: 'left' | 'right'
-  phaseInfo: string
   onClose: () => void
 }
 
-export function SunInfoPanel({ config, open, align = 'right', phaseInfo, onClose }: SunInfoPanelProps) {
+export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfoPanelProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const { locale } = useLocale()
+
+  const narrative = getPlanetContent(config.id, locale)?.body ?? []
 
   const projectSlug = config.id === 'moon' ? 'reservo-ai' : config.id === 'mars' ? 'startupconnect' : undefined
   const project = projectSlug ? getProjectBySlug(projectSlug) : undefined
@@ -84,11 +86,44 @@ export function SunInfoPanel({ config, open, align = 'right', phaseInfo, onClose
           </button>
         </div>
 
-        {!project && <p className={styles.phaseText}>{phaseInfo}</p>}
+        {!project &&
+          (narrative.length > 0 ? (
+            config.id === 'uranus' && narrative.length > 1 ? (
+              <>
+                <p className={styles.phaseText}>{narrative[0]}</p>
+                <ul
+                  className={styles.contactBullets}
+                  aria-label={locale === 'es' ? 'Contacto' : 'Contact'}
+                >
+                  {narrative.slice(1).map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              narrative.map((paragraph, i) => (
+                <p key={i} className={styles.phaseText}>
+                  {paragraph}
+                </p>
+              ))
+            )
+          ) : (
+            <p className={styles.phaseText}>
+              {config.label} — {getPlanetSectionLabel(config.id, locale)}
+            </p>
+          ))}
 
         {project && (
           <div className={styles.richBlock} aria-label={locale === 'es' ? 'Resumen del proyecto' : 'Project summary'}>
-            {description && <p className={styles.richDescription}>{description}</p>}
+            {narrative.length > 0 ? (
+              narrative.map((paragraph, i) => (
+                <p key={i} className={styles.richDescription}>
+                  {paragraph}
+                </p>
+              ))
+            ) : (
+              description && <p className={styles.richDescription}>{description}</p>
+            )}
 
             {highlights.length > 0 && (
               <ul className={styles.richHighlights} aria-label={locale === 'es' ? 'Puntos clave' : 'Key points'}>

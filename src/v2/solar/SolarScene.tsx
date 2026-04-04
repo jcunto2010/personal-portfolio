@@ -30,6 +30,7 @@ import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
 import { SunInfoPanel } from './SunInfoPanel'
 import { CameraRig } from './CameraRig'
+import { BlackholeRumble } from './BlackholeRumble'
 import type { CameraPhaseId, ShotPhaseId } from './CameraRig'
 import { useScrollProgress } from '../lib/useScrollProgress'
 import { useShotNavigation } from './useShotNavigation'
@@ -47,7 +48,6 @@ import { useAppMode } from '../lib/appModeContext'
 import { useJourneyLoader } from '../lib/useJourneyLoader'
 import RotatePrompt from '../components/RotatePrompt'
 import OnboardingTutorial from '../components/OnboardingTutorial'
-import { getPlanetPhaseInfo } from './planetPhaseInfo'
 import {
   NEBULA_STARS_TEXTURE_URL,
   releaseSolarImmersiveAssets,
@@ -722,6 +722,7 @@ function SolarSceneWebGL({
   const uranusPanelManuallyClosedRef = useRef(false)
   const uranusHoldTimerRef = useRef<number | null>(null)
   const [blackholePanelVisible, setBlackholePanelVisible] = useState(false)
+  const [blackholeRumbleActive, setBlackholeRumbleActive] = useState(false)
   const blackholePanelManuallyClosedRef = useRef(false)
   const blackholeHoldTimerRef = useRef<number | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
@@ -1104,6 +1105,7 @@ function SolarSceneWebGL({
 
     if (cameraPhase !== 'blackhole-hold') {
       window.requestAnimationFrame(() => setBlackholePanelVisible(false))
+      setBlackholeRumbleActive(false)
       return
     }
 
@@ -1122,6 +1124,68 @@ function SolarSceneWebGL({
       }
     }
   }, [cameraPhase])
+
+  // Blackhole arrival effects: camera rumble + gravity sound (3s, fade out)
+  // Fires when the cinematic reveal phase begins — the moment the blackhole
+  // starts appearing on screen after the warp. Rumble lasts 3s with fade out,
+  // overlapping both the reveal (~1.8s) and the start of blackhole-hold.
+  useEffect(() => {
+    if (blackholeCinematicPhase !== 'reveal') {
+      return
+    }
+
+    // Trigger camera rumble
+    setBlackholeRumbleActive(true)
+    const rumbleOff = window.setTimeout(() => setBlackholeRumbleActive(false), 3000)
+
+    // Synthesize gravity sound — two sine oscillators at 55Hz + 40Hz
+    if (audioEnabled && typeof window !== 'undefined' && 'AudioContext' in window) {
+      try {
+        const ctx = new AudioContext()
+
+        const masterGain = ctx.createGain()
+        masterGain.connect(ctx.destination)
+
+        // Primary oscillator — 55Hz (A1, deep bass)
+        const osc1 = ctx.createOscillator()
+        const gain1 = ctx.createGain()
+        osc1.type = 'sine'
+        osc1.frequency.value = 55
+        gain1.gain.value = 1.0
+        osc1.connect(gain1)
+        gain1.connect(masterGain)
+
+        // Secondary oscillator — 40Hz (sub-bass layer)
+        const osc2 = ctx.createOscillator()
+        const gain2 = ctx.createGain()
+        osc2.type = 'sine'
+        osc2.frequency.value = 40
+        gain2.gain.value = 0.5
+        osc2.connect(gain2)
+        gain2.connect(masterGain)
+
+        // Envelope: attack 0.1s → sustain → fade out from 2.0s to 3.0s
+        masterGain.gain.setValueAtTime(0.0001, ctx.currentTime)
+        masterGain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.1)
+        masterGain.gain.setValueAtTime(0.18, ctx.currentTime + 2.0)
+        masterGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 3.0)
+
+        osc1.start(ctx.currentTime)
+        osc2.start(ctx.currentTime)
+        osc1.stop(ctx.currentTime + 3.1)
+        osc2.stop(ctx.currentTime + 3.1)
+
+        window.setTimeout(() => ctx.close(), 3200)
+      } catch (_) {
+        // AudioContext not available or blocked — fail silently
+      }
+    }
+
+    return () => {
+      window.clearTimeout(rumbleOff)
+      setBlackholeRumbleActive(false)
+    }
+  }, [blackholeCinematicPhase, audioEnabled])
 
   function handlePlanetClick(config: PlanetConfig) {
     if (config.id === 'sun') {
@@ -1299,33 +1363,36 @@ function SolarSceneWebGL({
             >
               {/* Camera — only moves once initial GLBs are loaded */}
               {!IS_SAFE && (
-                <CameraRig
-                  progress={journeyReady ? scrollProgress : 0}
-                  activePlanetId={activeJourneyPlanetId}
-                  onPhaseChange={setCameraPhase}
-                  onShotPhaseChange={IS_DEBUG ? setShotPhase : undefined}
-                  currentShotId={currentShot.id}
-                  nextShotId={nextShot?.id}
-                  shotProgress={shotProgress}
-                  discreteCurrentShotId={discreteCurrentShotId}
-                  discreteTargetShotId={discreteTargetShotId}
-                  discreteIsTransitioning={discreteIsTransitioning}
-                  discreteIsResetting={discreteIsResetting}
-                  discreteTransitionTRef={discreteTransitionTRef}
-                  discreteIsTransitioningRef={discreteIsTransitioningRef}
-                  discreteTargetShotIdRef={discreteTargetShotIdRef}
-                  discreteCurrentShotIdRef={discreteCurrentShotIdRef}
-                  onDiscreteTransitionComplete={onDiscreteTransitionComplete}
-                  isBlackholeCinematic={isBlackholeCinematic}
-                  isBlackholeCinematicRef={isBlackholeCinematicRef}
-                  blackholeCinematicTRef={blackholeCinematicTRef}
-                  onBlackholeCinematicComplete={onBlackholeCinematicComplete}
-                  onBlackholeCinematicPhaseChange={onBlackholeCinematicPhaseChange}
-                  isBlackholeResetting={isBlackholeResetting}
-                  blackholeResetTRef={blackholeResetTRef}
-                  onBlackholeResetComplete={onBlackholeResetComplete}
-                  onBlackholeResetPhaseChange={onBlackholeResetPhaseChange}
-                />
+                <group>
+                  <CameraRig
+                    progress={journeyReady ? scrollProgress : 0}
+                    activePlanetId={activeJourneyPlanetId}
+                    onPhaseChange={setCameraPhase}
+                    onShotPhaseChange={IS_DEBUG ? setShotPhase : undefined}
+                    currentShotId={currentShot.id}
+                    nextShotId={nextShot?.id}
+                    shotProgress={shotProgress}
+                    discreteCurrentShotId={discreteCurrentShotId}
+                    discreteTargetShotId={discreteTargetShotId}
+                    discreteIsTransitioning={discreteIsTransitioning}
+                    discreteIsResetting={discreteIsResetting}
+                    discreteTransitionTRef={discreteTransitionTRef}
+                    discreteIsTransitioningRef={discreteIsTransitioningRef}
+                    discreteTargetShotIdRef={discreteTargetShotIdRef}
+                    discreteCurrentShotIdRef={discreteCurrentShotIdRef}
+                    onDiscreteTransitionComplete={onDiscreteTransitionComplete}
+                    isBlackholeCinematic={isBlackholeCinematic}
+                    isBlackholeCinematicRef={isBlackholeCinematicRef}
+                    blackholeCinematicTRef={blackholeCinematicTRef}
+                    onBlackholeCinematicComplete={onBlackholeCinematicComplete}
+                    onBlackholeCinematicPhaseChange={onBlackholeCinematicPhaseChange}
+                    isBlackholeResetting={isBlackholeResetting}
+                    blackholeResetTRef={blackholeResetTRef}
+                    onBlackholeResetComplete={onBlackholeResetComplete}
+                    onBlackholeResetPhaseChange={onBlackholeResetPhaseChange}
+                  />
+                  <BlackholeRumble active={blackholeRumbleActive} />
+                </group>
               )}
 
               {/* Warp starfield — InstancedMesh hyperspace effect (Uranus→Blackhole only) */}
@@ -1487,7 +1554,6 @@ function SolarSceneWebGL({
         config={sunConfig}
         open={sunPanelVisible && cameraPhase === 'sun-hold' && tutorialDone}
         align="right"
-        phaseInfo={getPlanetPhaseInfo('sun', locale)}
         onClose={() => {
           sunPanelManuallyClosedRef.current = true
           if (sunHoldTimerRef.current) {
@@ -1502,7 +1568,6 @@ function SolarSceneWebGL({
         config={mercuryConfig}
         open={mercuryPanelVisible && cameraPhase === 'mercury-hold'}
         align="left"
-        phaseInfo={getPlanetPhaseInfo('mercury', locale)}
         onClose={() => {
           mercuryPanelManuallyClosedRef.current = true
           if (mercuryHoldTimerRef.current) {
@@ -1517,7 +1582,6 @@ function SolarSceneWebGL({
         config={venusConfig}
         open={venusPanelVisible && cameraPhase === 'venus-hold'}
         align="right"
-        phaseInfo={getPlanetPhaseInfo('venus', locale)}
         onClose={() => {
           venusPanelManuallyClosedRef.current = true
           if (venusHoldTimerRef.current) {
@@ -1532,7 +1596,6 @@ function SolarSceneWebGL({
         config={earthConfig}
         open={earthPanelVisible && cameraPhase === 'earth-hold'}
         align="left"
-        phaseInfo={getPlanetPhaseInfo('earth', locale)}
         onClose={() => {
           earthPanelManuallyClosedRef.current = true
           if (earthHoldTimerRef.current) {
@@ -1547,7 +1610,6 @@ function SolarSceneWebGL({
         config={moonConfig}
         open={moonPanelVisible && cameraPhase === 'moon-hold'}
         align="right"
-        phaseInfo={getPlanetPhaseInfo('moon', locale)}
         onClose={() => {
           moonPanelManuallyClosedRef.current = true
           if (moonHoldTimerRef.current) {
@@ -1562,7 +1624,6 @@ function SolarSceneWebGL({
         config={marsConfig}
         open={marsPanelVisible && cameraPhase === 'mars-hold'}
         align="left"
-        phaseInfo={getPlanetPhaseInfo('mars', locale)}
         onClose={() => {
           marsPanelManuallyClosedRef.current = true
           if (marsHoldTimerRef.current) {
@@ -1577,7 +1638,6 @@ function SolarSceneWebGL({
         config={neptuneConfig}
         open={neptunePanelVisible && cameraPhase === 'neptune-hold'}
         align="right"
-        phaseInfo={getPlanetPhaseInfo('neptune', locale)}
         onClose={() => {
           neptunePanelManuallyClosedRef.current = true
           if (neptuneHoldTimerRef.current) {
@@ -1592,7 +1652,6 @@ function SolarSceneWebGL({
         config={uranusConfig}
         open={uranusPanelVisible && cameraPhase === 'uranus-hold'}
         align="left"
-        phaseInfo={getPlanetPhaseInfo('uranus', locale)}
         onClose={() => {
           uranusPanelManuallyClosedRef.current = true
           if (uranusHoldTimerRef.current) {
@@ -1607,7 +1666,6 @@ function SolarSceneWebGL({
         config={blackholeConfig}
         open={blackholePanelVisible && cameraPhase === 'blackhole-hold'}
         align="left"
-        phaseInfo={getPlanetPhaseInfo('blackhole', locale)}
         onClose={() => {
           blackholePanelManuallyClosedRef.current = true
           if (blackholeHoldTimerRef.current) {

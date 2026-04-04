@@ -150,6 +150,36 @@
   color: rgba(255, 255, 255, 0.86);
 }
 
+/* Uranus — contact lines as a tight bullet list */
+.contactBullets {
+  margin: 0.4rem 0 0;
+  padding: 0 0 0 1.2rem;
+  list-style-type: disc;
+  font-size: 1.3rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.contactBullets li {
+  margin: 0.12rem 0 0;
+  padding-left: 0.3rem;
+  word-break: break-word;
+}
+
+.contactBullets li:first-child {
+  margin-top: 0;
+}
+
+.contactBullets li:last-child {
+  list-style-type: none;
+  margin-left: -1.05rem;
+  padding-left: 0;
+}
+
+.contactBullets li::marker {
+  color: rgba(255, 255, 255, 0.45);
+}
+
 .richBlock {
   margin-top: 1rem;
   color: rgba(255, 255, 255, 0.88);

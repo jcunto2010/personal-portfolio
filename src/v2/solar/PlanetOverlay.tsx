@@ -99,9 +99,23 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
         <hr className={styles.divider} />
 
         <div className={styles.body}>
-          {content.body.map((paragraph, i) => (
-            <p key={i}>{paragraph}</p>
-          ))}
+          {config.id === 'uranus' && content.body.length > 1 ? (
+            <>
+              <p>{content.body[0]}</p>
+              <ul
+                className={styles.contactBullets}
+                aria-label={locale === 'es' ? 'Contacto' : 'Contact'}
+              >
+                {content.body.slice(1).map((line, i) => (
+                  <li key={i}>{line}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            content.body.map((paragraph, i) => (
+              <p key={i}>{paragraph}</p>
+            ))
+          )}
         </div>
       </div>
     </div>

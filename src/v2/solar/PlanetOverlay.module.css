@@ -151,6 +151,32 @@
   margin-bottom: 0;
 }
 
+.body .contactBullets {
+  margin: 0.35rem 0 0;
+  padding: 0 0 0 1.1rem;
+  list-style-type: disc;
+}
+
+.body .contactBullets li {
+  margin: 0.1rem 0 0;
+  padding-left: 0.25rem;
+  word-break: break-word;
+}
+
+.body .contactBullets li::marker {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.body .contactBullets li:first-child {
+  margin-top: 0;
+}
+
+.body .contactBullets li:last-child {
+  list-style-type: none;
+  margin-left: -0.95rem;
+  padding-left: 0;
+}
+
 /* ── Reduced-motion ────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

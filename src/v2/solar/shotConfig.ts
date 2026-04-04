@@ -18,8 +18,9 @@
  *   CameraRig takes the shot-based path when currentShotId === 'mercury'.
  *
  * Blackhole shot: Grand Finale — final station of the discrete journey.
- *   Uranus → Blackhole (wheel down), Blackhole → Uranus (wheel up),
- *   Blackhole → reset loop → Sun (wheel down again from Blackhole).
+ *   Uranus → Blackhole (wheel down). Blackhole → Uranus (wheel up) is optional
+ *   (ALLOW_SCROLL_BACK_FROM_BLACKHOLE_TO_URANUS in useDiscreteShotNavigation).
+ *   Blackhole → reset loop → Sun (wheel down from Blackhole).
  */
 
 export type ShotId =

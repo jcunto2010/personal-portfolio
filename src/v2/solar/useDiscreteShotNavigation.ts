@@ -21,7 +21,8 @@
  *   mars     → wheel down → neptune  | wheel up → moon
  *   neptune  → wheel down → uranus   | wheel up → mars
  *   uranus   → wheel down → blackhole| wheel up → neptune
- *   blackhole→ wheel up   → uranus   | wheel down → RESET LOOP → sun
+ *   blackhole→ wheel up   → uranus (optional; see ALLOW_SCROLL_BACK_FROM_BLACKHOLE_TO_URANUS)
+ *            | wheel down → RESET LOOP → sun
  *
  * Reset loop:
  *   - Triggered only from currentShotId === 'blackhole' with wheel down intent.
@@ -119,6 +120,12 @@ const TOUCH_THRESHOLD = 80
  * Milliseconds of wheel silence before the accumulator resets.
  */
 const DECAY_TIMEOUT_MS = 400
+
+/**
+ * When true, wheel/touch up from blackhole navigates back to Uranus (original graph).
+ * When false, upward intent at blackhole is discarded — only downward triggers reset → Sun.
+ */
+const ALLOW_SCROLL_BACK_FROM_BLACKHOLE_TO_URANUS = false
 
 // ── Navigation graph helpers ──────────────────────────────────────────────────
 
@@ -319,6 +326,10 @@ export function useDiscreteShotNavigation(
       }
 
       if (intentAccRef.current <= -threshold) {
+        if (curr === 'blackhole' && !ALLOW_SCROLL_BACK_FROM_BLACKHOLE_TO_URANUS) {
+          clearIntentAccumulator()
+          return false
+        }
         const prev = getPrevShot(curr)
         if (prev !== null) {
           clearIntentAccumulator()

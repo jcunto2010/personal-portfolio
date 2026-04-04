@@ -31,131 +31,212 @@ export const projectsV2: ProjectV2[] = [
   {
     slug: 'reservo-ai',
     title: 'Reservo.AI',
-    tagline: 'AI-powered appointment booking platform with conversational interface.',
+    tagline: 'From zero Flutter knowledge to a full AI-powered booking app.',
     description:
-      'A multiplatform Flutter application designed to simplify appointment booking flows for service businesses. Powered by Google Gemini, it enables conversational scheduling, contextual suggestions, and personalized reminders. The product includes real-time AI chat, biometric authentication, push notifications, and a polished onboarding built with Rive and Lottie.',
+      'A multiplatform Flutter app built to simplify appointment booking for service businesses. Powered by Google Gemini, it enables conversational scheduling and contextual reminders. Built entirely from scratch — including learning Flutter along the way — tackling every layer: biometric authentication (Face ID / fingerprint), Firebase backend integration, state management with Riverpod, and a polished onboarding experience animated with Rive and Lottie. Currently an MVP in active development.',
     coverImage: '/assets/projects/reservo/main screen.webp',
-    technologies: [
-      'Flutter',
-      'Dart',
-      'Firebase',
-      'Gemini AI',
-      'Riverpod',
-      'Rive',
-    ],
-    role: 'Mobile Development Manager & Founder',
+    technologies: ['Flutter', 'Dart', 'Firebase', 'Gemini AI', 'Riverpod', 'Rive', 'Lottie', 'Biometrics'],
+    role: 'Sole Developer & Co-Founder',
     year: '2024',
     githubUrl: 'https://github.com/jcunto2010/reservo_ai',
     featured: true,
     descriptionEs:
-      'Reservo.AI es una aplicación Flutter multiplataforma creada para simplificar la reserva de citas en negocios de servicios. Impulsada por Google Gemini, permite reservar por conversación, ofrece sugerencias contextuales y envía recordatorios personalizados.',
+      'Una app Flutter multiplataforma para simplificar la reserva de citas en negocios de servicios. Potenciada por Google Gemini para reservas conversacionales y recordatorios contextuales. Construida completamente desde cero — incluyendo aprender Flutter en el proceso — resolviendo cada capa: autenticación biométrica (Face ID / huella), integración con Firebase, gestión de estado con Riverpod y un onboarding animado con Rive y Lottie. Actualmente es un MVP en desarrollo activo.',
     highlights: [
-      'Real-time AI chat powered by Google Gemini',
-      'Biometric authentication (Face ID / Fingerprint)',
-      'Smart push notifications with personalized reminders',
-      'Cross-platform experience (iOS & Android)',
-      'Rive-powered onboarding animations',
-      'Unified booking flow with business-hours validation',
+      'Built entirely solo — from learning Flutter to full-stack integration',
+      'Conversational AI booking powered by Google Gemini',
+      'Biometric authentication: Face ID & fingerprint',
+      'State management architecture with Riverpod',
+      'Firebase backend: auth, Firestore, and push notifications',
+      'Custom onboarding flows animated with Rive',
     ],
     highlightsEs: [
-      'Chat de IA en tiempo real con Google Gemini',
-      'Autenticación biométrica (Face ID / huella)',
-      'Notificaciones push inteligentes con recordatorios personalizados',
-      'Experiencia multiplataforma (iOS y Android)',
-      'Onboarding con animaciones Rive',
-      'Flujo de reserva unificado con validación de horarios',
+      'Construida completamente en solitario — desde aprender Flutter hasta integración full-stack',
+      'Reservas conversacionales con IA mediante Google Gemini',
+      'Autenticación biométrica: Face ID y huella dactilar',
+      'Arquitectura de gestión de estado con Riverpod',
+      'Backend Firebase: auth, Firestore y notificaciones push',
+      'Flujos de onboarding personalizados animados con Rive',
     ],
     thumbnails: [
-      { src: '/assets/projects/reservo/home.webp', alt: 'Reservo.AI — pantalla Home' },
-      { src: '/assets/projects/reservo/calendar.webp', alt: 'Reservo.AI — vista calendario' },
-      { src: '/assets/projects/reservo/shop.webp', alt: 'Reservo.AI — selección de tiendas' },
+      { src: '/assets/projects/reservo/home.webp', alt: 'Reservo.AI — Home screen' },
+      { src: '/assets/projects/reservo/calendar.webp', alt: 'Reservo.AI — Calendar view' },
+      { src: '/assets/projects/reservo/shop.webp', alt: 'Reservo.AI — Business selection' },
     ],
     codeSnippetEn:
-      `const steps = [
-  { id: '1', label: 'Launch & Auth' },
-  { id: '2', label: 'Main Dashboard' },
-  { id: '3', label: 'Core Navigation' },
-  { id: '4', label: 'AI Assistant' },
-  { id: '5', label: 'Booking Flow' },
-  { id: '6', label: 'Confirmation' },
-]
+      `// gemini_service.dart — natural language → structured booking
+// The user types "haircut Friday 5pm" — Gemini parses it to JSON
 
-<FlowStepper accentColor="violet" steps={steps} />`,
+Future<Map<String, dynamic>?> extractReservationInfo(
+  String userMessage,
+) async {
+  final prompt = """
+Extract booking info as JSON. Reply ONLY with valid JSON or "null".
+
+Format: {
+  "servicio": "service name",
+  "fecha":    "YYYY-MM-DD",
+  "hora":     "HH:MM",
+  "notas":    "optional notes"
+}
+
+Message: "$userMessage"
+""";
+
+  final raw = await sendMessage(prompt);   // → Cloud Function → Gemini
+  try {
+    return jsonDecode(raw) as Map<String, dynamic>?;
+  } catch (_) {
+    return null;   // graceful fallback if Gemini returns prose
+  }
+}`,
     codeSnippetEs:
-      `const steps = [
-  { id: '1', label: 'Launch & Auth' },
-  { id: '2', label: 'Main Dashboard' },
-  { id: '3', label: 'Core Navigation' },
-  { id: '4', label: 'AI Assistant' },
-  { id: '5', label: 'Booking Flow' },
-  { id: '6', label: 'Confirmation' },
-]
+      `// gemini_service.dart — lenguaje natural → reserva estructurada
+// El usuario escribe "corte el viernes a las 5pm" — Gemini lo parsea a JSON
 
-<FlowStepper accentColor="violet" steps={steps} />`,
+Future<Map<String, dynamic>?> extractReservationInfo(
+  String userMessage,
+) async {
+  final prompt = """
+Extrae la info de reserva como JSON. Responde SOLO JSON o "null".
+
+Formato: {
+  "servicio": "nombre del servicio",
+  "fecha":    "YYYY-MM-DD",
+  "hora":     "HH:MM",
+  "notas":    "notas opcionales"
+}
+
+Mensaje: "$userMessage"
+""";
+
+  final raw = await sendMessage(prompt);   // → Cloud Function → Gemini
+  try {
+    return jsonDecode(raw) as Map<String, dynamic>?;
+  } catch (_) {
+    return null;   // fallback si Gemini responde en prosa
+  }
+}`,
   },
   {
     slug: 'startupconnect',
     title: 'StartupConnect',
-    tagline: 'LinkedIn meets Tinder — a social network for the startup ecosystem.',
+    tagline: 'A full-stack networking platform for founders, investors, and mentors.',
     description:
-      'A professional networking platform combining LinkedIn-style networking with swipe-based discovery to create relevant connections between founders, investors, and mentors. It includes a social feed, public/private communities, real-time messaging, and a guided onboarding that improves profile quality and matching accuracy.',
+      'A professional networking platform combining LinkedIn-style feeds with swipe-based discovery to connect founders, investors, and mentors. Built as a formative project to push my skills into real product territory: React + TypeScript frontend, Spring Boot + PostgreSQL backend, real-time messaging via WebSocket, community rooms, a compatibility-based matching algorithm, and a progressive onboarding flow. Never publicly launched, but fully functional as an MVP demo — and it validated my ability to architect and ship a complex multi-feature product end to end.',
     coverImage: '/assets/projects/startupconnect/feed.webp',
-    technologies: [
-      'React',
-      'TypeScript',
-      'Spring Boot',
-      'PostgreSQL',
-      'Tailwind CSS',
-    ],
-    role: 'Founder & Front-End Developer',
+    technologies: ['React', 'TypeScript', 'Spring Boot', 'PostgreSQL', 'Tailwind CSS', 'WebSocket', 'TanStack Query'],
+    role: 'Founder & Frontend Developer',
     year: '2025',
     githubUrl: 'https://github.com/jcunto2010/Entrepeneur_app',
     featured: true,
     descriptionEs:
-      'StartupConnect es una plataforma de networking profesional mobile-first que mezcla estilo LinkedIn con descubrimiento por swipe para generar conexiones relevantes entre emprendedores, inversores y mentores.',
+      'Una plataforma de networking profesional que combina feeds estilo LinkedIn con descubrimiento por swipe para conectar emprendedores, inversores y mentores. Construida como proyecto formativo: frontend en React + TypeScript, backend en Spring Boot + PostgreSQL, mensajería en tiempo real con WebSocket, salas de comunidad, algoritmo de matching por compatibilidad y onboarding progresivo. Nunca se lanzó públicamente, pero funciona como MVP demo completo — y validó mi capacidad de arquitectar y entregar un producto complejo de extremo a extremo.',
     highlights: [
-      'Swipe-to-match (Tinder-style cards)',
-      'LinkedIn-style social feed for community updates',
-      'Public & private community rooms',
-      'Real-time 1:1 and group chat',
-      'Smart matching algorithm',
-      'Progressive onboarding to increase profile quality',
+      'Full-stack project built solo: React + TypeScript + Spring Boot + PostgreSQL',
+      'Swipe-to-match with compatibility scoring algorithm',
+      'Real-time 1:1 and group chat via WebSocket',
+      'LinkedIn-style social feed with likes, shares, and filters',
+      'Public & private community rooms with member management',
+      'Progressive multi-step onboarding to improve match accuracy',
     ],
     highlightsEs: [
-      'Swipe-to-match (tarjetas estilo Tinder)',
-      'Feed social estilo LinkedIn para actualizaciones de la comunidad',
-      'Salas de la comunidad públicas y privadas',
-      'Chat en tiempo real 1:1 y grupal',
-      'Algoritmo de matching inteligente',
-      'Onboarding progresivo para mejorar calidad de perfiles',
+      'Proyecto full-stack construido en solitario: React + TypeScript + Spring Boot + PostgreSQL',
+      'Swipe-to-match con algoritmo de puntuación de compatibilidad',
+      'Chat en tiempo real 1:1 y grupal con WebSocket',
+      'Feed social estilo LinkedIn con likes, compartidos y filtros',
+      'Salas de comunidad públicas y privadas con gestión de miembros',
+      'Onboarding progresivo multi-paso para mejorar precisión del matching',
     ],
     thumbnails: [
-      { src: '/assets/projects/startupconnect/login.webp', alt: 'StartupConnect — inicio de sesión' },
-      { src: '/assets/projects/startupconnect/feed.webp', alt: 'StartupConnect — feed de la comunidad' },
-      { src: '/assets/projects/startupconnect/matching.webp', alt: 'StartupConnect — pantalla de matching' },
+      { src: '/assets/projects/startupconnect/login.webp', alt: 'StartupConnect — Login' },
+      { src: '/assets/projects/startupconnect/feed.webp', alt: 'StartupConnect — Community feed' },
+      { src: '/assets/projects/startupconnect/matching.webp', alt: 'StartupConnect — Matching screen' },
     ],
     codeSnippetEn:
-      `const steps = [
-  { id: '1', label: 'Onboarding' },
-  { id: '2', label: 'Discovery Hub' },
-  { id: '3', label: 'Swipe to Match' },
-  { id: '4', label: 'Social Engagement' },
-  { id: '5', label: 'Real-time Chat' },
-  { id: '6', label: 'Ecosystem Growth' },
-]
+      `// MatchService.java — compatibility scoring algorithm
+// Complementary pairs score higher; preferences & industry stack on top
 
-<FlowStepper accentColor="blue" steps={steps} />`,
+private double calculateMatchScore(
+    User current, User target, UserPreferences prefs) {
+
+  double score = 0;
+
+  // Complementary role pairs score higher than same-type
+  var complementary = Set.of(
+    Set.of(ENTREPRENEUR, INVESTOR),
+    Set.of(ENTREPRENEUR, MENTOR),
+    Set.of(INVESTOR,     MENTOR)
+  );
+  if (complementary.contains(Set.of(current.type, target.type)))
+    score += 20;
+  else
+    score += 10; // same type still gets base points
+
+  if (prefs == null) return score;
+
+  // Explicit seeking preference match
+  if (prefs.seekingTypes.contains(target.type))  score += 15;
+
+  // Shared industry via startup profiles
+  if (industryOverlap(prefs, target))             score += 10;
+
+  // Mentor availability bonus
+  if (current.type == ENTREPRENEUR
+      && target.type == MENTOR
+      && prefs.availableForMentoring)             score += 8;
+
+  return score;
+}
+
+// Reciprocal swipe → auto-promote both records to MATCHED
+if (reciprocalMatch.isPresent()) {
+  reciprocal.setStatus(MATCHED);
+  match.setStatus(MATCHED);
+  matchRepository.save(reciprocal);
+}`,
     codeSnippetEs:
-      `const steps = [
-  { id: '1', label: 'Onboarding' },
-  { id: '2', label: 'Discovery Hub' },
-  { id: '3', label: 'Swipe to Match' },
-  { id: '4', label: 'Social Engagement' },
-  { id: '5', label: 'Real-time Chat' },
-  { id: '6', label: 'Ecosystem Growth' },
-]
+      `// MatchService.java — algoritmo de puntuación de compatibilidad
+// Los pares complementarios puntúan más; preferencias e industria se suman
 
-<FlowStepper accentColor="blue" steps={steps} />`,
+private double calculateMatchScore(
+    User current, User target, UserPreferences prefs) {
+
+  double score = 0;
+
+  // Pares de roles complementarios puntúan más que el mismo tipo
+  var complementarios = Set.of(
+    Set.of(ENTREPRENEUR, INVESTOR),
+    Set.of(ENTREPRENEUR, MENTOR),
+    Set.of(INVESTOR,     MENTOR)
+  );
+  if (complementarios.contains(Set.of(current.type, target.type)))
+    score += 20;
+  else
+    score += 10; // mismo tipo igual recibe puntos base
+
+  if (prefs == null) return score;
+
+  // Coincidencia con preferencia de búsqueda explícita
+  if (prefs.seekingTypes.contains(target.type))  score += 15;
+
+  // Industria compartida a través de perfiles de startup
+  if (industryOverlap(prefs, target))             score += 10;
+
+  // Bonus de disponibilidad para mentoría
+  if (current.type == ENTREPRENEUR
+      && target.type == MENTOR
+      && prefs.availableForMentoring)             score += 8;
+
+  return score;
+}
+
+// Swipe recíproco → ambos registros se promueven automáticamente a MATCHED
+if (reciprocalMatch.isPresent()) {
+  reciprocal.setStatus(MATCHED);
+  match.setStatus(MATCHED);
+  matchRepository.save(reciprocal);
+}`,
   },
 ]
 
