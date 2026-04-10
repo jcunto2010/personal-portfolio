@@ -196,13 +196,13 @@ export function ClassicRebuildPage() {
         <ClassicHero
           logoText={ui.title}
           navLinks={[
-            { label: ui.navHome, onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
-            { label: ui.navAbout, onClick: () => scrollToSection('chapter-about') },
-            { label: ui.ctaExperience, onClick: () => scrollToSection('chapter-notes') },
-            { label: 'Reservo.AI', onClick: () => scrollToSection('chapter-reservo') },
-            { label: 'StartupConnect', onClick: () => scrollToSection('chapter-startupconnect') },
-            { label: ui.skillsTitle, onClick: () => scrollToSection('classic-skills') },
-            { label: ui.contactTitle, onClick: () => scrollToSection('chapter-contact') },
+            { label: isEs ? 'Inicio' : 'Home', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+            { label: isEs ? 'Acerca' : 'About', onClick: () => scrollToSection('chapter-about') },
+            { label: isEs ? 'Exp.' : 'Exp.', onClick: () => scrollToSection('chapter-notes') },
+            { label: 'Reservo', onClick: () => scrollToSection('chapter-reservo') },
+            { label: 'Startup', onClick: () => scrollToSection('chapter-startupconnect') },
+            { label: 'Skills', onClick: () => scrollToSection('classic-skills') },
+            { label: isEs ? 'Contacto' : 'Contact', onClick: () => scrollToSection('chapter-contact') },
           ]}
           heroHeading={ui.heroHeading}
           mainText={ui.heroMainText}
@@ -321,6 +321,7 @@ export function ClassicRebuildPage() {
       </section>
 
       <footer className={styles.siteFooter}>
+        <div className={styles.footerDivider} />
         <p className={styles.footerText}>{ui.footerCopyright}</p>
       </footer>
     </div>

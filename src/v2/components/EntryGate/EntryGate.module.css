@@ -383,7 +383,7 @@
   border-radius: var(--v2-radius-lg);
   border: 1px solid rgba(148, 163, 184, 0.55);
   background: rgba(7, 11, 26, 0.9);
-  color: var(--v2-color-muted-text);
+  color: var(--v2-color-base-text);
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease,
     transform 0.12s ease;
@@ -403,14 +403,15 @@
 }
 
 .modeLabel {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 600;
+  color: var(--v2-color-base-text);
 }
 
 .modeDescription {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  color: var(--v2-color-muted-text);
+  color: rgba(226, 232, 240, 0.8);
 }
 
 .modeOptionSelected .modeDescription {
@@ -561,5 +562,15 @@
 
   .audioRow {
     font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modeLabel {
+    font-size: 1rem;
+  }
+
+  .modeDescription {
+    font-size: 0.8rem;
   }
 }

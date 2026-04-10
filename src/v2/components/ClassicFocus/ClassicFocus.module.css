@@ -66,6 +66,9 @@
   text-align: center;
   line-height: 1.15;
   letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  padding: 0 1rem;
 }
 
 /* Grid de 3 tarjetas horizontales */
@@ -122,10 +125,21 @@
 }
 
 @media (max-width: 640px) {
+  .title {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+    padding: 0 1.25rem;
+    text-align: center;
+  }
+
   .grid {
     grid-template-columns: 1fr;
     background: transparent;
     gap: 0.75rem;
+    margin: 0 1rem;
+  }
+
+  .inner {
+    padding: 0 0.5rem;
   }
 
   .card {

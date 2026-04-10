@@ -129,14 +129,13 @@
   }
 }
 
-/* Touch / no-hover: no reliable hover — show expanded pill so labels are readable */
 @media (hover: none) and (pointer: coarse) {
   .btn {
-    max-width: min(22rem, calc(100vw - 2.5rem));
+    max-width: 3rem;
   }
 
   .label {
-    max-width: min(18rem, calc(100vw - 5rem));
-    opacity: 1;
+    max-width: 0;
+    opacity: 0;
   }
 }

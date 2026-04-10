@@ -332,8 +332,9 @@
 
 @media (max-width: 768px) {
   .header {
-    width: calc(100vw - 1rem);
-    padding: 0.5rem 0.62rem;
+    top: 4.5rem;
+    width: calc(100vw - 1.5rem);
+    padding: 0.45rem 0.5rem;
     border-radius: 999px;
   }
 
@@ -370,5 +371,17 @@
     align-items: flex-start;
     gap: 0.7rem;
     margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .navLink {
+    font-size: 0.62rem;
+    padding: 0.38rem 0.32rem;
+    letter-spacing: 0;
+  }
+
+  .header {
+    padding: 0.38rem 0.35rem;
   }
 }
