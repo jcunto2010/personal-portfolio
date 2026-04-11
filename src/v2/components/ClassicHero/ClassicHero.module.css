@@ -332,10 +332,7 @@
 
 @media (max-width: 768px) {
   .header {
-    top: 4.5rem;
-    width: calc(100vw - 1.5rem);
-    padding: 0.45rem 0.5rem;
-    border-radius: 999px;
+    display: none;
   }
 
   .nav {
@@ -384,4 +381,36 @@
   .header {
     padding: 0.38rem 0.35rem;
   }
+}
+
+/* Scroll hint — visible solo en móvil, reemplaza la nav oculta */
+.scrollHint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .scrollHint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.45);
+    animation: scrollPulse 2.4s ease-in-out infinite;
+  }
+
+  .scrollHintDot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.45; transform: translateY(0); }
+  50%       { opacity: 0.85; transform: translateY(3px); }
 }

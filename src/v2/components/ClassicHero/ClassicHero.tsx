@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import type { LucideIcon } from 'lucide-react'
+import { useLocale } from '../../lib/localeContext'
 import { DynamicWaveCanvasBackground } from './DynamicWaveCanvasBackground'
 import styles from './ClassicHero.module.css'
 
@@ -38,6 +39,8 @@ export function ClassicHero({
   socialLinks,
   locationText,
 }: ClassicHeroProps) {
+  const { locale } = useLocale()
+
   return (
     <section className={styles.root} aria-label="Classic hero">
       <div className={styles.backgroundLayer} aria-hidden="true">
@@ -74,6 +77,11 @@ export function ClassicHero({
             <button type="button" className={styles.actionSecondary} onClick={ctaSecondary.onClick}>
               {ctaSecondary.label}
             </button>
+          </div>
+          <div className={styles.scrollHint} aria-hidden="true">
+            <span className={styles.scrollHintDot} />
+            <span>{locale === 'es' ? 'desliza para explorar' : 'scroll to explore'}</span>
+            <span className={styles.scrollHintDot} />
           </div>
         </motion.div>
 

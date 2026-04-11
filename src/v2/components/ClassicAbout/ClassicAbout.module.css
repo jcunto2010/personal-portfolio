@@ -5,9 +5,17 @@
   justify-content: center;
   position: relative;
   overflow: clip;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   padding: clamp(0.75rem, 2vw, 1.2rem);
+}
+
+@media (min-width: 769px) {
+  .section {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
 }
 
 .shaderLayer {

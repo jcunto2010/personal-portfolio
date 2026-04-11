@@ -109,6 +109,17 @@
   pointer-events: none;
 }
 
+@media (max-width: 768px) and (pointer: coarse) {
+  .hudStack {
+    top: auto;
+    bottom: 2rem;
+    left: 1rem;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+}
+
 .hudStack > * {
   pointer-events: auto;
 }

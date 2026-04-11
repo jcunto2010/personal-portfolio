@@ -2,16 +2,17 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 0 5rem;
-  overflow-x: hidden;
   color: var(--v2-color-base-text);
   font-family: var(--v2-font-body);
+  overflow-x: hidden;
 }
 
 .hero {
   min-height: 100vh;
   padding: 0;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .badge {
@@ -76,12 +77,13 @@
   pointer-events: none;
 }
 
-/* Full viewport width like .hero — .page max-width would otherwise clip the neural layer */
+/* Full bleed en desktop vía @media (min-width: 721px); en móvil solo 100% (evita 100vw + calc) */
 .sectionContact {
   isolation: isolate;
-  width: 100vw;
+  width: 100%;
   max-width: none;
-  margin-left: calc(50% - 50vw);
+  margin-left: 0;
+  margin-right: 0;
   padding-left: 0;
   padding-right: 0;
 }
@@ -90,6 +92,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  min-width: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -284,8 +287,9 @@
 }
 
 .siteFooter {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -314,6 +318,24 @@
   max-width: 52ch;
 }
 
+/* Pantallas anchas: full-bleed respecto a .page (max-width 1200px centrado) */
+@media (min-width: 721px) {
+  .hero {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+
+  .sectionContact {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+
+  .siteFooter {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+}
+
 @media (max-width: 720px) {
   .hero {
     min-height: auto;
@@ -324,6 +346,7 @@
     padding-left: 0;
     padding-right: 0;
     overflow-x: hidden;
+    max-width: 100%;
   }
 
   .section {
@@ -345,5 +368,20 @@
 
   .timelineItem {
     grid-template-columns: 1fr;
+  }
+
+  .sectionContact {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .siteFooter {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .contactSlot {
+    width: 100%;
+    padding: 0;
   }
 }

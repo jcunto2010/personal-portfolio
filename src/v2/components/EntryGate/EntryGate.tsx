@@ -300,6 +300,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             </button>
           </div>
 
+          {/* CLASSIC MODE — temporalmente oculto, restaurar al hacer merge desde rama classic-mode
           <button
             type="button"
             className={styles.introBtnClassic}
@@ -313,6 +314,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
               </span>
             </div>
           </button>
+          */}
         </div>
       </div>
 
