@@ -142,6 +142,9 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     await commitSelection('non-immersive')
   }
 
+  // Evita TS6133 mientras el botón modo clásico está comentado en el JSX.
+  void handleClassicMode
+
   const isMuted = !localAudio
 
   return (
