@@ -188,3 +188,17 @@
     animation: none !important;
   }
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .hudStack[data-planet-open='true'] {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .hudStack[data-planet-open='false'] {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.2s ease;
+  }
+}

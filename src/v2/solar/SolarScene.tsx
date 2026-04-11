@@ -1718,7 +1718,11 @@ function SolarSceneWebGL({
       )}
 
       {/* DOM overlays — top-left HUD (menu + audio) */}
-      <div className={styles.hudStack}>
+      {/* En móvil (pointer: coarse) se oculta mientras una card de planeta esté abierta */}
+      <div
+        className={styles.hudStack}
+        data-planet-open={activePlanet ? 'true' : 'false'}
+      >
         <ExpandOnHoverIconButton
           variant="immersive"
           label={menuLabel}
