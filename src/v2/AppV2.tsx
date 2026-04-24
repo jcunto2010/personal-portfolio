@@ -4,6 +4,7 @@ import {
   LazyHomeV2,
   LazyProjectsV2,
   LazyProjectDetailV2,
+  LazyEditorialGlowupPage,
   PageFallback,
 } from './router/routes'
 import './tokens/tokens.css'
@@ -40,6 +41,14 @@ export default function AppV2() {
               element={
                 <Suspense fallback={<PageFallback />}>
                   <LazyHomeV2 />
+                </Suspense>
+              }
+            />
+            <Route
+              path="editorial-glowup"
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <LazyEditorialGlowupPage />
                 </Suspense>
               }
             />

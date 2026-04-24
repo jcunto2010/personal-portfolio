@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import AppV2 from './AppV2'
 import { initTelemetry } from './lib/telemetry'
+import './tailwind.css'
 
 /**
  * Canonical app entry — mounted from index.html.
