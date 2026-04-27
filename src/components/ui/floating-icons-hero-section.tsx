@@ -156,6 +156,11 @@ export function FloatingIconsHero({
   const sectionRef = React.useRef<HTMLElement | null>(null)
   const iconsLayerRef = React.useRef<HTMLDivElement | null>(null)
   const contentRef = React.useRef<HTMLDivElement | null>(null)
+  const modalRef = React.useRef<HTMLElement | null>(null)
+  const closeButtonRef = React.useRef<HTMLButtonElement | null>(null)
+  const previouslyFocusedRef = React.useRef<HTMLElement | null>(null)
+  const dialogTitleId = React.useId()
+  const dialogDescriptionId = React.useId()
   const [selectedIcon, setSelectedIcon] = React.useState<IconProps | null>(null)
   const levelData = getLevelProgress(selectedIcon?.level)
 
@@ -163,6 +168,16 @@ export function FloatingIconsHero({
     mouseX.current = event.clientX
     mouseY.current = event.clientY
   }
+
+  const closeSelectedIcon = React.useCallback(() => {
+    setSelectedIcon(null)
+  }, [])
+
+  const handleSelectIcon = React.useCallback((iconData: IconProps) => {
+    previouslyFocusedRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setSelectedIcon(iconData)
+  }, [])
 
   React.useEffect(() => {
     if (!sectionRef.current || !iconsLayerRef.current || !contentRef.current) return
@@ -186,6 +201,55 @@ export function FloatingIconsHero({
     }
   }, [])
 
+  React.useEffect(() => {
+    if (!selectedIcon) return
+
+    const focusTimer = window.setTimeout(() => {
+      closeButtonRef.current?.focus()
+    }, 0)
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeSelectedIcon()
+        return
+      }
+
+      if (event.key !== 'Tab' || !modalRef.current) return
+
+      const focusableElements = Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      )
+
+      if (!focusableElements.length) {
+        event.preventDefault()
+        return
+      }
+
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault()
+        lastElement.focus()
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault()
+        firstElement.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.clearTimeout(focusTimer)
+      document.removeEventListener('keydown', handleKeyDown)
+      previouslyFocusedRef.current?.focus()
+      previouslyFocusedRef.current = null
+    }
+  }, [closeSelectedIcon, selectedIcon])
+
   return (
     <section
       ref={sectionRef}
@@ -196,7 +260,11 @@ export function FloatingIconsHero({
       )}
       {...props}
     >
-      <div ref={iconsLayerRef} className="absolute inset-0 w-full h-full">
+      <div
+        ref={iconsLayerRef}
+        className={cn('absolute inset-0 w-full h-full', selectedIcon && 'pointer-events-none')}
+        aria-hidden={selectedIcon ? 'true' : undefined}
+      >
         {icons.map((iconData, index) => (
           <Icon
             key={iconData.id}
@@ -204,12 +272,16 @@ export function FloatingIconsHero({
             mouseY={mouseY}
             iconData={iconData}
             index={index}
-            onSelect={setSelectedIcon}
+            onSelect={handleSelectIcon}
           />
         ))}
       </div>
 
-      <div ref={contentRef} className="relative z-10 text-center px-4">
+      <div
+        ref={contentRef}
+        className={cn('relative z-10 text-center px-4', selectedIcon && 'pointer-events-none')}
+        aria-hidden={selectedIcon ? 'true' : undefined}
+      >
         <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-[#F5F7FF]">
           {title}
         </h2>
@@ -223,24 +295,37 @@ export function FloatingIconsHero({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onMouseDown={closeSelectedIcon}
           >
             <motion.article
+              ref={modalRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={dialogTitleId}
+              aria-describedby={dialogDescriptionId}
               className="w-[min(92vw,760px)] rounded-2xl border border-white/15 bg-[#070B1A]/95 shadow-2xl p-6 md:p-8"
               initial={{ opacity: 0, y: 16, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.97 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
+              onMouseDown={(event) => event.stopPropagation()}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-white/60">Skill details</p>
-                  <h3 className="mt-2 text-2xl md:text-3xl font-bold text-white">
+                  <p
+                    id={dialogDescriptionId}
+                    className="text-xs uppercase tracking-[0.14em] text-white/60"
+                  >
+                    Skill details
+                  </p>
+                  <h3 id={dialogTitleId} className="mt-2 text-2xl md:text-3xl font-bold text-white">
                     {selectedIcon.name ?? `Skill ${selectedIcon.id}`}
                   </h3>
                 </div>
                 <button
+                  ref={closeButtonRef}
                   type="button"
-                  onClick={() => setSelectedIcon(null)}
+                  onClick={closeSelectedIcon}
                   aria-label="Cerrar panel"
                   className="h-9 w-9 rounded-full bg-white text-black flex items-center justify-center text-xl leading-none font-semibold"
                 >

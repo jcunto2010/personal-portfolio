@@ -1,5 +1,4 @@
 import { ArrowUpRight } from 'lucide-react'
-import { Button } from './button'
 import { cn } from '../../lib/utils'
 
 interface ButtonWithIconProps {
@@ -18,10 +17,11 @@ const ButtonWithIconDemo = ({
   const isOutline = variant === 'outline'
 
   return (
-    <Button
-      variant={variant}
+    <button
+      type="button"
       onClick={onClick}
       className={cn(
+        'inline-flex items-center justify-center whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 disabled:pointer-events-none disabled:opacity-50',
         'relative text-sm min-[1440px]:text-base font-medium rounded-full h-12 min-[1440px]:h-14 p-1 min-[1440px]:p-1.5 ps-6 min-[1440px]:ps-7 pe-14 min-[1440px]:pe-16 group transition-all duration-500 hover:ps-14 hover:pe-6 min-[1440px]:hover:ps-16 min-[1440px]:hover:pe-7 w-fit overflow-hidden cursor-pointer border',
         isOutline
           ? 'bg-[#070B1A] text-[#F5F7FF] border-[#F5F7FF]/25 hover:bg-[#101935]'
@@ -41,7 +41,7 @@ const ButtonWithIconDemo = ({
       >
         <ArrowUpRight size={16} />
       </div>
-    </Button>
+    </button>
   )
 }
 

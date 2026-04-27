@@ -42,6 +42,22 @@
   /* Chapter spacing */
   --v2-chapter-padding-y: clamp(80px, 12vw, 160px);
   --v2-chapter-max-width: 1200px;
+
+  font-family: var(--v2-font-body);
+  font-style: italic;
+}
+
+.v2-root *,
+.v2-root *::before,
+.v2-root *::after {
+  font-style: inherit;
+}
+
+.v2-root button,
+.v2-root input,
+.v2-root textarea,
+.v2-root select {
+  font-family: inherit;
 }
 
 /* Reduced-motion: disable transitions at root level */

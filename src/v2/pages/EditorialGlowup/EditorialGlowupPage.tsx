@@ -1,7 +1,10 @@
 import { Hero } from '../../../components/ui/animated-hero'
 import LightPillar from '../../../components/ui/LightPillar'
 import { AboutTextBlock } from './AboutTextBlock'
+import { ExperienceSection } from './ExperienceSection'
+import { ReservoSection } from './ReservoSection'
 import { SkillsSection } from './SkillsSection'
+import { StartupConnectSection } from './StartupConnectSection'
 
 export default function EditorialGlowupPage() {
   return (
@@ -43,6 +46,9 @@ export default function EditorialGlowupPage() {
         <Hero />
         <AboutTextBlock />
         <SkillsSection />
+        <ReservoSection />
+        <StartupConnectSection />
+        <ExperienceSection />
       </div>
     </main>
   )

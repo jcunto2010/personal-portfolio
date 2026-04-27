@@ -25,7 +25,8 @@ export function PageFallback() {
         alignItems: 'center',
         justifyContent: 'center',
         color: '#B8C0D9',
-        fontFamily: 'Inter, Arial, sans-serif',
+        fontFamily: "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)",
+        fontStyle: 'italic',
         fontSize: '0.875rem',
         letterSpacing: '0.08em',
       }}
