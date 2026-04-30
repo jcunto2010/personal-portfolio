@@ -55,6 +55,7 @@ import { useJourneyLoader } from '../../lib/useJourneyLoader'
 
 /** Editorial home (ClassicRebuildPage, Three shader chunk, etc.) — lazy so EntryGate + H1 are not blocked by that JS. */
 const LazyHomeV2 = lazy(() => import('./HomeV2'))
+const FONT_BODY = "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)"
 
 // ── Lazy SolarScene — WebGL bundle only loaded in immersive mode ───────────────
 
@@ -104,7 +105,7 @@ class ImmersiveErrorBoundary extends Component<
         inset: 0,
         background: '#0a0a1a',
         color: '#f87171',
-        fontFamily: 'monospace',
+        fontFamily: FONT_BODY,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -143,7 +144,7 @@ class ImmersiveErrorBoundary extends Component<
               border: '1px solid rgba(255,255,255,0.2)',
               background: 'rgba(255,255,255,0.08)',
               color: '#e2e8f0',
-              fontFamily: 'monospace',
+              fontFamily: FONT_BODY,
               fontSize: '13px',
               cursor: 'pointer',
             }}
@@ -159,7 +160,7 @@ class ImmersiveErrorBoundary extends Component<
               border: '1px solid rgba(239,68,68,0.4)',
               background: 'rgba(239,68,68,0.1)',
               color: '#fca5a5',
-              fontFamily: 'monospace',
+              fontFamily: FONT_BODY,
               fontSize: '13px',
               cursor: 'pointer',
             }}
@@ -309,7 +310,7 @@ function HomeV2Inner() {
               }}
               role="alert"
             >
-              <p style={{ color: '#fecaca', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
+              <p style={{ color: '#fecaca', fontFamily: FONT_BODY, fontSize: '0.9rem', margin: 0 }}>
                 {journeyLoader.error}
               </p>
               <button
@@ -321,7 +322,7 @@ function HomeV2Inner() {
                   border: '1px solid rgba(248,250,252,0.3)',
                   background: 'rgba(255,255,255,0.08)',
                   color: '#e2e8f0',
-                  fontFamily: 'monospace',
+                  fontFamily: FONT_BODY,
                   fontSize: '13px',
                   cursor: 'pointer',
                 }}
@@ -358,7 +359,7 @@ function HomeV2Inner() {
                 border: '1px solid rgba(248,250,252,0.3)',
                 background: 'rgba(255,255,255,0.08)',
                 color: '#e2e8f0',
-                fontFamily: 'monospace',
+                fontFamily: FONT_BODY,
                 fontSize: '13px',
                 cursor: 'pointer',
               }}

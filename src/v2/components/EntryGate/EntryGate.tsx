@@ -137,13 +137,10 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     await commitSelection('immersive')
   }
 
-  async function handleClassicMode() {
+  function handleClassicMode() {
     setLocalMode('non-immersive')
-    await commitSelection('non-immersive')
+    window.location.assign('/editorial-glowup')
   }
-
-  // Evita TS6133 mientras el botón modo clásico está comentado en el JSX.
-  void handleClassicMode
 
   const isMuted = !localAudio
 
@@ -303,7 +300,6 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             </button>
           </div>
 
-          {/* CLASSIC MODE — temporalmente oculto, restaurar al hacer merge desde rama classic-mode
           <button
             type="button"
             className={styles.introBtnClassic}
@@ -317,7 +313,6 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
               </span>
             </div>
           </button>
-          */}
         </div>
       </div>
 

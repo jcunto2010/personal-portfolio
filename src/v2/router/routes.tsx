@@ -11,6 +11,9 @@ export const LazyProjectsV2 = lazy(() => import('../pages/ProjectsV2/ProjectsV2'
 export const LazyProjectDetailV2 = lazy(
   () => import('../pages/ProjectDetailV2/ProjectDetailV2'),
 )
+export const LazyEditorialGlowupPage = lazy(
+  () => import('../pages/EditorialGlowup/EditorialGlowupPage'),
+)
 
 export function PageFallback() {
   return (
@@ -22,7 +25,8 @@ export function PageFallback() {
         alignItems: 'center',
         justifyContent: 'center',
         color: '#B8C0D9',
-        fontFamily: 'Inter, Arial, sans-serif',
+        fontFamily: "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)",
+        fontStyle: 'italic',
         fontSize: '0.875rem',
         letterSpacing: '0.08em',
       }}
@@ -38,6 +42,14 @@ export const v2Routes: RouteObject[] = [
     element: (
       <Suspense fallback={<PageFallback />}>
         <LazyHomeV2 />
+      </Suspense>
+    ),
+  },
+  {
+    path: 'editorial-glowup',
+    element: (
+      <Suspense fallback={<PageFallback />}>
+        <LazyEditorialGlowupPage />
       </Suspense>
     ),
   },

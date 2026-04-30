@@ -14,7 +14,14 @@ import type { LoadingGroup } from './planetRegistry'
 import { PLANET_REGISTRY } from './planetRegistry'
 import type { ShotId } from './shotConfig'
 import type { ShotPhaseId } from './CameraRig'
-import type { BlackholeCinematicPhase, BlackholeResetPhase, DiscreteShotId, TransitionDirection } from './useDiscreteShotNavigation'
+import type {
+  BlackholeCinematicPhase,
+  BlackholeResetPhase,
+  DiscreteShotId,
+  TransitionDirection,
+} from './useDiscreteShotNavigation'
+
+const FONT_BODY = "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)"
 
 export interface DebugHUDProps {
   mode: string
@@ -40,11 +47,9 @@ export interface DebugHUDProps {
   discreteIsTransitioning?:      boolean
   discreteTransitionDirection?:  TransitionDirection | null
   discreteWheelIntent?:          number
-  // Blackhole cinematic
   isBlackholeCinematic?:         boolean
   blackholeCinematicPhase?:      BlackholeCinematicPhase
   blackholeCinematicT?:          number
-  // Blackhole reset cinematic
   isBlackholeResetting?:         boolean
   blackholeResetPhase?:          BlackholeResetPhase
   blackholeResetT?:              number
@@ -85,12 +90,6 @@ export function DebugHUD({
   discreteIsTransitioning,
   discreteTransitionDirection,
   discreteWheelIntent,
-  isBlackholeCinematic,
-  blackholeCinematicPhase,
-  blackholeCinematicT,
-  isBlackholeResetting,
-  blackholeResetPhase,
-  blackholeResetT,
 }: DebugHUDProps) {
   // Rendered planets excludes blackhole and uranus (uranus uses procedural mesh, not GLB pipeline).
   const renderedPlanetCount = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus').length
@@ -115,7 +114,7 @@ export function DebugHUD({
         border: '1px solid rgba(255,255,255,0.15)',
         borderRadius: '0.5rem',
         padding: '0.75rem 1rem',
-        fontFamily: 'monospace',
+        fontFamily: FONT_BODY,
         fontSize: '11px',
         lineHeight: '1.6',
         maxWidth: '340px',
@@ -187,40 +186,6 @@ export function DebugHUD({
             label="wheelIntent"
             value={discreteWheelIntent != null ? discreteWheelIntent.toFixed(0) : '—'}
           />
-          <Row
-            label="bhCinematic"
-            value={isBlackholeCinematic != null ? String(isBlackholeCinematic) : '—'}
-            warn={isBlackholeCinematic}
-          />
-          {isBlackholeCinematic && (
-            <>
-              <Row
-                label="bhCinPhase"
-                value={blackholeCinematicPhase ?? '—'}
-              />
-              <Row
-                label="bhCinT"
-                value={blackholeCinematicT != null ? blackholeCinematicT.toFixed(3) : '—'}
-              />
-            </>
-          )}
-          {isBlackholeResetting && (
-            <>
-              <Row
-                label="bhReset"
-                value="true"
-                warn
-              />
-              <Row
-                label="bhResetPhase"
-                value={blackholeResetPhase ?? '—'}
-              />
-              <Row
-                label="bhResetT"
-                value={blackholeResetT != null ? blackholeResetT.toFixed(3) : '—'}
-              />
-            </>
-          )}
 
           {/* Divider */}
           <tr><td colSpan={2} style={{ paddingTop: '0.4rem', paddingBottom: '0.2rem' }}>

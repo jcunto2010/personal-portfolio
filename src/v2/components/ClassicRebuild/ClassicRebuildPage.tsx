@@ -1,15 +1,13 @@
 import { useMemo } from 'react'
-import { Github, Instagram, Linkedin, Twitter } from 'lucide-react'
 import type { IconType } from 'react-icons'
 import * as SiIcons from 'react-icons/si'
 import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
 import { ClassicFocus } from '../ClassicFocus/ClassicFocus'
-import { ClassicHero } from '../ClassicHero/ClassicHero'
 import { ClassicTimeline } from '../ClassicTimeline/ClassicTimeline'
 import NeuralBackground from '../NeuralBackground'
 import Contact from '../Contact/Contact'
 import { TableOfContents } from '../TableOfContents/TableOfContents'
-import { contactV2 } from '../../data/contact.v2'
+import { Hero } from '../../../components/ui/animated-hero'
 import { experienceV2 } from '../../data/experience.v2'
 import { getProjectBySlug, type ProjectV2 } from '../../data/projects.v2'
 import { skillsV2 } from '../../data/skills.v2'
@@ -193,30 +191,9 @@ export function ClassicRebuildPage() {
       <TableOfContents />
 
       <header className={styles.hero} id="chapter-intro">
-        <ClassicHero
-          logoText={ui.title}
-          navLinks={[
-            { label: isEs ? 'Inicio' : 'Home', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
-            { label: isEs ? 'Acerca' : 'About', onClick: () => scrollToSection('chapter-about') },
-            { label: isEs ? 'Exp.' : 'Exp.', onClick: () => scrollToSection('chapter-notes') },
-            { label: 'Reservo', onClick: () => scrollToSection('chapter-reservo') },
-            { label: 'Startup', onClick: () => scrollToSection('chapter-startupconnect') },
-            { label: 'Skills', onClick: () => scrollToSection('classic-skills') },
-            { label: isEs ? 'Contacto' : 'Contact', onClick: () => scrollToSection('chapter-contact') },
-          ]}
-          heroHeading={ui.heroHeading}
-          mainText={ui.heroMainText}
-          ctaPrimary={{ label: ui.ctaWork, onClick: () => scrollToSection('chapter-reservo') }}
-          ctaSecondary={{ label: ui.ctaContact, onClick: () => scrollToSection('chapter-contact') }}
-          imageSrc="/assets/projects/johnny_hero.webp"
-          imageAlt="Jonathan hero portrait"
-          socialLinks={[
-            { icon: Github, href: contactV2.github, label: 'GitHub' },
-            { icon: Linkedin, href: contactV2.linkedin, label: 'LinkedIn' },
-            { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-            { icon: Twitter, href: 'https://x.com', label: 'X' },
-          ]}
-          locationText={ui.heroLocation}
+        <Hero
+          onExploreWork={() => scrollToSection('chapter-reservo')}
+          onContact={() => scrollToSection('chapter-contact')}
         />
       </header>
 

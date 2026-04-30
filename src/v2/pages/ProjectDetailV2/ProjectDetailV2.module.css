@@ -191,7 +191,7 @@
 .coverLabel {
   font-size: 0.75rem;
   color: var(--v2-color-border-soft);
-  font-family: monospace;
+  font-family: var(--v2-font-body);
   letter-spacing: 0.08em;
 }
 
@@ -302,7 +302,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   color: var(--v2-color-border-soft);
-  font-family: monospace;
+  font-family: var(--v2-font-body);
   padding-top: 0.15rem;
   flex-shrink: 0;
   min-width: 2rem;
@@ -374,7 +374,7 @@
   border-radius: var(--v2-radius-sm);
   font-size: 0.8rem;
   color: var(--v2-color-muted-text);
-  font-family: monospace;
+  font-family: var(--v2-font-body);
   letter-spacing: 0.04em;
 }
 
@@ -428,7 +428,7 @@
 }
 
 .notFoundText code {
-  font-family: monospace;
+  font-family: var(--v2-font-body);
   background: var(--v2-color-surface-bg);
   padding: 0.15rem 0.4rem;
   border-radius: 4px;

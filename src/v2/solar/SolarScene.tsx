@@ -54,6 +54,8 @@ import {
   URANUS_DETAIL_TEXTURE_URLS,
 } from './solarImmersiveRelease'
 
+const FONT_BODY = "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)"
+
 // ── Cinematic T reader — RAF-based ref→state bridge for DOM overlay ───────────
 //
 // Reads a mutable ref value each animation frame and exposes it as React state.
@@ -524,7 +526,7 @@ export function SolarScene({
       locale === 'es' ? 'Regresar a menú principal' : 'Return to main menu'
     return (
       <div className={styles.solarSceneRoot} style={{ display: 'grid', placeItems: 'center', background: '#030712' }}>
-        <div style={{ textAlign: 'center', color: '#e2e8f0', fontFamily: 'monospace', padding: '2rem' }}>
+        <div style={{ textAlign: 'center', color: '#e2e8f0', fontFamily: FONT_BODY, padding: '2rem' }}>
           <p style={{ margin: 0, fontSize: '1rem' }}>WebGL no disponible en este navegador/GPU.</p>
           <p style={{ margin: '0.75rem 0 1.5rem', opacity: 0.75, fontSize: '0.85rem' }}>
             Cambia a modo clásico o revisa la aceleración por hardware.
@@ -1331,7 +1333,7 @@ function SolarSceneWebGL({
       {IS_SAFE && (
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, zIndex: 1000,
-          background: '#92400e', color: '#fef3c7', fontFamily: 'monospace',
+          background: '#92400e', color: '#fef3c7', fontFamily: FONT_BODY,
           fontSize: '13px', fontWeight: 700, padding: '0.35rem 1rem',
           textAlign: 'center', letterSpacing: '0.06em', pointerEvents: 'none',
         }}>
@@ -1344,7 +1346,7 @@ function SolarSceneWebGL({
           position: 'absolute', bottom: '1.5rem', left: '50%',
           transform: 'translateX(-50%)', zIndex: 1000,
           background: 'rgba(0,0,0,0.7)', color: '#4ade80',
-          fontFamily: 'monospace', fontSize: '12px', fontWeight: 700,
+          fontFamily: FONT_BODY, fontSize: '12px', fontWeight: 700,
           padding: '0.3rem 0.9rem', borderRadius: '999px',
           border: '1px solid rgba(74,222,128,0.4)', pointerEvents: 'none',
           letterSpacing: '0.05em', whiteSpace: 'nowrap',
@@ -1701,14 +1703,14 @@ function SolarSceneWebGL({
             animation: 'spin 1.1s linear infinite',
           }} />
           <p style={{
-            color: '#FFA726', fontFamily: 'monospace', fontSize: '13px',
+            color: '#FFA726', fontFamily: FONT_BODY, fontSize: '13px',
             letterSpacing: '0.12em', textTransform: 'uppercase',
             margin: 0, opacity: 0.9,
           }}>
             Loading solar system…
           </p>
           <p style={{
-            color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', fontSize: '11px',
+            color: 'rgba(255,255,255,0.35)', fontFamily: FONT_BODY, fontSize: '11px',
             margin: 0,
           }}>
             {glbLoaded} / {initialGroupSize} models ready
@@ -1780,7 +1782,7 @@ function SolarSceneWebGL({
           zIndex: 1000,
           background: 'rgba(0,0,0,0.7)',
           color: '#93c5fd',
-          fontFamily: 'monospace',
+          fontFamily: FONT_BODY,
           fontSize: '11px',
           fontWeight: 700,
           padding: '0.35rem 0.7rem',

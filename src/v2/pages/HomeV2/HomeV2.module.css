@@ -660,7 +660,6 @@
 }
 
 .contactGrid {
-  font-style: normal;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
   gap: 2rem;
@@ -751,7 +750,7 @@
   border-radius: var(--v2-radius-sm);
   font-size: 0.8rem;
   color: var(--v2-color-muted-text);
-  font-family: monospace;
+  font-family: var(--v2-font-body);
   letter-spacing: 0.04em;
   margin-top: 2rem;
 }

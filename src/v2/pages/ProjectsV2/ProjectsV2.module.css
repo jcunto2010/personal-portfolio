@@ -108,7 +108,7 @@
   letter-spacing: 0.1em;
   color: var(--v2-color-muted-text);
   padding-top: 0.3rem;
-  font-family: monospace;
+  font-family: var(--v2-font-body);
 }
 
 .projectInfo {
