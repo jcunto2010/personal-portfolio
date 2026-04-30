@@ -8,12 +8,9 @@ interface LetsWorkTogetherCopy {
   discussLabel: string
   githubLabel: string
   linkedinLabel: string
-  introCallLabel: string
-  availabilityLabel: string
   headingLine1: string
   headingLine2: string
   description: string
-  email: string
   formTitle: string
   nameLabel: string
   emailLabel: string
@@ -28,7 +25,6 @@ interface LetsWorkTogetherProps {
   copy?: LetsWorkTogetherCopy
   onBookCall?: () => void
   bookCallHref?: string
-  discussHref?: string
   githubHref?: string
   linkedinHref?: string
   locale?: 'en' | 'es'
@@ -41,13 +37,10 @@ const defaultCopy: LetsWorkTogetherCopy = {
   discussLabel: "Let's discuss",
   githubLabel: 'GitHub',
   linkedinLabel: 'LinkedIn',
-  introCallLabel: '15 min intro call',
-  availabilityLabel: 'Available for projects',
   headingLine1: "Let's work",
   headingLine2: 'together',
   description:
     "Have a project in mind? I'd love to hear about it. Let's create something exceptional together.",
-  email: 'hello@example.com',
   formTitle: 'Tell me about your project',
   nameLabel: 'Name',
   emailLabel: 'Email',
@@ -61,7 +54,7 @@ const defaultCopy: LetsWorkTogetherCopy = {
 export function LetsWorkTogether({
   copy = defaultCopy,
   onBookCall,
-  bookCallHref = 'https://cal.com/jatin-yadav05/15min',
+  bookCallHref = 'https://calendly.com/cnto-jnthn-97/30min',
   githubHref = 'https://github.com/jcunto2010',
   linkedinHref = 'https://www.linkedin.com/in/jonathan-cuntodiaz-41149a1bb',
   locale = 'en',
