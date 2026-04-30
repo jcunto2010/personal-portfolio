@@ -80,10 +80,12 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
               label={isEs ? 'Contactar' : 'Get in touch'}
               variant="outline"
               onClick={onContact}
+              className="!border-0"
             />
             <ButtonWithIconDemo
               label={isEs ? 'Ver proyectos' : 'View projects'}
               onClick={onExploreWork}
+              className="!border-0"
             />
           </div>
         </div>
