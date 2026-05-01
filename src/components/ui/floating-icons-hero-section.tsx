@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { AnimatePresence, motion, useMotionValue, useSpring } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '../../lib/utils'
@@ -50,51 +50,15 @@ function getLevelProgress(level?: string): { progress: number; colorClass: strin
 }
 
 const Icon = ({
-  mouseX,
-  mouseY,
   iconData,
   index,
   onSelect,
 }: {
-  mouseX: React.MutableRefObject<number>
-  mouseY: React.MutableRefObject<number>
   iconData: IconProps
   index: number
   onSelect: (iconData: IconProps) => void
 }) => {
   const ref = React.useRef<HTMLButtonElement>(null)
-
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
-  const springX = useSpring(x, { stiffness: 300, damping: 20 })
-  const springY = useSpring(y, { stiffness: 300, damping: 20 })
-
-  React.useEffect(() => {
-    const handleMouseMove = () => {
-      if (!ref.current) return
-      const rect = ref.current.getBoundingClientRect()
-      const distance = Math.sqrt(
-        Math.pow(mouseX.current - (rect.left + rect.width / 2), 2) +
-          Math.pow(mouseY.current - (rect.top + rect.height / 2), 2),
-      )
-
-      if (distance < 150) {
-        const angle = Math.atan2(
-          mouseY.current - (rect.top + rect.height / 2),
-          mouseX.current - (rect.left + rect.width / 2),
-        )
-        const force = (1 - distance / 150) * 50
-        x.set(-Math.cos(angle) * force)
-        y.set(-Math.sin(angle) * force)
-      } else {
-        x.set(0)
-        y.set(0)
-      }
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [x, y, mouseX, mouseY])
 
   const IconComp = iconData.icon
 
@@ -104,7 +68,6 @@ const Icon = ({
       onClick={() => onSelect(iconData)}
       aria-label={iconData.name ?? `skill-${iconData.id}`}
       ref={ref}
-      style={{ x: springX, y: springY }}
       initial={{ opacity: 0, scale: 0.3, rotate: -8 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{
@@ -120,7 +83,7 @@ const Icon = ({
       )}
     >
       <motion.div
-        className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 p-2 md:p-3"
+        className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-20 md:h-20 p-1.5 sm:p-2 md:p-3"
         animate={{
           y: [0, -8, 0, 8, 0],
           x: [0, 6, 0, -6, 0],
@@ -135,7 +98,7 @@ const Icon = ({
       >
         <IconComp
           className={cn(
-            'w-9 h-9 md:w-12 md:h-12 drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]',
+            'w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]',
             iconData.iconClassName,
           )}
         />
@@ -151,8 +114,6 @@ export function FloatingIconsHero({
   icons,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & FloatingIconsHeroProps) {
-  const mouseX = React.useRef(0)
-  const mouseY = React.useRef(0)
   const sectionRef = React.useRef<HTMLElement | null>(null)
   const iconsLayerRef = React.useRef<HTMLDivElement | null>(null)
   const contentRef = React.useRef<HTMLDivElement | null>(null)
@@ -163,11 +124,6 @@ export function FloatingIconsHero({
   const dialogDescriptionId = React.useId()
   const [selectedIcon, setSelectedIcon] = React.useState<IconProps | null>(null)
   const levelData = getLevelProgress(selectedIcon?.level)
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    mouseX.current = event.clientX
-    mouseY.current = event.clientY
-  }
 
   const closeSelectedIcon = React.useCallback(() => {
     setSelectedIcon(null)
@@ -253,9 +209,8 @@ export function FloatingIconsHero({
   return (
     <section
       ref={sectionRef}
-      onMouseMove={handleMouseMove}
       className={cn(
-        'relative w-full min-h-[110vh] min-[1200px]:min-h-[120vh] flex items-center justify-center overflow-hidden py-20',
+        'relative w-full min-h-[128vh] sm:min-h-[122vh] min-[1200px]:min-h-[120vh] flex items-center justify-center overflow-hidden py-14 sm:py-16 md:py-20',
         className,
       )}
       {...props}
@@ -268,8 +223,6 @@ export function FloatingIconsHero({
         {icons.map((iconData, index) => (
           <Icon
             key={iconData.id}
-            mouseX={mouseX}
-            mouseY={mouseY}
             iconData={iconData}
             index={index}
             onSelect={handleSelectIcon}
@@ -279,13 +232,17 @@ export function FloatingIconsHero({
 
       <div
         ref={contentRef}
-        className={cn('relative z-10 text-center px-4', selectedIcon && 'pointer-events-none')}
+        className={cn(
+          'pointer-events-none relative z-10 mx-auto w-full max-w-[min(92vw,42rem)] text-center px-4',
+        )}
         aria-hidden={selectedIcon ? 'true' : undefined}
       >
-        <h2 className="text-5xl md:text-7xl font-bold tracking-tight text-[#F5F7FF]">
+        <h2 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight tracking-tight text-[#F5F7FF]">
           {title}
         </h2>
-        <p className="mt-6 max-w-xl mx-auto text-lg text-white/75">{subtitle}</p>
+        <p className="mt-4 sm:mt-5 max-w-[20rem] sm:max-w-xl mx-auto text-base sm:text-lg text-white/75">
+          {subtitle}
+        </p>
       </div>
 
       <AnimatePresence>

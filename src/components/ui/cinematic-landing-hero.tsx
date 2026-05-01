@@ -313,11 +313,15 @@ export function CinematicHero({
 
     const ctx = gsap.context(() => {
       const isMobile = window.innerWidth < 768
+      const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024
+      const mockupRevealScale = isMobile ? 0.62 : isTablet ? 0.82 : 1
 
       gsap.set('.text-track', { autoAlpha: 0, y: 60, scale: 0.85, filter: 'blur(20px)', rotationX: -20 })
       gsap.set('.text-days', { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
       gsap.set('.main-card', { y: window.innerHeight + 200, autoAlpha: 1 })
-      gsap.set(['.card-left-text', '.card-right-text', '.mockup-scroll-wrapper', '.floating-badge', '.phone-widget'], { autoAlpha: 0 })
+      gsap.set(['.card-left-text', '.card-right-text', '.mockup-scroll-wrapper', '.floating-badge', '.mockup-widget'], { autoAlpha: 0 })
+      gsap.set('.card-left-text', { y: 80 })
+      gsap.set('.card-right-text', { y: 90 })
       if (showFinalCta) {
         gsap.set('.cta-wrapper', { autoAlpha: 0, scale: 0.8, filter: 'blur(30px)' })
       }
@@ -345,15 +349,17 @@ export function CinematicHero({
         .fromTo(
           '.mockup-scroll-wrapper',
           { y: 300, z: -500, rotationX: 50, rotationY: -30, autoAlpha: 0, scale: 0.6 },
-          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: 'expo.out', duration: 2.5 },
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: mockupRevealScale, ease: 'expo.out', duration: 2.3 },
           '-=0.8',
         )
-        .fromTo('.phone-widget', { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: 'back.out(1.2)', duration: 1.5 }, '-=1.5')
+        .fromTo('.mockup-widget', { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: 'back.out(1.2)', duration: 1.5 }, '-=1.5')
         .to('.progress-ring', { strokeDashoffset: 60, duration: 2, ease: 'power3.inOut' }, '-=1.2')
         .to('.counter-val', { innerHTML: metricValue, snap: { innerHTML: 1 }, duration: 2, ease: 'expo.out' }, '-=2.0')
-        .fromTo('.floating-badge', { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: 'back.out(1.5)', duration: 1.5, stagger: 0.2 }, '-=2.0')
-        .fromTo('.card-left-text', { x: -50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: 'power4.out', duration: 1.5 }, '-=1.5')
-        .fromTo('.card-right-text', { x: 50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: 'expo.out', duration: 1.5 }, '<')
+        .fromTo('.floating-badge', { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: 'back.out(1.5)', duration: 1.4, stagger: 0.2 }, '-=1.9')
+        .to({}, { duration: 0.8 })
+        .to('.card-left-text', { y: 0, autoAlpha: 1, ease: 'power4.out', duration: 1.4 })
+        .to({}, { duration: 0.7 })
+        .to('.card-right-text', { y: 0, autoAlpha: 1, scale: 1, ease: 'expo.out', duration: 1.4 })
 
       if (showFinalCta) {
         scrollTl
@@ -437,21 +443,21 @@ export function CinematicHero({
       <div className="film-grain" aria-hidden="true" />
       <div className="bg-grid-theme absolute inset-0 z-0 opacity-50 pointer-events-none" aria-hidden="true" />
 
-      <div className="hero-text-wrapper transform-style-3d absolute z-10 flex w-full flex-col items-center justify-center px-6 text-center will-change-transform">
-        <h2 className="text-track gsap-reveal text-3d-matte mb-1 max-w-[94vw] py-2 text-5xl font-bold leading-[1.16] tracking-tight md:text-7xl lg:text-[6rem] min-[1440px]:text-[8rem]">
+      <div className="hero-text-wrapper transform-style-3d absolute z-10 flex w-full flex-col items-center justify-center px-5 text-center will-change-transform">
+        <h2 className="text-track gsap-reveal text-3d-matte mb-1 max-w-[95vw] py-1.5 text-4xl font-bold leading-[1.14] tracking-tight sm:text-5xl md:text-6xl lg:text-[6rem] min-[1440px]:text-[8rem]">
           {tagline1}
         </h2>
-        <h2 className="text-days gsap-reveal text-silver-matte max-w-[94vw] py-2 text-5xl font-extrabold leading-[1.16] tracking-tighter md:text-7xl lg:text-[6rem] min-[1440px]:text-[8rem]">
+        <h2 className="text-days gsap-reveal text-silver-matte max-w-[95vw] py-1.5 text-4xl font-extrabold leading-[1.14] tracking-tighter sm:text-5xl md:text-6xl lg:text-[6rem] min-[1440px]:text-[8rem]">
           {tagline2}
         </h2>
       </div>
 
       {showFinalCta && (
         <div className="cta-wrapper gsap-reveal absolute z-10 flex w-full flex-col items-center justify-center px-4 text-center pointer-events-auto will-change-transform">
-          <h2 className="text-silver-matte mb-6 max-w-[94vw] py-2 text-4xl font-bold leading-[1.16] tracking-tight md:text-6xl lg:text-7xl min-[1440px]:text-[6.5rem]">
+          <h2 className="text-silver-matte mb-5 max-w-[94vw] py-2 text-3xl font-bold leading-[1.14] tracking-tight sm:text-4xl md:text-5xl lg:text-7xl min-[1440px]:text-[6.5rem]">
             {ctaHeading}
           </h2>
-          <p className="mx-auto mb-12 max-w-xl text-lg font-light leading-relaxed text-[#B8C0D9] md:text-xl min-[1440px]:max-w-3xl min-[1440px]:text-2xl">
+          <p className="mx-auto mb-10 max-w-[22rem] text-base font-light leading-relaxed text-[#B8C0D9] sm:max-w-xl sm:text-lg md:text-xl min-[1440px]:max-w-3xl min-[1440px]:text-2xl">
             {ctaDescription}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -467,58 +473,16 @@ export function CinematicHero({
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ perspective: '1500px' }}>
         <div
           ref={mainCardRef}
-          className="main-card premium-depth-card gsap-reveal relative flex h-[92vh] w-[92vw] items-center justify-center overflow-hidden rounded-[32px] pointer-events-auto md:h-[85vh] md:w-[85vw] md:rounded-[40px] min-[1440px]:h-[88vh] min-[1440px]:w-[88vw]"
+          className="main-card premium-depth-card gsap-reveal relative flex h-[94vh] w-[94vw] items-center justify-center overflow-hidden rounded-[30px] pointer-events-auto md:h-[90vh] md:w-[90vw] md:rounded-[36px] lg:h-[85vh] lg:w-[85vw] lg:rounded-[40px] min-[1440px]:h-[88vh] min-[1440px]:w-[88vw]"
         >
           <div className="card-sheen" aria-hidden="true" />
 
-          <div className="relative z-10 mx-auto flex h-full w-full max-w-[1500px] flex-col items-center justify-evenly px-4 py-6 lg:grid lg:grid-cols-[1.22fr_0.9fr_1.05fr] lg:gap-12 lg:px-12 lg:py-0 min-[1440px]:max-w-[1840px] min-[1440px]:gap-16 min-[1440px]:px-16">
-            <div className="card-right-text gsap-reveal order-1 z-20 flex w-full flex-col items-center justify-center lg:order-3 lg:items-start">
-              <div className="w-full max-w-[31rem] overflow-hidden rounded-[1.6rem] border border-white/20 bg-[#050812]/55 text-left shadow-[0_30px_90px_rgba(0,0,0,0.55),inset_0_1px_1px_rgba(255,255,255,0.18)] backdrop-blur-2xl backdrop-saturate-200 min-[1440px]:max-w-[40rem]">
-                <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-5 py-4 min-[1440px]:px-6 min-[1440px]:py-5">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/65 min-[1440px]:text-xs">
-                      {sourcePanelEyebrow}
-                    </p>
-                    <p className="mt-1 text-lg font-black tracking-tight text-white min-[1440px]:text-2xl">
-                      {sourcePanelTitle}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1.5" aria-hidden="true">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-                  </div>
-                </div>
-                <div className="flex gap-2 overflow-x-auto border-b border-white/10 bg-black/10 px-3 py-3">
-                  {snippets.map((snippet, index) => (
-                    <button
-                      key={snippet.title}
-                      type="button"
-                      onClick={() => setSelectedSnippetIndex(index)}
-                      className={cn(
-                        'shrink-0 rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] transition-colors min-[1440px]:px-4 min-[1440px]:py-2 min-[1440px]:text-xs',
-                        selectedSnippetIndex === index
-                          ? 'border-white/35 bg-white/20 text-white shadow-[0_8px_20px_rgba(0,0,0,0.25)]'
-                          : 'border-white/10 bg-black/15 text-white/55 hover:bg-white/10 hover:text-white/85',
-                      )}
-                    >
-                      {snippet.title}
-                    </button>
-                  ))}
-                </div>
-                {snippets[selectedSnippetIndex] && (
-                  <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap bg-[#050712]/70 px-5 py-4 text-[10px] leading-relaxed text-slate-50/95 shadow-[inset_0_1px_24px_rgba(0,0,0,0.45)] min-[1440px]:max-h-[36rem] min-[1440px]:px-6 min-[1440px]:py-5 min-[1440px]:text-[13px]">
-                    <code>{snippets[selectedSnippetIndex].code.trim()}</code>
-                  </pre>
-                )}
-              </div>
-            </div>
-
-            <div className="mockup-scroll-wrapper order-2 relative z-10 flex h-[380px] w-full items-center justify-center lg:order-2 lg:h-[600px] min-[1440px]:h-[720px]" style={{ perspective: '1000px' }}>
-              <div className="relative flex h-full w-full scale-[0.65] items-center justify-center md:scale-[0.85] lg:scale-100 min-[1440px]:scale-[1.16]">
+          <div className="relative z-10 mx-auto flex h-full w-full max-w-[1200px] flex-col items-center justify-start gap-6 overflow-y-auto px-4 py-6 md:gap-8 md:px-6 md:py-7 lg:max-w-[1320px] lg:gap-10 lg:px-8 lg:py-8 min-[1440px]:max-w-[1480px] min-[1440px]:gap-12 min-[1440px]:px-10 min-[1440px]:py-10">
+            <div className="mockup-scroll-wrapper order-1 relative z-10 mb-2 flex h-[290px] w-full items-center justify-center sm:h-[330px] md:mb-3 md:h-[440px] lg:mb-4 lg:h-[560px] min-[1440px]:h-[680px]" style={{ perspective: '1000px' }}>
+              <div className="relative flex h-full w-full scale-[0.52] items-center justify-center sm:scale-[0.62] md:scale-[0.78] lg:scale-[0.95] min-[1440px]:scale-[1.08]">
                 <div
                   ref={mockupRef}
-                  className="iphone-bezel transform-style-3d relative flex h-[580px] w-[280px] flex-col rounded-[3rem] will-change-transform"
+                  className="iphone-bezel transform-style-3d relative flex h-[520px] w-[252px] flex-col rounded-[2.5rem] will-change-transform sm:h-[560px] sm:w-[272px] sm:rounded-[2.8rem] md:h-[600px] md:w-[292px] md:rounded-[3rem]"
                 >
                   <div className="hardware-btn absolute -left-[3px] top-[120px] z-0 h-[25px] w-[3px] rounded-l-md" aria-hidden="true" />
                   <div className="hardware-btn absolute -left-[3px] top-[160px] z-0 h-[45px] w-[3px] rounded-l-md" aria-hidden="true" />
@@ -533,7 +497,7 @@ export function CinematicHero({
                     </div>
 
                     <div className="relative flex h-full w-full flex-col px-5 pb-7 pt-12">
-                      <div className="phone-widget mb-4 flex flex-shrink-0 items-center justify-between">
+                      <div className="phone-widget mockup-widget mb-4 flex flex-shrink-0 items-center justify-between">
                         <div className="flex flex-col">
                           <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-neutral-400">{appLabel}</span>
                           <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">{videoLabel}</span>
@@ -543,7 +507,7 @@ export function CinematicHero({
                         </div>
                       </div>
 
-                      <div className="phone-widget widget-depth relative mb-4 flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-[#071427]">
+                      <div className="phone-widget mockup-widget widget-depth relative mb-4 flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-[#071427]">
                         {videoSrc ? (
                           <video
                             className="absolute inset-0 h-full w-full object-cover"
@@ -572,7 +536,7 @@ export function CinematicHero({
                         )}
                       </div>
 
-                      <div className="phone-widget widget-depth flex flex-shrink-0 items-center justify-between rounded-2xl p-3">
+                      <div className="phone-widget mockup-widget widget-depth flex flex-shrink-0 items-center justify-between rounded-2xl p-3">
                         <div className="flex items-center gap-3">
                           <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 shadow-inner">
                             <CalendarCheck className="h-4 w-4 text-emerald-300 drop-shadow-md" aria-hidden="true" />
@@ -593,41 +557,83 @@ export function CinematicHero({
               </div>
             </div>
 
-            <div className="card-left-text gsap-reveal order-3 z-20 flex w-full flex-col justify-center px-4 text-center lg:order-1 lg:px-0 lg:text-left">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-cyan-50/75 min-[1440px]:text-sm">
+            <div className="card-left-text gsap-reveal order-2 z-20 mb-2 flex w-full max-w-[52rem] flex-col justify-center px-1 text-center md:mb-3 lg:mb-4 lg:px-2">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-50/75 sm:text-xs min-[1440px]:text-sm">
                 {caseLabel}
               </p>
-              <h3 className="mb-3 text-2xl font-bold tracking-tight text-white md:text-3xl lg:text-4xl min-[1440px]:text-5xl">
+              <h3 className="mb-2 text-xl font-bold tracking-tight text-white sm:text-2xl md:text-[1.7rem] lg:text-[2.2rem] min-[1440px]:text-5xl">
                 {cardHeading}
               </h3>
-              <p className="mx-auto max-w-sm text-sm font-normal leading-relaxed text-white/80 md:text-base lg:mx-0 lg:max-w-none min-[1440px]:text-lg">
+              <p className="mx-auto max-w-[34rem] text-xs font-normal leading-relaxed text-white/80 sm:text-sm md:text-[0.95rem] min-[1440px]:text-lg">
                 {cardDescription}
               </p>
-              <div className="mt-5 grid gap-2">
+              <div className="mt-4 grid gap-1.5 sm:gap-2">
                 {featureItems.map((feature) => (
                   <div
                     key={feature}
-                    className="phone-widget widget-depth flex items-center gap-3 rounded-2xl p-3 text-left"
+                    className="phone-widget widget-depth flex items-center gap-2.5 rounded-xl p-2.5 text-left sm:gap-3 sm:rounded-2xl sm:p-3"
                   >
                     <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-cyan-100" aria-hidden="true" />
-                    <p className="text-xs leading-relaxed text-white/82 min-[1440px]:text-sm">{feature}</p>
+                    <p className="text-[11px] leading-relaxed text-white/82 sm:text-xs min-[1440px]:text-sm">{feature}</p>
                   </div>
                 ))}
               </div>
-              <div className="mt-4">
-                <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-50/70">
+              <div className="mt-3.5 sm:mt-4">
+                <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-50/70 sm:text-[10px]">
                   {stackLabel}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
                   {stackItems.map((item) => (
                     <span
                       key={item}
-                      className="rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-[10px] font-semibold text-white/82 min-[1440px]:px-3 min-[1440px]:py-1.5 min-[1440px]:text-xs"
+                      className="rounded-full border border-white/15 bg-black/25 px-2 py-0.5 text-[9px] font-semibold text-white/82 sm:px-2.5 sm:py-1 sm:text-[10px] min-[1440px]:px-3 min-[1440px]:py-1.5 min-[1440px]:text-xs"
                     >
                       {item}
                     </span>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            <div className="card-right-text gsap-reveal order-3 z-20 flex w-full flex-col items-center justify-center">
+              <div className="w-full max-w-[23rem] overflow-hidden rounded-[1.3rem] border border-white/20 bg-[#050812]/55 text-left shadow-[0_30px_90px_rgba(0,0,0,0.55),inset_0_1px_1px_rgba(255,255,255,0.18)] backdrop-blur-2xl backdrop-saturate-200 sm:max-w-[28rem] md:max-w-[31rem] min-[1440px]:max-w-[40rem]">
+                <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-4 py-3 sm:px-5 sm:py-4 min-[1440px]:px-6 min-[1440px]:py-5">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/65 sm:text-[10px] min-[1440px]:text-xs">
+                      {sourcePanelEyebrow}
+                    </p>
+                    <p className="mt-1 text-base font-black tracking-tight text-white sm:text-lg min-[1440px]:text-2xl">
+                      {sourcePanelTitle}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5" aria-hidden="true">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+                  </div>
+                </div>
+                <div className="flex gap-2 overflow-x-auto border-b border-white/10 bg-black/10 px-2.5 py-2.5 sm:px-3 sm:py-3">
+                  {snippets.map((snippet, index) => (
+                    <button
+                      key={snippet.title}
+                      type="button"
+                      onClick={() => setSelectedSnippetIndex(index)}
+                      className={cn(
+                        'shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em] transition-colors sm:px-3 sm:py-1.5 sm:text-[10px] min-[1440px]:px-4 min-[1440px]:py-2 min-[1440px]:text-xs',
+                        selectedSnippetIndex === index
+                          ? 'border-white/35 bg-white/20 text-white shadow-[0_8px_20px_rgba(0,0,0,0.25)]'
+                          : 'border-white/10 bg-black/15 text-white/55 hover:bg-white/10 hover:text-white/85',
+                      )}
+                    >
+                      {snippet.title}
+                    </button>
+                  ))}
+                </div>
+                {snippets[selectedSnippetIndex] && (
+                  <pre className="max-h-[12rem] overflow-auto whitespace-pre-wrap bg-[#050712]/70 px-4 py-3 text-[9px] leading-relaxed text-slate-50/95 shadow-[inset_0_1px_24px_rgba(0,0,0,0.45)] sm:max-h-[16rem] sm:px-5 sm:py-4 sm:text-[10px] md:max-h-[20rem] lg:max-h-[28rem] min-[1440px]:max-h-[36rem] min-[1440px]:px-6 min-[1440px]:py-5 min-[1440px]:text-[13px]">
+                    <code>{snippets[selectedSnippetIndex].code.trim()}</code>
+                  </pre>
+                )}
               </div>
             </div>
           </div>

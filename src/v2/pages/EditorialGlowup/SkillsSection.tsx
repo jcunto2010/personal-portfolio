@@ -55,7 +55,7 @@ export function SkillsSection() {
           ),
         ],
         icon: SiFlutter,
-        className: 'top-[18%] left-[22%]',
+        className: 'top-[8%] left-[10%]',
         iconClassName: 'text-[#02569B]',
       },
       {
@@ -72,7 +72,7 @@ export function SkillsSection() {
           t('Componentización orientada a escalabilidad.', 'Component architecture designed for scale.'),
         ],
         icon: SiReact,
-        className: 'top-[22%] right-[20%]',
+        className: 'top-[9%] right-[10%]',
         iconClassName: 'text-[#61DAFB]',
       },
       {
@@ -85,7 +85,7 @@ export function SkillsSection() {
           t('Sistemas visuales consistentes y mantenibles.', 'Consistent and maintainable visual systems.'),
         ],
         icon: SiTailwindcss,
-        className: 'top-[72%] left-[22%]',
+        className: 'top-[22%] left-[8%]',
         iconClassName: 'text-[#06B6D4]',
       },
       {
@@ -98,7 +98,7 @@ export function SkillsSection() {
           t('Modelado de componentes y flujos de datos.', 'Modeling components and data flows.'),
         ],
         icon: SiTypescript,
-        className: 'bottom-[16%] right-[20%]',
+        className: 'top-[22%] right-[8%]',
         iconClassName: 'text-[#3178C6]',
       },
       {
@@ -114,7 +114,7 @@ export function SkillsSection() {
           ),
         ],
         icon: SiJavascript,
-        className: 'top-[12%] left-[36%]',
+        className: 'top-[34%] left-[12%]',
         iconClassName: 'text-[#F7DF1E]',
       },
       {
@@ -127,7 +127,7 @@ export function SkillsSection() {
           t('Gestión de estructura de proyecto móvil.', 'Mobile project structure management.'),
         ],
         icon: SiDart,
-        className: 'top-[12%] right-[36%]',
+        className: 'top-[34%] right-[12%]',
         iconClassName: 'text-[#0175C2]',
       },
       {
@@ -140,7 +140,7 @@ export function SkillsSection() {
           t('Composición de layouts modernos.', 'Composition of modern layouts.'),
         ],
         icon: SiHtml5,
-        className: 'bottom-[16%] left-[34%]',
+        className: 'top-[76%] left-[10%]',
         iconClassName: 'text-[#E34F26]',
       },
       {
@@ -153,7 +153,7 @@ export function SkillsSection() {
           t('Ajustes finos de tipografía y jerarquía visual.', 'Fine tuning for typography and visual hierarchy.'),
         ],
         icon: SiCss,
-        className: 'top-[40%] left-[24%]',
+        className: 'top-[76%] right-[10%]',
         iconClassName: 'text-[#1572B6]',
       },
       {
@@ -166,7 +166,7 @@ export function SkillsSection() {
           t('Conexiones de apoyo en flujos de la app.', 'Supporting connections across app flows.'),
         ],
         icon: SiFirebase,
-        className: 'top-[66%] right-[32%]',
+        className: 'top-[88%] left-[16%]',
         iconClassName: 'text-[#FFCA28]',
       },
       {
@@ -178,7 +178,7 @@ export function SkillsSection() {
           t('Base rápida para PoCs y validaciones de idea.', 'Fast base for PoCs and idea validation.'),
         ],
         icon: SiSupabase,
-        className: 'bottom-[20%] left-[58%]',
+        className: 'top-[88%] right-[16%]',
         iconClassName: 'text-[#3ECF8E]',
       },
       {
@@ -191,7 +191,7 @@ export function SkillsSection() {
           t('Persistencia estructurada para datos clave.', 'Structured persistence for key data.'),
         ],
         icon: SiPostgresql,
-        className: 'top-[52%] right-[22%]',
+        className: 'top-[98%] left-[20%]',
         iconClassName: 'text-[#336791]',
       },
       {
@@ -204,7 +204,7 @@ export function SkillsSection() {
           t('Iteración rápida de UX antes de implementar.', 'Fast UX iteration before implementation.'),
         ],
         icon: SiFigma,
-        className: 'top-[56%] left-[20%]',
+        className: 'top-[98%] right-[20%]',
         iconClassName: 'text-[#F24E1E]',
       },
       {
@@ -222,7 +222,7 @@ export function SkillsSection() {
           ),
         ],
         icon: SiVercel,
-        className: 'top-[16%] left-[52%]',
+        className: 'top-[12%] left-[42%]',
         iconClassName: 'text-[#FFFFFF]',
       },
       {
@@ -236,7 +236,7 @@ export function SkillsSection() {
           t('Uso de merge, rebase y cherry-pick según contexto.', 'Merge, rebase, and cherry-pick depending on context.'),
         ],
         icon: SiGithub,
-        className: 'bottom-[14%] right-[46%]',
+        className: 'top-[64%] left-[42%]',
         iconClassName: 'text-[#FFFFFF]',
       },
       {
@@ -249,7 +249,7 @@ export function SkillsSection() {
           t('Ajustes básicos de seguridad y performance edge.', 'Basic security and edge performance tuning.'),
         ],
         icon: SiCloudflare,
-        className: 'top-[28%] right-[30%]',
+        className: 'top-[58%] left-[6%] md:top-[50%]',
         iconClassName: 'text-[#F38020]',
       },
       {
@@ -262,7 +262,7 @@ export function SkillsSection() {
           t('Seguimiento inicial de comportamiento de usuarios.', 'Initial tracking of user behavior.'),
         ],
         icon: IconGA4,
-        className: 'top-[62%] left-[36%]',
+        className: 'top-[58%] right-[6%] md:top-[50%]',
       },
     ],
     [t],

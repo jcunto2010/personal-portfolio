@@ -1,4 +1,5 @@
 import { CinematicHero } from '../../../components/ui/cinematic-landing-hero'
+import { useEffect, useMemo, useState } from 'react'
 import { getProjectBySlug } from '../../data/projects.v2'
 import { useLocale } from '../../lib/localeContext'
 
@@ -7,7 +8,34 @@ export function StartupConnectSection() {
   const isEs = locale === 'es'
   const project = getProjectBySlug('startupconnect')
   const reservoProject = getProjectBySlug('reservo-ai')
+  const [isCompactViewport, setIsCompactViewport] = useState(false)
 
+  useEffect(() => {
+    const updateViewport = () => setIsCompactViewport(window.innerWidth < 1024)
+    updateViewport()
+    window.addEventListener('resize', updateViewport)
+    return () => window.removeEventListener('resize', updateViewport)
+  }, [])
+
+  const featureItems = useMemo(
+    () =>
+      isEs
+        ? [
+            'Feed social con publicaciones, comentarios, likes, compartidos y filtros.',
+            'Matching por swipe con score de compatibilidad entre perfiles complementarios.',
+            'Mensajería 1:1 y grupal en tiempo real con WebSocket y salas de comunidad.',
+            'Backend Spring Boot + PostgreSQL con APIs y lógica de negocio escalable.',
+          ]
+        : [
+            'Social feed with posts, comments, likes, shares, and filters.',
+            'Swipe matching with compatibility scoring across complementary profiles.',
+            'Real-time 1:1 and group messaging using WebSocket and community rooms.',
+            'Spring Boot + PostgreSQL backend with scalable APIs and business logic.',
+          ],
+    [isEs],
+  )
+
+  const compactFeatureItems = isCompactViewport ? featureItems.slice(0, 3) : featureItems
   if (!project) return null
 
   return (
@@ -32,42 +60,45 @@ export function StartupConnectSection() {
             : 'Full-stack professional networking, built from scratch.'
         }
         cardDescription={
-          isEs ? (
-            <>
-              <span className="font-semibold text-white">StartupConnect</span> combina un feed
-              social tipo LinkedIn, descubrimiento por swipe, matching por compatibilidad y chat en
-              tiempo real para fundadores, inversionistas y mentores.
-            </>
-          ) : (
-            <>
-              <span className="font-semibold text-white">StartupConnect</span> combines a
-              LinkedIn-style social feed, swipe discovery, compatibility matching, and real-time
-              chat for founders, investors, and mentors.
-            </>
-          )
+          isCompactViewport
+            ? isEs
+              ? (
+                <>
+                  <span className="font-semibold text-white">StartupConnect</span> integra feed,
+                  matching por swipe y chat en tiempo real para el ecosistema startup.
+                </>
+                )
+              : (
+                <>
+                  <span className="font-semibold text-white">StartupConnect</span> unifies feed,
+                  swipe matching, and real-time chat for the startup ecosystem.
+                </>
+                )
+            : isEs
+              ? (
+                <>
+                  <span className="font-semibold text-white">StartupConnect</span> combina un feed
+                  social tipo LinkedIn, descubrimiento por swipe, matching por compatibilidad y chat en
+                  tiempo real para fundadores, inversionistas y mentores.
+                </>
+                )
+              : (
+                <>
+                  <span className="font-semibold text-white">StartupConnect</span> combines a
+                  LinkedIn-style social feed, swipe discovery, compatibility matching, and real-time
+                  chat for founders, investors, and mentors.
+                </>
+                )
         }
         caseLabel={isEs ? 'Arquitectura de producto real' : 'Real product architecture'}
-        featureItems={
-          isEs
-            ? [
-                'Feed social con publicaciones, comentarios, likes, compartidos y filtros.',
-                'Matching por swipe con score de compatibilidad entre perfiles complementarios.',
-                'Mensajería 1:1 y grupal en tiempo real con WebSocket y salas de comunidad.',
-                'Backend Spring Boot + PostgreSQL con APIs y lógica de negocio escalable.',
-              ]
-            : [
-                'Social feed with posts, comments, likes, shares, and filters.',
-                'Swipe matching with compatibility scoring across complementary profiles.',
-                'Real-time 1:1 and group messaging using WebSocket and community rooms.',
-                'Spring Boot + PostgreSQL backend with scalable APIs and business logic.',
-              ]
-        }
+        featureItems={compactFeatureItems}
         stackItems={project.technologies}
         codeSnippetTitle={isEs ? 'Algoritmo de matching' : 'Matching algorithm'}
         codeSnippet={isEs ? project.codeSnippetEs : project.codeSnippetEn}
         codeSnippets={
-          isEs
-            ? [
+          (
+            isEs
+              ? [
                 {
                   title: 'MatchService.java',
                   code: `private double calculateMatchScore(
@@ -171,7 +202,7 @@ export async function createMatch(
 }`,
                 },
               ]
-            : [
+              : [
                 {
                   title: 'MatchService.java',
                   code: `private double calculateMatchScore(
@@ -275,6 +306,7 @@ export async function createMatch(
 }`,
                 },
               ]
+          ).slice(0, isCompactViewport ? 3 : 4)
         }
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
         videoStatus={isEs ? 'Video en preparación' : 'Video in progress'}
@@ -282,7 +314,9 @@ export async function createMatch(
         videoPlaceholderTitle={isEs ? 'Demo pendiente' : 'Demo coming soon'}
         videoPlaceholderDescription={
           isEs
-            ? 'Aquí irá el video real del flujo: onboarding, swipe matching, chat en tiempo real y comunidad.'
+            ? isCompactViewport
+              ? 'Aquí irá el video real: onboarding, swipe matching y chat en tiempo real.'
+              : 'Aquí irá el video real del flujo: onboarding, swipe matching, chat en tiempo real y comunidad.'
             : 'This space will hold the real product walkthrough: onboarding, swipe matching, realtime chat, and community flow.'
         }
         metricValue={project.technologies.length}
@@ -295,8 +329,12 @@ export async function createMatch(
         }
         ctaDescription={
           isEs
-            ? 'Ambos proyectos muestran mi arquitectura real end-to-end: Reservo.AI con Flutter + IA conversacional y Startup Connect con React, Spring Boot, matching y chat en tiempo real.'
-            : 'Both projects show my real end-to-end architecture: Reservo.AI with Flutter + conversational AI, and Startup Connect with React, Spring Boot, matching, and realtime chat.'
+            ? isCompactViewport
+              ? 'Reservo.AI y Startup Connect muestran mi arquitectura real end-to-end.'
+              : 'Ambos proyectos muestran mi arquitectura real end-to-end: Reservo.AI con Flutter + IA conversacional y Startup Connect con React, Spring Boot, matching y chat en tiempo real.'
+            : isCompactViewport
+              ? 'Reservo.AI and Startup Connect showcase my real end-to-end architecture.'
+              : 'Both projects show my real end-to-end architecture: Reservo.AI with Flutter + conversational AI, and Startup Connect with React, Spring Boot, matching, and realtime chat.'
         }
         finalActions={[
           {
