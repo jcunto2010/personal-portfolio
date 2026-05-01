@@ -7,7 +7,7 @@ import { ReservoSection } from './ReservoSection'
 import { SkillsSection } from './SkillsSection'
 import { StartupConnectSection } from './StartupConnectSection'
 
-export default function EditorialGlowupPage() {
+export default function ClassicModePage() {
   return (
     <main
       style={{

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useLocale } from '../../lib/localeContext'
 import {
   FloatingIconsHero,
@@ -34,18 +34,25 @@ const IconGA4 = ({ className }: SVGProps<SVGSVGElement>) => (
 export function SkillsSection() {
   const { locale } = useLocale()
   const isEs = locale === 'es'
+  const t = useCallback((es: string, en: string) => (isEs ? es : en), [isEs])
 
   const icons: FloatingIconsHeroProps['icons'] = useMemo(
     () => [
       {
         id: 1,
         name: 'Flutter',
-        level: 'Medio',
+        level: t('Medio', 'Intermediate'),
         usedIn: 'Reservo.ai',
         details: [
-          'Arquitectura principal de la app móvil.',
-          'Integración de UI compleja con estado y navegación.',
-          'Consumo de servicios externos y flujos productivos.',
+          t('Arquitectura principal de la app móvil.', 'Main architecture of the mobile app.'),
+          t(
+            'Integración de UI compleja con estado y navegación.',
+            'Complex UI integration with state and navigation.',
+          ),
+          t(
+            'Consumo de servicios externos y flujos productivos.',
+            'External service consumption and production flows.',
+          ),
         ],
         icon: SiFlutter,
         className: 'top-[18%] left-[22%]',
@@ -54,12 +61,15 @@ export function SkillsSection() {
       {
         id: 2,
         name: 'React',
-        level: 'Medio',
-        usedIn: 'Portafolio y StartupConnect',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Portafolio y StartupConnect', 'Portfolio and StartupConnect'),
         details: [
-          'Desarrollo de interfaces modulares y reusables.',
-          'Animaciones e interacciones avanzadas con Framer Motion/GSAP.',
-          'Componentización orientada a escalabilidad.',
+          t('Desarrollo de interfaces modulares y reusables.', 'Development of modular, reusable interfaces.'),
+          t(
+            'Animaciones e interacciones avanzadas con Framer Motion/GSAP.',
+            'Advanced animations and interactions with Framer Motion/GSAP.',
+          ),
+          t('Componentización orientada a escalabilidad.', 'Component architecture designed for scale.'),
         ],
         icon: SiReact,
         className: 'top-[22%] right-[20%]',
@@ -68,11 +78,11 @@ export function SkillsSection() {
       {
         id: 3,
         name: 'Tailwind CSS',
-        level: 'Medio',
-        usedIn: 'Portafolio y StartupConnect',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Portafolio y StartupConnect', 'Portfolio and StartupConnect'),
         details: [
-          'Diseño responsive rápido con utilidades.',
-          'Sistemas visuales consistentes y mantenibles.',
+          t('Diseño responsive rápido con utilidades.', 'Fast responsive design with utilities.'),
+          t('Sistemas visuales consistentes y mantenibles.', 'Consistent and maintainable visual systems.'),
         ],
         icon: SiTailwindcss,
         className: 'top-[72%] left-[22%]',
@@ -81,11 +91,11 @@ export function SkillsSection() {
       {
         id: 4,
         name: 'TypeScript',
-        level: 'Medio',
-        usedIn: 'Portafolio y StartupConnect',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Portafolio y StartupConnect', 'Portfolio and StartupConnect'),
         details: [
-          'Tipado estricto para reducir bugs en runtime.',
-          'Modelado de componentes y flujos de datos.',
+          t('Tipado estricto para reducir bugs en runtime.', 'Strict typing to reduce runtime bugs.'),
+          t('Modelado de componentes y flujos de datos.', 'Modeling components and data flows.'),
         ],
         icon: SiTypescript,
         className: 'bottom-[16%] right-[20%]',
@@ -94,11 +104,14 @@ export function SkillsSection() {
       {
         id: 5,
         name: 'JavaScript',
-        level: 'Medio-avanzado',
-        usedIn: 'Scripts en Google Suite y frontend web',
+        level: t('Medio-avanzado', 'Upper-intermediate'),
+        usedIn: t('Scripts en Google Suite y frontend web', 'Google Suite scripts and web frontend'),
         details: [
-          'Automatización de tareas y lógica de negocio.',
-          'Base sólida para desarrollo UI y manipulación de estado.',
+          t('Automatización de tareas y lógica de negocio.', 'Task automation and business logic.'),
+          t(
+            'Base sólida para desarrollo UI y manipulación de estado.',
+            'Solid foundation for UI development and state handling.',
+          ),
         ],
         icon: SiJavascript,
         className: 'top-[12%] left-[36%]',
@@ -107,11 +120,11 @@ export function SkillsSection() {
       {
         id: 6,
         name: 'Dart',
-        level: 'Medio',
-        usedIn: 'Reservo.ai (con Flutter)',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Reservo.ai (con Flutter)', 'Reservo.ai (with Flutter)'),
         details: [
-          'Lógica de aplicación, modelos y flujos de UI.',
-          'Gestión de estructura de proyecto móvil.',
+          t('Lógica de aplicación, modelos y flujos de UI.', 'Application logic, models, and UI flows.'),
+          t('Gestión de estructura de proyecto móvil.', 'Mobile project structure management.'),
         ],
         icon: SiDart,
         className: 'top-[12%] right-[36%]',
@@ -120,11 +133,11 @@ export function SkillsSection() {
       {
         id: 7,
         name: 'HTML5',
-        level: 'Medio',
-        usedIn: 'Portafolio y StartupConnect',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Portafolio y StartupConnect', 'Portfolio and StartupConnect'),
         details: [
-          'Estructura semántica y accesibilidad base.',
-          'Composición de layouts modernos.',
+          t('Estructura semántica y accesibilidad base.', 'Semantic structure and baseline accessibility.'),
+          t('Composición de layouts modernos.', 'Composition of modern layouts.'),
         ],
         icon: SiHtml5,
         className: 'bottom-[16%] left-[34%]',
@@ -133,11 +146,11 @@ export function SkillsSection() {
       {
         id: 8,
         name: 'CSS',
-        level: 'Medio',
-        usedIn: 'Portafolio y StartupConnect',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Portafolio y StartupConnect', 'Portfolio and StartupConnect'),
         details: [
-          'Animaciones, layout avanzado y responsive.',
-          'Ajustes finos de tipografía y jerarquía visual.',
+          t('Animaciones, layout avanzado y responsive.', 'Animations, advanced layout, and responsive behavior.'),
+          t('Ajustes finos de tipografía y jerarquía visual.', 'Fine tuning for typography and visual hierarchy.'),
         ],
         icon: SiCss,
         className: 'top-[40%] left-[24%]',
@@ -146,11 +159,11 @@ export function SkillsSection() {
       {
         id: 9,
         name: 'Firebase',
-        level: 'Bajo',
-        usedIn: 'Reservo.ai (integración ligera con Gemini)',
+        level: t('Bajo', 'Basic'),
+        usedIn: t('Reservo.ai (integración ligera con Gemini)', 'Reservo.ai (light Gemini integration)'),
         details: [
-          'Uso puntual para servicios backend y autenticación.',
-          'Conexiones de apoyo en flujos de la app.',
+          t('Uso puntual para servicios backend y autenticación.', 'Focused use for backend services and authentication.'),
+          t('Conexiones de apoyo en flujos de la app.', 'Supporting connections across app flows.'),
         ],
         icon: SiFirebase,
         className: 'top-[66%] right-[32%]',
@@ -159,10 +172,10 @@ export function SkillsSection() {
       {
         id: 10,
         name: 'Supabase',
-        level: 'Bajo',
-        usedIn: 'Prototipos y pruebas backend',
+        level: t('Bajo', 'Basic'),
+        usedIn: t('Prototipos y pruebas backend', 'Backend prototypes and tests'),
         details: [
-          'Base rápida para PoCs y validaciones de idea.',
+          t('Base rápida para PoCs y validaciones de idea.', 'Fast base for PoCs and idea validation.'),
         ],
         icon: SiSupabase,
         className: 'bottom-[20%] left-[58%]',
@@ -171,11 +184,11 @@ export function SkillsSection() {
       {
         id: 11,
         name: 'PostgreSQL',
-        level: 'Medio',
+        level: t('Medio', 'Intermediate'),
         usedIn: 'Reservo.ai',
         details: [
-          'Diseño de entidades y consultas en backend.',
-          'Persistencia estructurada para datos clave.',
+          t('Diseño de entidades y consultas en backend.', 'Entity and query design in backend systems.'),
+          t('Persistencia estructurada para datos clave.', 'Structured persistence for key data.'),
         ],
         icon: SiPostgresql,
         className: 'top-[52%] right-[22%]',
@@ -184,11 +197,11 @@ export function SkillsSection() {
       {
         id: 12,
         name: 'Figma',
-        level: 'Medio',
-        usedIn: 'Portafolio y StartupConnect',
+        level: t('Medio', 'Intermediate'),
+        usedIn: t('Portafolio y StartupConnect', 'Portfolio and StartupConnect'),
         details: [
-          'Diseño de pantallas y sistema visual.',
-          'Iteración rápida de UX antes de implementar.',
+          t('Diseño de pantallas y sistema visual.', 'Screen design and visual system work.'),
+          t('Iteración rápida de UX antes de implementar.', 'Fast UX iteration before implementation.'),
         ],
         icon: SiFigma,
         className: 'top-[56%] left-[20%]',
@@ -197,13 +210,16 @@ export function SkillsSection() {
       {
         id: 13,
         name: 'Vercel',
-        level: 'Medio-avanzado',
-        usedIn: 'Deployment de este portafolio',
+        level: t('Medio-avanzado', 'Upper-intermediate'),
+        usedIn: t('Deployment de este portafolio', 'Deployment of this portfolio'),
         details: [
-          'Deploy continuo con integración Git.',
-          'Variables de entorno separadas por entorno.',
-          'Aprovechamiento de CDN edge y caché para performance.',
-          'Manejo de previews para validar cambios antes de producción.',
+          t('Deploy continuo con integración Git.', 'Continuous deployment with Git integration.'),
+          t('Variables de entorno separadas por entorno.', 'Environment variables separated by environment.'),
+          t('Aprovechamiento de CDN edge y caché para performance.', 'Use of edge CDN and caching for performance.'),
+          t(
+            'Manejo de previews para validar cambios antes de producción.',
+            'Preview deployments to validate changes before production.',
+          ),
         ],
         icon: SiVercel,
         className: 'top-[16%] left-[52%]',
@@ -212,12 +228,12 @@ export function SkillsSection() {
       {
         id: 14,
         name: 'GitHub',
-        level: 'Medio-avanzado',
-        usedIn: 'Flujo diario de desarrollo',
+        level: t('Medio-avanzado', 'Upper-intermediate'),
+        usedIn: t('Flujo diario de desarrollo', 'Daily development workflow'),
         details: [
-          'Buenas prácticas de commits y ramas limpias.',
-          'Manejo de CI/CD, PRs y revisión de cambios.',
-          'Uso de merge, rebase y cherry-pick según contexto.',
+          t('Buenas prácticas de commits y ramas limpias.', 'Good practices for commits and clean branches.'),
+          t('Manejo de CI/CD, PRs y revisión de cambios.', 'CI/CD, PR, and code review workflows.'),
+          t('Uso de merge, rebase y cherry-pick según contexto.', 'Merge, rebase, and cherry-pick depending on context.'),
         ],
         icon: SiGithub,
         className: 'bottom-[14%] right-[46%]',
@@ -226,11 +242,11 @@ export function SkillsSection() {
       {
         id: 15,
         name: 'Cloudflare',
-        level: 'Medio-bajo',
-        usedIn: 'Hosting y DNS de este repositorio',
+        level: t('Medio-bajo', 'Lower-intermediate'),
+        usedIn: t('Hosting y DNS de este repositorio', 'Hosting and DNS for this repository'),
         details: [
-          'Gestión de DNS y capa de distribución.',
-          'Ajustes básicos de seguridad y performance edge.',
+          t('Gestión de DNS y capa de distribución.', 'DNS and distribution layer management.'),
+          t('Ajustes básicos de seguridad y performance edge.', 'Basic security and edge performance tuning.'),
         ],
         icon: SiCloudflare,
         className: 'top-[28%] right-[30%]',
@@ -239,17 +255,17 @@ export function SkillsSection() {
       {
         id: 16,
         name: 'GA4',
-        level: 'Bajo',
-        usedIn: 'Solo en el portafolio',
+        level: t('Bajo', 'Basic'),
+        usedIn: t('Solo en el portafolio', 'Portfolio only'),
         details: [
-          'Medición básica de tráfico y eventos principales.',
-          'Seguimiento inicial de comportamiento de usuarios.',
+          t('Medición básica de tráfico y eventos principales.', 'Basic traffic and core event measurement.'),
+          t('Seguimiento inicial de comportamiento de usuarios.', 'Initial tracking of user behavior.'),
         ],
         icon: IconGA4,
         className: 'top-[62%] left-[36%]',
       },
     ],
-    [],
+    [t],
   )
 
   return (

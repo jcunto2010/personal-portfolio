@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { Navigate } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 
 /**
@@ -11,7 +12,7 @@ export const LazyProjectsV2 = lazy(() => import('../pages/ProjectsV2/ProjectsV2'
 export const LazyProjectDetailV2 = lazy(
   () => import('../pages/ProjectDetailV2/ProjectDetailV2'),
 )
-export const LazyEditorialGlowupPage = lazy(
+export const LazyClassicModePage = lazy(
   () => import('../pages/EditorialGlowup/EditorialGlowupPage'),
 )
 
@@ -46,12 +47,16 @@ export const v2Routes: RouteObject[] = [
     ),
   },
   {
-    path: 'editorial-glowup',
+    path: 'classic-mode',
     element: (
       <Suspense fallback={<PageFallback />}>
-        <LazyEditorialGlowupPage />
+        <LazyClassicModePage />
       </Suspense>
     ),
+  },
+  {
+    path: 'editorial-glowup',
+    element: <Navigate to="/classic-mode" replace />,
   },
   {
     path: 'projects',

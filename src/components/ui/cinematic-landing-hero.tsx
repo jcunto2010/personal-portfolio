@@ -200,13 +200,16 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
   codeSnippets?: CodeSnippetContent[]
   appLabel?: string
   sourcePanelTitle?: string
+  sourcePanelEyebrow?: string
   videoSrc?: string
   videoLabel?: string
   videoStatus?: string
+  videoFlowLabel?: string
   videoPlaceholderTitle?: string
   videoPlaceholderDescription?: string
   metricValue?: number
   metricLabel?: string
+  stackLabel?: string
   showFinalCta?: boolean
   ctaHeading?: string
   ctaDescription?: string
@@ -240,14 +243,17 @@ export function CinematicHero({
 }`,
   codeSnippets,
   appLabel = 'Reservo.AI',
-  sourcePanelTitle = 'Codigo real de Reservo.AI',
+  sourcePanelTitle = 'Real Reservo.AI source',
+  sourcePanelEyebrow = 'Source snippets',
   videoSrc,
   videoLabel = 'Demo video',
   videoStatus = 'Coming soon',
+  videoFlowLabel = 'MVP Flow',
   videoPlaceholderTitle = 'Demo coming soon',
   videoPlaceholderDescription = 'This space will hold the real product walkthrough: biometric login, AI booking, calendar, and confirmation.',
   metricValue = 8,
   metricLabel = 'Core modules',
+  stackLabel = 'Stack',
   showFinalCta = true,
   ctaHeading = 'Explore Reservo.AI.',
   ctaDescription = 'A Flutter MVP for appointment booking, built solo from product idea to technical implementation.',
@@ -431,18 +437,18 @@ export function CinematicHero({
       <div className="film-grain" aria-hidden="true" />
       <div className="bg-grid-theme absolute inset-0 z-0 opacity-50 pointer-events-none" aria-hidden="true" />
 
-      <div className="hero-text-wrapper transform-style-3d absolute z-10 flex w-full flex-col items-center justify-center px-4 text-center will-change-transform">
-        <h2 className="text-track gsap-reveal text-3d-matte mb-2 text-5xl font-bold tracking-tight md:text-7xl lg:text-[6rem] min-[1440px]:text-[8rem]">
+      <div className="hero-text-wrapper transform-style-3d absolute z-10 flex w-full flex-col items-center justify-center px-6 text-center will-change-transform">
+        <h2 className="text-track gsap-reveal text-3d-matte mb-1 max-w-[94vw] py-2 text-5xl font-bold leading-[1.16] tracking-tight md:text-7xl lg:text-[6rem] min-[1440px]:text-[8rem]">
           {tagline1}
         </h2>
-        <h2 className="text-days gsap-reveal text-silver-matte text-5xl font-extrabold tracking-tighter md:text-7xl lg:text-[6rem] min-[1440px]:text-[8rem]">
+        <h2 className="text-days gsap-reveal text-silver-matte max-w-[94vw] py-2 text-5xl font-extrabold leading-[1.16] tracking-tighter md:text-7xl lg:text-[6rem] min-[1440px]:text-[8rem]">
           {tagline2}
         </h2>
       </div>
 
       {showFinalCta && (
         <div className="cta-wrapper gsap-reveal absolute z-10 flex w-full flex-col items-center justify-center px-4 text-center pointer-events-auto will-change-transform">
-          <h2 className="text-silver-matte mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl min-[1440px]:text-[6.5rem]">
+          <h2 className="text-silver-matte mb-6 max-w-[94vw] py-2 text-4xl font-bold leading-[1.16] tracking-tight md:text-6xl lg:text-7xl min-[1440px]:text-[6.5rem]">
             {ctaHeading}
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-lg font-light leading-relaxed text-[#B8C0D9] md:text-xl min-[1440px]:max-w-3xl min-[1440px]:text-2xl">
@@ -471,7 +477,7 @@ export function CinematicHero({
                 <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-5 py-4 min-[1440px]:px-6 min-[1440px]:py-5">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/65 min-[1440px]:text-xs">
-                      Source snippets
+                      {sourcePanelEyebrow}
                     </p>
                     <p className="mt-1 text-lg font-black tracking-tight text-white min-[1440px]:text-2xl">
                       {sourcePanelTitle}
@@ -551,7 +557,7 @@ export function CinematicHero({
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(6,182,212,0.24),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]" />
                             <div className="absolute inset-x-5 top-5 flex items-center justify-between">
                               <span className="rounded-full border border-cyan-200/15 bg-white/5 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/70">
-                                MVP Flow
+                                {videoFlowLabel}
                               </span>
                               <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.9)]" />
                             </div>
@@ -610,7 +616,7 @@ export function CinematicHero({
               </div>
               <div className="mt-4">
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-cyan-50/70">
-                  Stack
+                  {stackLabel}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {stackItems.map((item) => (

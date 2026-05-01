@@ -139,7 +139,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
 
   function handleClassicMode() {
     setLocalMode('non-immersive')
-    window.location.assign('/editorial-glowup')
+    window.location.assign('/classic-mode')
   }
 
   const isMuted = !localAudio

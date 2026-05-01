@@ -31,7 +31,7 @@ export function ReservoSection() {
           isEs ? (
             <>
               <span className="font-semibold text-white">Reservo.AI</span> une Flutter,
-              Gemini AI, Firebase, biometria, Riverpod, Rive y Lottie en un MVP movil para
+              Gemini AI, Firebase, biometría, Riverpod, Rive y Lottie en un MVP móvil para
               negocios de servicios.
             </>
           ) : (
@@ -48,7 +48,7 @@ export function ReservoSection() {
             ? [
                 'Reserva conversacional: Gemini convierte lenguaje natural en datos estructurados.',
                 'Firebase como capa backend: auth, Firestore, notificaciones y persistencia.',
-                'Riverpod para estado, sesion biometrica y recuperacion segura del usuario.',
+                'Riverpod para estado, sesión biométrica y recuperación segura del usuario.',
                 'Onboarding animado con Rive/Lottie para explicar el producto antes del primer uso.',
               ]
             : [
@@ -94,7 +94,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Biometria',
+                  title: 'Biometría',
                   code: `Future<bool> authenticate({
   required String reason,
   bool useErrorDialogs = true,
@@ -223,15 +223,18 @@ export function ReservoSection() {
               ]
         }
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
-        videoStatus={isEs ? 'Video en preparacion' : 'Video in progress'}
+        videoStatus={isEs ? 'Video en preparación' : 'Video in progress'}
+        videoFlowLabel={isEs ? 'Flujo MVP' : 'MVP Flow'}
         videoPlaceholderTitle={isEs ? 'Demo pendiente' : 'Demo coming soon'}
         videoPlaceholderDescription={
           isEs
-            ? 'Aqui ira el video real del flujo: login biometrico, reserva con Gemini, calendario y confirmacion.'
+            ? 'Aquí irá el video real del flujo: login biométrico, reserva con Gemini, calendario y confirmación.'
             : 'This space will hold the real product walkthrough: biometric login, AI booking, calendar, and confirmation.'
         }
         metricValue={project.technologies.length}
-        metricLabel={isEs ? 'Modulos clave' : 'Core modules'}
+        metricLabel={isEs ? 'Módulos clave' : 'Core modules'}
+        stackLabel={isEs ? 'Stack' : 'Stack'}
+        sourcePanelEyebrow={isEs ? 'Fragmentos de código' : 'Source snippets'}
         showFinalCta={false}
         ctaHeading={isEs ? '¿Quieres ver cómo lo construí?' : 'Curious how I built it?'}
         ctaDescription={
@@ -241,7 +244,7 @@ export function ReservoSection() {
         }
         secondaryAction={{
           label: 'GitHub',
-          sublabel: isEs ? 'Ver codigo' : 'View source',
+          sublabel: isEs ? 'Ver código' : 'View source',
           href: project.githubUrl ?? '/projects/reservo-ai',
           variant: 'dark',
         }}

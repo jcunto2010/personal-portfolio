@@ -7,14 +7,14 @@ const dataEs = [
     content: (
       <div>
         <p className="text-neutral-200 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-6 leading-relaxed">
-          Desarrollo y evoluciono este portafolio como producto vivo: narrativa editorial, optimizacion
+          Desarrollo y evoluciono este portafolio como producto vivo: narrativa editorial, optimización
           de performance y experiencia visual inmersiva.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-3 leading-relaxed">
-          Enfoque: diseño y desarrollo para contar proyectos reales con contexto tecnico.
+          Enfoque: diseño y desarrollo para contar proyectos reales con contexto técnico.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-3 leading-relaxed">
-          Impacto: mejor legibilidad, jerarquia visual y experiencia de navegacion en V2.
+          Impacto: mejor legibilidad, jerarquía visual y experiencia de navegación en V2.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal leading-relaxed">
           Stack principal: React, TypeScript, Vite, Framer Motion, GSAP y Tailwind CSS.
@@ -27,7 +27,7 @@ const dataEs = [
     content: (
       <div>
         <p className="text-neutral-200 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-6 leading-relaxed">
-          Construccion de <span className="font-semibold text-white">StartupConnect</span>, una
+          Construcción de <span className="font-semibold text-white">StartupConnect</span>, una
           plataforma full-stack de networking profesional con feed social, matching por compatibilidad y
           chat en tiempo real.
         </p>
@@ -35,10 +35,10 @@ const dataEs = [
           Arquitectura frontend modular para features sociales y discovery.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-3 leading-relaxed">
-          Backend en Spring Boot con APIs y logica de negocio escalable.
+          Backend en Spring Boot con APIs y lógica de negocio escalable.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal leading-relaxed">
-          Mensajeria en tiempo real con WebSocket y salas de comunidad.
+          Mensajería en tiempo real con WebSocket y salas de comunidad.
         </p>
       </div>
     ),
@@ -48,17 +48,17 @@ const dataEs = [
     content: (
       <div>
         <p className="text-neutral-200 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-6 leading-relaxed">
-          Desarrollo de <span className="font-semibold text-white">Reservo.AI</span>, MVP movil de
+          Desarrollo de <span className="font-semibold text-white">Reservo.AI</span>, MVP móvil de
           reservas conversacionales orientado a negocios de servicios.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-3 leading-relaxed">
           Flujo de reserva en lenguaje natural con Gemini AI.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal mb-3 leading-relaxed">
-          Integracion de Firebase para autenticacion, datos y notificaciones.
+          Integración de Firebase para autenticación, datos y notificaciones.
         </p>
         <p className="text-neutral-300 text-xs md:text-sm min-[1440px]:text-lg font-normal leading-relaxed">
-          Sesion biometrica y estado robusto con Riverpod.
+          Sesión biométrica y estado robusto con Riverpod.
         </p>
       </div>
     ),
@@ -139,7 +139,7 @@ export function ExperienceSection() {
           heading={isEs ? 'Experiencia profesional' : 'Professional experience'}
           intro={
             isEs
-              ? 'Una linea de tiempo con los productos y decisiones tecnicas que han definido mi recorrido.'
+              ? 'Una línea de tiempo con los productos y decisiones técnicas que han definido mi recorrido.'
               : 'A timeline of the products and technical decisions that have shaped my journey.'
           }
           data={isEs ? [...dataEs].reverse() : [...dataEn].reverse()}

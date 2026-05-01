@@ -7,7 +7,7 @@ export function ContactSection() {
   const isEs = locale === 'es'
 
   return (
-    <section id="contact" aria-label="Contact">
+    <section id="contact" aria-label={isEs ? 'Contacto' : 'Contact'}>
       <main className="w-full">
         <LetsWorkTogether
           locale={locale}
@@ -17,6 +17,7 @@ export function ContactSection() {
           copy={
             isEs
               ? {
+                  backLabel: 'Regresar',
                   successLabel: 'Perfecto',
                   successTitle: 'Conversemos',
                   bookCallLabel: 'Agendar llamada',
@@ -26,17 +27,18 @@ export function ContactSection() {
                   headingLine1: 'Trabajemos',
                   headingLine2: 'juntos',
                   description:
-                    'Si tienes una idea o proyecto en mente, me encantaria escucharla. Construyamos algo excepcional juntos.',
-                  formTitle: 'Cuentame sobre tu proyecto',
+                    'Si tienes una idea o proyecto en mente, me encantaría escucharla. Construyamos algo excepcional juntos.',
+                  formTitle: 'Cuéntame sobre tu proyecto',
                   nameLabel: 'Nombre',
                   emailLabel: 'Correo',
                   messageLabel: 'Mensaje',
                   sendLabel: 'Enviar mensaje',
                   sendingLabel: 'Enviando...',
-                  formSuccessLabel: 'Mensaje enviado. Te respondere pronto.',
-                  formErrorLabel: 'Algo salio mal. Intentalo nuevamente.',
+                  formSuccessLabel: 'Mensaje enviado. Te responderé pronto.',
+                  formErrorLabel: 'Algo salió mal. Inténtalo nuevamente.',
                 }
               : {
+                  backLabel: 'Back',
                   successLabel: 'Perfect',
                   successTitle: "Let's talk",
                   bookCallLabel: 'Book a call',

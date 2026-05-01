@@ -2,6 +2,7 @@ import { useState, type FormEvent, type MouseEvent } from 'react'
 import { ArrowLeft, ArrowUpRight, Calendar, Github, Linkedin, Mail } from 'lucide-react'
 
 interface LetsWorkTogetherCopy {
+  backLabel: string
   successLabel: string
   successTitle: string
   bookCallLabel: string
@@ -31,6 +32,7 @@ interface LetsWorkTogetherProps {
 }
 
 const defaultCopy: LetsWorkTogetherCopy = {
+  backLabel: 'Back',
   successLabel: 'Perfect',
   successTitle: "Let's talk",
   bookCallLabel: 'Book a call',
@@ -147,7 +149,7 @@ export function LetsWorkTogether({
           <button
             type="button"
             onClick={handleBack}
-            aria-label="Regresar"
+            aria-label={copy.backLabel}
             className="absolute -top-3 -left-3 flex size-11 items-center justify-center rounded-full border border-white/85 bg-white text-[#070B1A] transition-all duration-300 hover:bg-[#070B1A] hover:text-white sm:size-12"
           >
             <ArrowLeft className="size-5 sm:size-6" strokeWidth={1.8} />
@@ -356,13 +358,13 @@ export function LetsWorkTogether({
         >
           <div className="flex flex-col items-center gap-6">
             <h2
-              className="relative text-center text-5xl font-light tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl min-[1440px]:text-9xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="relative py-2 text-center text-5xl font-light leading-[1.16] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl min-[1440px]:text-9xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 opacity: isClicked ? 0 : 1,
                 transform: isClicked ? 'translateY(-40px) scale(0.95)' : 'translateY(0) scale(1)',
               }}
             >
-              <span className="block overflow-hidden">
+              <span className="block overflow-hidden py-1">
                 <span
                   className="block transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
                   style={{
@@ -372,7 +374,7 @@ export function LetsWorkTogether({
                   {copy.headingLine1}
                 </span>
               </span>
-              <span className="block overflow-hidden">
+              <span className="block overflow-hidden py-1">
                 <span
                   className="block transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] delay-75"
                   style={{

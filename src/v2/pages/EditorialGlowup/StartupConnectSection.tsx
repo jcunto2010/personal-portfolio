@@ -24,7 +24,8 @@ export function StartupConnectSection() {
         tagline1={isEs ? 'Ahora vamos con' : "Now let's go with"}
         tagline2={isEs ? 'Startup Connect' : 'Startup Connect'}
         appLabel="StartupConnect"
-        sourcePanelTitle={isEs ? 'Codigo real de StartupConnect' : 'Real StartupConnect source'}
+        sourcePanelTitle={isEs ? 'Código real de StartupConnect' : 'Real StartupConnect source'}
+        sourcePanelEyebrow={isEs ? 'Fragmentos de código' : 'Source snippets'}
         cardHeading={
           isEs
             ? 'Networking profesional full-stack, construido desde cero.'
@@ -35,7 +36,7 @@ export function StartupConnectSection() {
             <>
               <span className="font-semibold text-white">StartupConnect</span> combina un feed
               social tipo LinkedIn, descubrimiento por swipe, matching por compatibilidad y chat en
-              tiempo real para founders, investors y mentors.
+              tiempo real para fundadores, inversionistas y mentores.
             </>
           ) : (
             <>
@@ -51,8 +52,8 @@ export function StartupConnectSection() {
             ? [
                 'Feed social con publicaciones, comentarios, likes, compartidos y filtros.',
                 'Matching por swipe con score de compatibilidad entre perfiles complementarios.',
-                'Mensajeria 1:1 y grupal en tiempo real con WebSocket y salas de comunidad.',
-                'Backend Spring Boot + PostgreSQL con APIs y logica de negocio escalable.',
+                'Mensajería 1:1 y grupal en tiempo real con WebSocket y salas de comunidad.',
+                'Backend Spring Boot + PostgreSQL con APIs y lógica de negocio escalable.',
               ]
             : [
                 'Social feed with posts, comments, likes, shares, and filters.',
@@ -276,15 +277,17 @@ export async function createMatch(
               ]
         }
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
-        videoStatus={isEs ? 'Video en preparacion' : 'Video in progress'}
+        videoStatus={isEs ? 'Video en preparación' : 'Video in progress'}
+        videoFlowLabel={isEs ? 'Flujo MVP' : 'MVP Flow'}
         videoPlaceholderTitle={isEs ? 'Demo pendiente' : 'Demo coming soon'}
         videoPlaceholderDescription={
           isEs
-            ? 'Aqui ira el video real del flujo: onboarding, swipe matching, chat en tiempo real y comunidad.'
+            ? 'Aquí irá el video real del flujo: onboarding, swipe matching, chat en tiempo real y comunidad.'
             : 'This space will hold the real product walkthrough: onboarding, swipe matching, realtime chat, and community flow.'
         }
         metricValue={project.technologies.length}
-        metricLabel={isEs ? 'Modulos clave' : 'Core modules'}
+        metricLabel={isEs ? 'Módulos clave' : 'Core modules'}
+        stackLabel={isEs ? 'Stack' : 'Stack'}
         ctaHeading={
           isEs
             ? '¿Quieres explorar mis proyectos?'
@@ -298,20 +301,20 @@ export async function createMatch(
         finalActions={[
           {
             label: isEs ? 'Reservo.AI' : 'Reservo.AI',
-            sublabel: isEs ? 'Ver codigo' : 'View source',
+            sublabel: isEs ? 'Ver código' : 'View source',
             href: reservoProject?.githubUrl ?? '/projects/reservo-ai',
             variant: 'dark',
           },
           {
             label: isEs ? 'Startup Connect' : 'Startup Connect',
-            sublabel: isEs ? 'Ver codigo' : 'View source',
+            sublabel: isEs ? 'Ver código' : 'View source',
             href: project.githubUrl ?? '/projects/startupconnect',
             variant: 'dark',
           },
         ]}
         secondaryAction={{
           label: 'GitHub',
-          sublabel: isEs ? 'Ver codigo' : 'View source',
+          sublabel: isEs ? 'Ver código' : 'View source',
           href: project.githubUrl ?? '/projects/startupconnect',
           variant: 'dark',
         }}

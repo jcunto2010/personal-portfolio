@@ -1,10 +1,10 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import { Suspense } from 'react'
 import {
   LazyHomeV2,
   LazyProjectsV2,
   LazyProjectDetailV2,
-  LazyEditorialGlowupPage,
+  LazyClassicModePage,
   PageFallback,
 } from './router/routes'
 import './tokens/tokens.css'
@@ -45,13 +45,14 @@ export default function AppV2() {
               }
             />
             <Route
-              path="editorial-glowup"
+              path="classic-mode"
               element={
                 <Suspense fallback={<PageFallback />}>
-                  <LazyEditorialGlowupPage />
+                  <LazyClassicModePage />
                 </Suspense>
               }
             />
+            <Route path="editorial-glowup" element={<Navigate to="/classic-mode" replace />} />
             <Route
               path="projects"
               element={
