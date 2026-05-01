@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Github, Linkedin } from 'lucide-react'
 import { useLocale } from '../../v2/lib/localeContext'
-import { contactV2 } from '../../v2/data/contact.v2'
 import ButtonWithIconDemo from './button-witn-icon'
 
 interface HeroProps {
@@ -91,26 +89,6 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
             />
           </div>
 
-          <div className="flex items-center justify-center gap-3">
-            <a
-              href={contactV2.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-            >
-              <Github className="h-4 w-4" aria-hidden="true" />
-            </a>
-            <a
-              href={contactV2.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-            >
-              <Linkedin className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </div>
         </div>
       </div>
     </div>

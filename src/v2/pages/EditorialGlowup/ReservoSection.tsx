@@ -1,4 +1,5 @@
 import { CinematicHero } from '../../../components/ui/cinematic-landing-hero'
+import { useEffect, useMemo, useState } from 'react'
 import { getProjectBySlug } from '../../data/projects.v2'
 import { useLocale } from '../../lib/localeContext'
 
@@ -6,7 +7,34 @@ export function ReservoSection() {
   const { locale } = useLocale()
   const isEs = locale === 'es'
   const project = getProjectBySlug('reservo-ai')
+  const [isCompactViewport, setIsCompactViewport] = useState(false)
 
+  useEffect(() => {
+    const updateViewport = () => setIsCompactViewport(window.innerWidth < 1024)
+    updateViewport()
+    window.addEventListener('resize', updateViewport)
+    return () => window.removeEventListener('resize', updateViewport)
+  }, [])
+
+  const featureItems = useMemo(
+    () =>
+      isEs
+        ? [
+            'Reserva conversacional: Gemini convierte lenguaje natural en datos estructurados.',
+            'Firebase como capa backend: auth, Firestore, notificaciones y persistencia.',
+            'Riverpod para estado, sesión biométrica y recuperación segura del usuario.',
+            'Onboarding animado con Rive/Lottie para explicar el producto antes del primer uso.',
+          ]
+        : [
+            'Conversational booking: Gemini turns natural language into structured data.',
+            'Firebase backend layer: auth, Firestore, notifications, and persistence.',
+            'Riverpod for state, biometric session restore, and secure user recovery.',
+            'Rive/Lottie onboarding to explain the product before the first use.',
+          ],
+    [isEs],
+  )
+
+  const compactFeatureItems = isCompactViewport ? featureItems.slice(0, 3) : featureItems
   if (!project) return null
 
   return (
@@ -28,42 +56,45 @@ export function ReservoSection() {
             : 'Conversational booking, built from scratch.'
         }
         cardDescription={
-          isEs ? (
-            <>
-              <span className="font-semibold text-white">Reservo.AI</span> une Flutter,
-              Gemini AI, Firebase, biometría, Riverpod, Rive y Lottie en un MVP móvil para
-              negocios de servicios.
-            </>
-          ) : (
-            <>
-              <span className="font-semibold text-white">Reservo.AI</span> connects Flutter,
-              Gemini AI, Firebase, biometrics, Riverpod, Rive, and Lottie into one mobile MVP
-              for service businesses.
-            </>
-          )
+          isCompactViewport
+            ? isEs
+              ? (
+                <>
+                  <span className="font-semibold text-white">Reservo.AI</span> combina Flutter,
+                  Gemini y Firebase en un MVP móvil de reservas con IA conversacional.
+                </>
+                )
+              : (
+                <>
+                  <span className="font-semibold text-white">Reservo.AI</span> combines Flutter,
+                  Gemini, and Firebase into a mobile MVP for conversational booking.
+                </>
+                )
+            : isEs
+              ? (
+                <>
+                  <span className="font-semibold text-white">Reservo.AI</span> une Flutter,
+                  Gemini AI, Firebase, biometría, Riverpod, Rive y Lottie en un MVP móvil para
+                  negocios de servicios.
+                </>
+                )
+              : (
+                <>
+                  <span className="font-semibold text-white">Reservo.AI</span> connects Flutter,
+                  Gemini AI, Firebase, biometrics, Riverpod, Rive, and Lottie into one mobile MVP
+                  for service businesses.
+                </>
+                )
         }
         caseLabel={isEs ? 'Arquitectura de MVP real' : 'Live MVP architecture'}
-        featureItems={
-          isEs
-            ? [
-                'Reserva conversacional: Gemini convierte lenguaje natural en datos estructurados.',
-                'Firebase como capa backend: auth, Firestore, notificaciones y persistencia.',
-                'Riverpod para estado, sesión biométrica y recuperación segura del usuario.',
-                'Onboarding animado con Rive/Lottie para explicar el producto antes del primer uso.',
-              ]
-            : [
-                'Conversational booking: Gemini turns natural language into structured data.',
-                'Firebase backend layer: auth, Firestore, notifications, and persistence.',
-                'Riverpod for state, biometric session restore, and secure user recovery.',
-                'Rive/Lottie onboarding to explain the product before the first use.',
-              ]
-        }
+        featureItems={compactFeatureItems}
         stackItems={project.technologies}
         codeSnippetTitle={isEs ? 'Parser de reservas con Gemini' : 'Gemini booking parser'}
         codeSnippet={isEs ? project.codeSnippetEs : project.codeSnippetEn}
         codeSnippets={
-          isEs
-            ? [
+          (
+            isEs
+              ? [
                 {
                   title: 'Gemini',
                   code: `Future<Map<String, dynamic>?> extractReservationInfo(
@@ -142,7 +173,7 @@ export function ReservoSection() {
 }`,
                 },
               ]
-            : [
+              : [
                 {
                   title: 'Gemini',
                   code: `Future<Map<String, dynamic>?> extractReservationInfo(
@@ -221,6 +252,7 @@ export function ReservoSection() {
 }`,
                 },
               ]
+          ).slice(0, isCompactViewport ? 3 : 4)
         }
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
         videoStatus={isEs ? 'Video en preparación' : 'Video in progress'}
@@ -228,7 +260,9 @@ export function ReservoSection() {
         videoPlaceholderTitle={isEs ? 'Demo pendiente' : 'Demo coming soon'}
         videoPlaceholderDescription={
           isEs
-            ? 'Aquí irá el video real del flujo: login biométrico, reserva con Gemini, calendario y confirmación.'
+            ? isCompactViewport
+              ? 'Aquí irá el video real: login biométrico, reserva con Gemini y confirmación.'
+              : 'Aquí irá el video real del flujo: login biométrico, reserva con Gemini, calendario y confirmación.'
             : 'This space will hold the real product walkthrough: biometric login, AI booking, calendar, and confirmation.'
         }
         metricValue={project.technologies.length}
