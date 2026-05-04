@@ -1,2 +1,15 @@
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  /* Oculta la barra visual; el scroll con rueda/trackpad sigue funcionando (p. ej. con Lenis). */
+  .classic-mode-scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .classic-mode-scrollbar-none::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}

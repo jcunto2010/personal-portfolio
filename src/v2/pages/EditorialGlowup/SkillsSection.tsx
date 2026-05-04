@@ -249,7 +249,7 @@ export function SkillsSection() {
           t('Ajustes básicos de seguridad y performance edge.', 'Basic security and edge performance tuning.'),
         ],
         icon: SiCloudflare,
-        className: 'top-[58%] left-[6%] md:top-[50%]',
+        className: 'top-[54%] left-[6%]',
         iconClassName: 'text-[#F38020]',
       },
       {
@@ -262,7 +262,7 @@ export function SkillsSection() {
           t('Seguimiento inicial de comportamiento de usuarios.', 'Initial tracking of user behavior.'),
         ],
         icon: IconGA4,
-        className: 'top-[58%] right-[6%] md:top-[50%]',
+        className: 'top-[54%] right-[6%]',
       },
     ],
     [t],

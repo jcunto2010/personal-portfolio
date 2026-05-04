@@ -83,7 +83,7 @@ const Icon = ({
       )}
     >
       <motion.div
-        className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-20 md:h-20 p-1.5 sm:p-2 md:p-3"
+        className="flex h-[clamp(3rem,5vw,5rem)] w-[clamp(3rem,5vw,5rem)] items-center justify-center p-[clamp(0.35rem,0.8vw,0.75rem)]"
         animate={{
           y: [0, -8, 0, 8, 0],
           x: [0, 6, 0, -6, 0],
@@ -98,7 +98,7 @@ const Icon = ({
       >
         <IconComp
           className={cn(
-            'w-7 h-7 sm:w-8 sm:h-8 md:w-12 md:h-12 drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]',
+            'h-[clamp(1.7rem,3vw,3rem)] w-[clamp(1.7rem,3vw,3rem)] drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]',
             iconData.iconClassName,
           )}
         />
@@ -210,7 +210,7 @@ export function FloatingIconsHero({
     <section
       ref={sectionRef}
       className={cn(
-        'relative w-full min-h-[128vh] sm:min-h-[122vh] min-[1200px]:min-h-[120vh] flex items-center justify-center overflow-hidden py-14 sm:py-16 md:py-20',
+        'relative flex w-full min-h-[clamp(46rem,122vh,60rem)] items-center justify-center overflow-hidden py-[clamp(3.5rem,6vw,5rem)]',
         className,
       )}
       {...props}

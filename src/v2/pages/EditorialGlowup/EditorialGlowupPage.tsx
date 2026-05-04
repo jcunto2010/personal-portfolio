@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react'
 import { Hero } from '../../../components/ui/animated-hero'
 import LightPillar from '../../../components/ui/LightPillar'
 import { useLenis } from '../../hooks/useLenis'
@@ -13,6 +14,17 @@ import { StartupConnectSection } from './StartupConnectSection'
 export default function ClassicModePage() {
   const lenisRef = useLenis()
   const prefersReduced = useReducedMotion()
+
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const body = document.body
+    root.classList.add('classic-mode-scrollbar-none')
+    body.classList.add('classic-mode-scrollbar-none')
+    return () => {
+      root.classList.remove('classic-mode-scrollbar-none')
+      body.classList.remove('classic-mode-scrollbar-none')
+    }
+  }, [])
 
   function scrollToSection(id: string) {
     const node = document.getElementById(id)

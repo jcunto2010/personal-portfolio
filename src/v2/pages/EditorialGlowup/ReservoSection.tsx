@@ -44,16 +44,15 @@ export function ReservoSection() {
       style={{
         width: '100vw',
         marginLeft: 'calc(50% - 50vw)',
-        overflow: 'hidden',
+        overflowX: 'hidden',
+        overflowY: 'visible',
       }}
     >
       <CinematicHero
         tagline1={isEs ? 'Mis proyectos,' : 'My projects,'}
         tagline2={isEs ? 'empezando por Reservo.AI.' : 'starting with Reservo.AI.'}
         cardHeading={
-          isEs
-            ? 'Reservas conversacionales, construidas desde cero.'
-            : 'Conversational booking, built from scratch.'
+          isEs ? 'Reservas con IA en Flutter.' : 'AI-powered booking in Flutter.'
         }
         cardDescription={
           isCompactViewport
@@ -86,8 +85,11 @@ export function ReservoSection() {
                 </>
                 )
         }
-        caseLabel={isEs ? 'Arquitectura de MVP real' : 'Live MVP architecture'}
+        caseLabel=""
         featureItems={compactFeatureItems}
+        stackBelowSnippet
+        equalThirdsColumns
+        minimalSnippetChrome
         stackItems={project.technologies}
         codeSnippetTitle={isEs ? 'Parser de reservas con Gemini' : 'Gemini booking parser'}
         codeSnippet={isEs ? project.codeSnippetEs : project.codeSnippetEn}
@@ -268,7 +270,6 @@ export function ReservoSection() {
         metricValue={project.technologies.length}
         metricLabel={isEs ? 'Módulos clave' : 'Core modules'}
         stackLabel={isEs ? 'Stack' : 'Stack'}
-        sourcePanelEyebrow={isEs ? 'Fragmentos de código' : 'Source snippets'}
         showFinalCta={false}
         ctaHeading={isEs ? '¿Quieres ver cómo lo construí?' : 'Curious how I built it?'}
         ctaDescription={

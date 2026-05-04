@@ -45,7 +45,8 @@ export function StartupConnectSection() {
       style={{
         width: '100vw',
         marginLeft: 'calc(50% - 50vw)',
-        overflow: 'hidden',
+        overflowX: 'hidden',
+        overflowY: 'visible',
       }}
     >
       <CinematicHero
@@ -55,43 +56,29 @@ export function StartupConnectSection() {
         sourcePanelTitle={isEs ? 'Código real de StartupConnect' : 'Real StartupConnect source'}
         sourcePanelEyebrow={isEs ? 'Fragmentos de código' : 'Source snippets'}
         cardHeading={
-          isEs
-            ? 'Networking profesional full-stack, construido desde cero.'
-            : 'Full-stack professional networking, built from scratch.'
+          isEs ? 'Networking para startups.' : 'Startup networking platform.'
         }
         cardDescription={
-          isCompactViewport
-            ? isEs
-              ? (
-                <>
-                  <span className="font-semibold text-white">StartupConnect</span> integra feed,
-                  matching por swipe y chat en tiempo real para el ecosistema startup.
-                </>
-                )
-              : (
-                <>
-                  <span className="font-semibold text-white">StartupConnect</span> unifies feed,
-                  swipe matching, and real-time chat for the startup ecosystem.
-                </>
-                )
-            : isEs
-              ? (
-                <>
-                  <span className="font-semibold text-white">StartupConnect</span> combina un feed
-                  social tipo LinkedIn, descubrimiento por swipe, matching por compatibilidad y chat en
-                  tiempo real para fundadores, inversionistas y mentores.
-                </>
-                )
-              : (
-                <>
-                  <span className="font-semibold text-white">StartupConnect</span> combines a
-                  LinkedIn-style social feed, swipe discovery, compatibility matching, and real-time
-                  chat for founders, investors, and mentors.
-                </>
-                )
+          isEs
+            ? (
+              <>
+                <span className="font-semibold text-white">StartupConnect</span> une feed,
+                matching por swipe y chat en tiempo real.
+              </>
+              )
+            : (
+              <>
+                <span className="font-semibold text-white">StartupConnect</span> combines feed,
+                swipe matching, and real-time chat.
+              </>
+              )
         }
-        caseLabel={isEs ? 'Arquitectura de producto real' : 'Real product architecture'}
+        caseLabel=""
         featureItems={compactFeatureItems}
+        stackBelowSnippet
+        equalThirdsColumns
+        minimalSnippetChrome
+        mockupScaleClassName="scale-[0.56] sm:scale-[0.66] md:scale-[0.76] lg:scale-[0.9] min-[1440px]:scale-[1.05]"
         stackItems={project.technologies}
         codeSnippetTitle={isEs ? 'Algoritmo de matching' : 'Matching algorithm'}
         codeSnippet={isEs ? project.codeSnippetEs : project.codeSnippetEn}
@@ -100,37 +87,6 @@ export function StartupConnectSection() {
             isEs
               ? [
                 {
-                  title: 'MatchService.java',
-                  code: `private double calculateMatchScore(
-    User currentUser,
-    User targetUser,
-    UserPreferences preferences) {
-  double score = 0;
-
-  Set<Set<UserType>> compatiblePairs = Set.of(
-    Set.of(UserType.ENTREPRENEUR, UserType.INVESTOR),
-    Set.of(UserType.ENTREPRENEUR, UserType.MENTOR),
-    Set.of(UserType.INVESTOR, UserType.MENTOR)
-  );
-
-  if (compatiblePairs.contains(Set.of(
-      currentUser.getUserType(),
-      targetUser.getUserType()))) {
-    score += 20;
-  } else {
-    score += 10;
-  }
-
-  if (preferences == null) return score;
-  if (preferences.getSeekingUserTypes()
-      .contains(targetUser.getUserType().getValue())) {
-    score += 15;
-  }
-
-  return score;
-}`,
-                },
-                {
                   title: 'SwipeCard.tsx',
                   code: `const handleSwipeRight = () => {
   setIsVisible(false);
@@ -173,68 +129,11 @@ export async function createMatch(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId, matchedUserId, type }),
   });
-}`,
-                },
-                {
-                  title: 'RoomService.java',
-                  code: `public Map<String, Object> sendMessage(
-    String roomId,
-    String userId,
-    String content) {
-  Optional<Room> roomOpt = roomRepository.findById(roomId);
-  if (roomOpt.isEmpty()) {
-    throw new IllegalArgumentException("Room not found");
-  }
-
-  Set<String> members = roomMembers.getOrDefault(roomId, new HashSet<>());
-  if (!members.contains(userId)) {
-    throw new SecurityException("User is not a member of this room");
-  }
-
-  Map<String, Object> message = new HashMap<>();
-  message.put("id", UUID.randomUUID().toString());
-  message.put("content", content);
-  message.put("userId", userId);
-  message.put("createdAt", LocalDateTime.now());
-
-  roomMessages.computeIfAbsent(roomId, k -> new ArrayList<>()).add(message);
-  return message;
 }`,
                 },
               ]
               : [
                 {
-                  title: 'MatchService.java',
-                  code: `private double calculateMatchScore(
-    User currentUser,
-    User targetUser,
-    UserPreferences preferences) {
-  double score = 0;
-
-  Set<Set<UserType>> compatiblePairs = Set.of(
-    Set.of(UserType.ENTREPRENEUR, UserType.INVESTOR),
-    Set.of(UserType.ENTREPRENEUR, UserType.MENTOR),
-    Set.of(UserType.INVESTOR, UserType.MENTOR)
-  );
-
-  if (compatiblePairs.contains(Set.of(
-      currentUser.getUserType(),
-      targetUser.getUserType()))) {
-    score += 20;
-  } else {
-    score += 10;
-  }
-
-  if (preferences == null) return score;
-  if (preferences.getSeekingUserTypes()
-      .contains(targetUser.getUserType().getValue())) {
-    score += 15;
-  }
-
-  return score;
-}`,
-                },
-                {
                   title: 'SwipeCard.tsx',
                   code: `const handleSwipeRight = () => {
   setIsVisible(false);
@@ -277,32 +176,6 @@ export async function createMatch(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId, matchedUserId, type }),
   });
-}`,
-                },
-                {
-                  title: 'RoomService.java',
-                  code: `public Map<String, Object> sendMessage(
-    String roomId,
-    String userId,
-    String content) {
-  Optional<Room> roomOpt = roomRepository.findById(roomId);
-  if (roomOpt.isEmpty()) {
-    throw new IllegalArgumentException("Room not found");
-  }
-
-  Set<String> members = roomMembers.getOrDefault(roomId, new HashSet<>());
-  if (!members.contains(userId)) {
-    throw new SecurityException("User is not a member of this room");
-  }
-
-  Map<String, Object> message = new HashMap<>();
-  message.put("id", UUID.randomUUID().toString());
-  message.put("content", content);
-  message.put("userId", userId);
-  message.put("createdAt", LocalDateTime.now());
-
-  roomMessages.computeIfAbsent(roomId, k -> new ArrayList<>()).add(message);
-  return message;
 }`,
                 },
               ]
