@@ -1,6 +1,4 @@
 import { useMemo } from 'react'
-import type { IconType } from 'react-icons'
-import * as SiIcons from 'react-icons/si'
 import { ClassicAbout } from '../ClassicAbout/ClassicAbout'
 import { ClassicFocus } from '../ClassicFocus/ClassicFocus'
 import { ClassicTimeline } from '../ClassicTimeline/ClassicTimeline'
@@ -10,10 +8,9 @@ import { TableOfContents } from '../TableOfContents/TableOfContents'
 import { Hero } from '../../../components/ui/animated-hero'
 import { experienceV2 } from '../../data/experience.v2'
 import { getProjectBySlug, type ProjectV2 } from '../../data/projects.v2'
-import { skillsV2 } from '../../data/skills.v2'
-import { InfiniteSlider } from '../ui/infinite-slider'
 import { useLocale } from '../../lib/localeContext'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { IntegrationHero } from '../../../components/ui/integration-hero'
 import styles from './ClassicRebuildPage.module.css'
 
 export function ClassicRebuildPage() {
@@ -22,64 +19,6 @@ export function ClassicRebuildPage() {
   const prefersReduced = useReducedMotion()
   const reservoProject = useMemo(() => getProjectBySlug('reservo-ai'), [])
   const startupProject = useMemo(() => getProjectBySlug('startupconnect'), [])
-
-  function getSkillIcon(iconKey: string): IconType | null {
-    const exportNameByKey: Record<string, string> = {
-      javascript: 'SiJavascript',
-      typescript: 'SiTypescript',
-      dart: 'SiDart',
-      html5: 'SiHtml5',
-      css3: 'SiCss',
-      react: 'SiReact',
-      nextjs: 'SiNextdotjs',
-      flutter: 'SiFlutter',
-      tailwindcss: 'SiTailwindcss',
-      framermotion: 'SiFramer',
-      vite: 'SiVite',
-      firebase: 'SiFirebase',
-      supabase: 'SiSupabase',
-      postgresql: 'SiPostgresql',
-      figma: 'SiFigma',
-      rive: 'SiRive',
-      git: 'SiGit',
-      github: 'SiGithub',
-      nodejs: 'SiNodedotjs',
-      webpack: 'SiWebpack',
-    }
-
-    const exportName = exportNameByKey[iconKey]
-    if (!exportName) return null
-
-    const icon = (SiIcons as unknown as Record<string, IconType | undefined>)[exportName]
-    return icon ?? null
-  }
-
-  const skillGroups = [
-    {
-      key: 'language' as const,
-      label: isEs ? 'Lenguajes' : 'Languages',
-      speed: 70,
-      speedOnHover: 35,
-      reverse: false,
-      skills: skillsV2.filter((s) => s.category === 'language'),
-    },
-    {
-      key: 'framework' as const,
-      label: isEs ? 'Frameworks y librerías' : 'Frameworks & Libraries',
-      speed: 80,
-      speedOnHover: 40,
-      reverse: true,
-      skills: skillsV2.filter((s) => s.category === 'framework'),
-    },
-    {
-      key: 'tool' as const,
-      label: isEs ? 'Herramientas y plataformas' : 'Tools & Platforms',
-      speed: 90,
-      speedOnHover: 45,
-      reverse: false,
-      skills: skillsV2.filter((s) => s.category === 'tool'),
-    },
-  ]
 
   const ui = {
     modeBadge: isEs ? 'Modo clásico' : 'Classic mode',
@@ -211,37 +150,14 @@ export function ClassicRebuildPage() {
       </section>
 
       <section className={styles.section} id="classic-skills">
-        <h2>{ui.skillsTitle}</h2>
-        <div className={styles.skillsSliders}>
-          {skillGroups.map((group) => (
-            <div key={group.key} className={styles.skillsSliderGroup}>
-              <h3 className={styles.skillsSliderLabel}>{group.label}</h3>
-              <div className={styles.skillsSliderArea}>
-                <InfiniteSlider
-                  gap={10}
-                  speed={group.speed}
-                  speedOnHover={group.speedOnHover}
-                  reverse={group.reverse}
-                  className={styles.skillsSlider}
-                >
-                  {group.skills.map((skill) => (
-                    <span key={`${group.key}-${skill.name}`} className={styles.skillSliderItem}>
-                      {(() => {
-                        const Icon = getSkillIcon(skill.iconKey)
-                        return (
-                          <span className={styles.skillSliderPill}>
-                            {Icon && <Icon className={styles.skillSliderIcon} aria-hidden="true" />}
-                            <span className={styles.skillSliderText}>{skill.name}</span>
-                          </span>
-                        )
-                      })()}
-                    </span>
-                  ))}
-                </InfiniteSlider>
-              </div>
-            </div>
-          ))}
-        </div>
+        <IntegrationHero
+          title={ui.skillsTitle}
+          description={
+            isEs
+              ? 'Un stack curado de herramientas y frameworks modernos que uso para construir productos performantes y escalables.'
+              : 'A curated stack of modern tools and frameworks I use to build performant, scalable products.'
+          }
+        />
       </section>
 
       <section className={styles.section} id="chapter-notes">

@@ -1,19 +1,22 @@
 import { useLayoutEffect } from 'react'
 import { Hero } from '../../../components/ui/animated-hero'
 import LightPillar from '../../../components/ui/LightPillar'
+import { IntegrationHero } from '../../../components/ui/integration-hero'
 import { useLenis } from '../../hooks/useLenis'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { useLocale } from '../../lib/localeContext'
 import { ScrollContext } from '../../lib/scrollContext'
 import { AboutTextBlock } from './AboutTextBlock'
 import { ContactSection } from './ContactSection'
 import { ExperienceSection } from './ExperienceSection'
 import { ReservoSection } from './ReservoSection'
-import { SkillsSection } from './SkillsSection'
 import { StartupConnectSection } from './StartupConnectSection'
 
 export default function ClassicModePage() {
   const lenisRef = useLenis()
   const prefersReduced = useReducedMotion()
+  const { locale } = useLocale()
+  const isEs = locale === 'es'
 
   useLayoutEffect(() => {
     const root = document.documentElement
@@ -80,7 +83,14 @@ export default function ClassicModePage() {
             onContact={() => scrollToSection('contact')}
           />
           <AboutTextBlock />
-          <SkillsSection />
+          <IntegrationHero
+            title={isEs ? 'Skills' : 'Skills'}
+            description={
+              isEs
+                ? 'Tecnologías y herramientas que uso para construir productos performantes y escalables.'
+                : 'Technologies and tools I use to build performant and scalable products.'
+            }
+          />
           <ReservoSection />
           <StartupConnectSection />
           <ExperienceSection />

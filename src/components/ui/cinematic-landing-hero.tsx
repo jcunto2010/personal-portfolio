@@ -1,20 +1,128 @@
 "use client"
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   ArrowUpRight,
   CalendarCheck,
   CheckCircle2,
-  Copy,
   Github,
   PlayCircle,
 } from 'lucide-react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '../../lib/utils'
+import { CodeSnippet } from './code-snippet'
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
+}
+
+// Helper to detect language from code for syntax highlighting
+function detectLanguage(code: string, filename?: string): string {
+  // Detect by filename extension if provided
+  if (filename) {
+    if (filename.endsWith('.dart')) return 'dart'
+    if (filename.endsWith('.kt') || filename.endsWith('.java')) return 'java'
+    if (filename.endsWith('.tsx') || filename.endsWith('.ts')) return 'typescript'
+    if (filename.endsWith('.jsx') || filename.endsWith('.js')) return 'javascript'
+  }
+
+  // Check for Dart-specific type patterns (very strong indicators)
+  const hasDartTypePattern = /Future<[^>]+>\s+\w+\s*\(/.test(code) ||
+    /Map<String\s*,\s*dynamic>/.test(code) ||
+    /List<[^>]+>/.test(code)
+
+  // Dart-specific keywords and patterns (weighted more heavily)
+  const dartIndicators = [
+    { pattern: 'Future<', weight: 3 },
+    { pattern: 'Stream<', weight: 3 },
+    { pattern: 'await ', weight: 2 },
+    { pattern: 'async ', weight: 2 },
+    { pattern: 'final ', weight: 2 },
+    { pattern: 'const ', weight: 1 },
+    { pattern: 'Widget', weight: 3 },
+    { pattern: 'StatelessWidget', weight: 5 },
+    { pattern: 'StatefulWidget', weight: 5 },
+    { pattern: 'BuildContext', weight: 4 },
+    { pattern: 'setState(', weight: 4 },
+    { pattern: 'mounted', weight: 3 },
+    { pattern: 'initState', weight: 4 },
+    { pattern: 'dispose()', weight: 3 },
+    { pattern: 'Column(', weight: 3 },
+    { pattern: 'Row(', weight: 3 },
+    { pattern: 'Container(', weight: 3 },
+    { pattern: 'Scaffold(', weight: 4 },
+    { pattern: 'EdgeInsets', weight: 3 },
+    { pattern: 'BoxDecoration', weight: 3 },
+    { pattern: 'Colors.', weight: 3 },
+    { pattern: 'required ', weight: 2 },
+    { pattern: 'factory ', weight: 3 },
+    { pattern: 'part ', weight: 2 },
+    { pattern: 'extension ', weight: 2 },
+    { pattern: 'mixin ', weight: 2 },
+    { pattern: 'on ', weight: 1 },
+  ]
+
+  // TypeScript/JavaScript indicators
+  const tsIndicators = [
+    { pattern: 'interface ', weight: 3 },
+    { pattern: 'type ', weight: 2 },
+    { pattern: 'export const', weight: 2 },
+    { pattern: 'export function', weight: 2 },
+    { pattern: 'export async', weight: 2 },
+    { pattern: 'import React', weight: 3 },
+    { pattern: 'from \'react\'', weight: 3 },
+    { pattern: 'from "react"', weight: 3 },
+    { pattern: 'const [', weight: 2 },
+    { pattern: 'useState(', weight: 3 },
+    { pattern: 'useEffect(', weight: 3 },
+    { pattern: 'useCallback(', weight: 3 },
+    { pattern: 'useMemo(', weight: 3 },
+    { pattern: 'JSX.', weight: 3 },
+    { pattern: 'React.', weight: 2 },
+    { pattern: '=> {', weight: 1 },
+    { pattern: 'function(', weight: 1 },
+    { pattern: 'typeof ', weight: 2 },
+    { pattern: 'as ', weight: 1 },
+    { pattern: 'namespace ', weight: 3 },
+    { pattern: 'declare ', weight: 3 },
+    { pattern: 'module.exports', weight: 3 },
+    { pattern: 'require(', weight: 2 },
+  ]
+
+  // Check for JSX (strong indicator of TypeScript/React)
+  const hasJSX = /<[A-Z][a-zA-Z]*/.test(code) || /className=/.test(code) || /on[A-Z][a-zA-Z]*=/.test(code)
+
+  // Calculate weighted scores
+  const dartScore = dartIndicators.reduce((sum, { pattern, weight }) => {
+    return sum + (code.includes(pattern) ? weight : 0)
+  }, 0)
+
+  const tsScore = tsIndicators.reduce((sum, { pattern, weight }) => {
+    return sum + (code.includes(pattern) ? weight : 0)
+  }, 0)
+
+  // Strong Dart type pattern detection
+  if (hasDartTypePattern) return 'dart'
+
+  // JSX is a strong indicator for TypeScript
+  if (hasJSX) return 'typescript'
+
+  // Return based on weighted scores with threshold
+  if (dartScore >= 3 && dartScore > tsScore) return 'dart'
+  if (tsScore >= 3) return 'typescript'
+
+  // Default based on likely patterns
+  if (dartScore > 0 && tsScore === 0) return 'dart'
+  if (tsScore > 0 && dartScore === 0) return 'typescript'
+
+  // Check for generic Dart patterns in function signatures
+  if (/\w+<[^>]+>\s+\w+\s*\([^)]*\)\s*\{/.test(code) && !code.includes('interface') && !code.includes('type ')) {
+    return 'dart'
+  }
+
+  // Default to typescript for web projects
+  return 'typescript'
 }
 
 const INJECTED_STYLES = `
@@ -262,8 +370,6 @@ export function CinematicHero({
 }`,
   codeSnippets,
   appLabel = 'Reservo.AI',
-  sourcePanelTitle = 'Real Reservo.AI source',
-  sourcePanelEyebrow = 'Source snippets',
   videoSrc,
   videoLabel = 'Demo video',
   videoStatus = 'Coming soon',
@@ -290,39 +396,11 @@ export function CinematicHero({
   className,
   ...props
 }: CinematicHeroProps) {
-  const [selectedSnippetIndex, setSelectedSnippetIndex] = useState(0)
-  const [copiedCode, setCopiedCode] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const mainCardRef = useRef<HTMLDivElement>(null)
   const mockupRef = useRef<HTMLDivElement>(null)
   const cardVerticalScrollRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
-
-  /** Let the card scroll internally on narrow viewports without Lenis stealing the wheel. */
-  const handleVerticalCardWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
-    if (typeof window === 'undefined' || window.innerWidth >= 1024) return
-    const el = e.currentTarget
-    if (el.scrollHeight <= el.clientHeight + 2) return
-    const { scrollTop, clientHeight } = el
-    const maxScroll = el.scrollHeight - clientHeight
-    const dy = e.deltaY
-    if ((dy < 0 && scrollTop > 2) || (dy > 0 && scrollTop < maxScroll - 2)) {
-      e.stopPropagation()
-    }
-  }, [])
-
-  /** Misma idea en lg: columnas con overflow propio deben recibir la rueda antes que Lenis. */
-  const handleColumnWheel = useCallback((e: React.WheelEvent<HTMLElement>) => {
-    if (typeof window === 'undefined' || window.innerWidth < 1024) return
-    const el = e.currentTarget
-    if (el.scrollHeight <= el.clientHeight + 1) return
-    const { scrollTop, clientHeight } = el
-    const maxScroll = el.scrollHeight - clientHeight
-    const dy = e.deltaY
-    if ((dy < 0 && scrollTop > 1) || (dy > 0 && scrollTop < maxScroll - 1)) {
-      e.stopPropagation()
-    }
-  }, [])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -366,9 +444,22 @@ export function CinematicHero({
     const ctx = gsap.context(() => {
       const isMobile = window.innerWidth < 768
       const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024
+      const isCompactLayout = window.innerWidth < 1024
       // 3-column horizontal layout needs real width; from lg (1024px) matches Tailwind.
       const isDesktopLayout = window.innerWidth >= 1024
       const mockupRevealScale = isMobile ? 0.62 : isTablet ? 0.82 : 1
+
+      // Mobile/tablet should use natural document flow (no pinned cinematic timeline),
+      // so users can scroll through mock -> features -> snippet globally.
+      if (isCompactLayout) {
+        gsap.set('.main-card', { clearProps: 'transform,width,height,borderRadius,opacity,visibility' })
+        gsap.set(['.mockup-scroll-wrapper', '.mockup-widget', '.card-left-text', '.card-right-text'], {
+          autoAlpha: 1,
+          clearProps: 'transform,filter,clipPath',
+        })
+        gsap.set(['.hero-text-wrapper', '.cta-wrapper'], { autoAlpha: 0 })
+        return
+      }
 
       gsap.set('.text-track', { autoAlpha: 0, y: 60, scale: 0.85, filter: 'blur(20px)', rotationX: -20 })
       gsap.set('.text-days', { autoAlpha: 1, clipPath: 'inset(0 100% 0 0)' })
@@ -519,24 +610,11 @@ export function CinematicHero({
   const snippets = codeSnippets ?? (codeSnippet ? [{ title: codeSnippetTitle, code: codeSnippet }] : [])
   const ctaActions = finalActions?.length ? finalActions : [secondaryAction]
 
-  const activeCode = snippets[selectedSnippetIndex]?.code.trim() ?? ''
-  const codeLines = useMemo(() => (activeCode ? activeCode.split('\n') : []), [activeCode])
-
-  async function handleCopySnippet() {
-    if (!activeCode || typeof navigator === 'undefined' || !navigator.clipboard) return
-    try {
-      await navigator.clipboard.writeText(activeCode)
-      setCopiedCode(true)
-      window.setTimeout(() => setCopiedCode(false), 2000)
-    } catch {
-      /* ignore */
-    }
-  }
 
   return (
     <div
       ref={containerRef}
-      className={cn('relative flex h-screen w-full items-center justify-center overflow-hidden bg-transparent text-[#F5F7FF] antialiased', className)}
+      className={cn('relative flex h-screen w-full items-center justify-center overflow-hidden bg-transparent text-[#F5F7FF] antialiased max-lg:h-auto max-lg:overflow-visible', className)}
       style={{ perspective: '1500px' }}
       {...props}
     >
@@ -571,23 +649,26 @@ export function CinematicHero({
         </div>
       )}
 
-      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ perspective: '1500px' }}>
+      <div
+        className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none max-lg:relative max-lg:inset-auto max-lg:block max-lg:pointer-events-auto"
+        style={{ perspective: '1500px' }}
+      >
         <div
           ref={mainCardRef}
-          className="main-card premium-depth-card gsap-reveal relative flex h-[94vh] w-[94vw] max-lg:min-h-0 items-center justify-center overflow-hidden rounded-[30px] pointer-events-auto md:h-[90vh] md:w-[90vw] md:rounded-[36px] lg:h-[85vh] lg:w-[85vw] lg:flex-col lg:items-stretch lg:justify-center lg:rounded-[40px] lg:py-3 min-[1440px]:h-[88vh] min-[1440px]:w-[88vw]"
+          className="main-card premium-depth-card gsap-reveal relative flex h-[94vh] w-[94vw] max-lg:min-h-0 items-center justify-center overflow-hidden rounded-[30px] pointer-events-auto max-lg:h-auto max-lg:overflow-visible md:h-[90vh] md:w-[90vw] md:rounded-[36px] lg:h-[85vh] lg:w-[85vw] lg:flex-col lg:items-stretch lg:justify-center lg:rounded-[40px] lg:py-3 min-[1440px]:h-[88vh] min-[1440px]:w-[88vw]"
         >
           <div className="card-sheen" aria-hidden="true" />
 
           <div
             ref={cardVerticalScrollRef}
-            onWheel={handleVerticalCardWheel}
             className={cn(
-              'relative z-10 box-border mx-auto flex h-full min-h-0 w-full max-w-[1200px] flex-1 flex-col items-center justify-start overflow-y-auto px-4 py-6 lg:w-full lg:flex-1 lg:px-6',
-              'max-lg:snap-y max-lg:snap-mandatory max-lg:touch-pan-y max-lg:overscroll-y-contain max-lg:gap-0',
+              'relative z-10 box-border mx-auto flex h-full min-h-0 w-full max-w-[1200px] flex-1 flex-col items-center justify-start overflow-visible px-4 py-6 lg:w-full lg:flex-1 lg:overflow-visible lg:px-6',
+              'max-lg:snap-y max-lg:snap-mandatory max-lg:touch-pan-y max-lg:overscroll-y-auto max-lg:gap-0',
+              'max-lg:h-auto max-lg:flex-none',
               'gap-6 md:px-6 md:py-7 lg:gap-8',
               equalThirdsColumns
                 ? 'lg:grid lg:max-w-[1500px] lg:grid-cols-3 lg:grid-rows-[minmax(0,1fr)] lg:place-items-center lg:overflow-visible lg:px-10 lg:py-2 min-[1440px]:max-w-[1840px] min-[1440px]:gap-12 min-[1440px]:px-14 min-[1440px]:py-3'
-                : 'lg:grid lg:max-w-[1500px] lg:grid-cols-[1.22fr_0.9fr_1.05fr] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch lg:justify-evenly lg:overflow-hidden lg:px-10 lg:py-2 min-[1440px]:max-w-[1840px] min-[1440px]:gap-12 min-[1440px]:px-14 min-[1440px]:py-3',
+                : 'lg:grid lg:max-w-[1500px] lg:grid-cols-[1.22fr_0.9fr_1.05fr] lg:grid-rows-[minmax(0,1fr)] lg:items-stretch lg:justify-evenly lg:overflow-visible lg:px-10 lg:py-2 min-[1440px]:max-w-[1840px] min-[1440px]:gap-12 min-[1440px]:px-14 min-[1440px]:py-3',
             )}
           >
             <div
@@ -599,7 +680,7 @@ export function CinematicHero({
             <div
               className={cn(
                 'mockup-scroll-wrapper relative z-10 flex h-[290px] w-full min-h-0 items-center justify-center sm:h-[330px] md:h-[420px] lg:mb-0 lg:flex lg:h-full lg:max-h-full lg:min-h-0 lg:items-center lg:justify-center',
-                equalThirdsColumns ? 'order-2 lg:mx-auto lg:w-full lg:max-w-none lg:px-2' : 'order-1 lg:order-2',
+                equalThirdsColumns ? 'order-1 lg:order-2 lg:mx-auto lg:w-full lg:max-w-none lg:px-2' : 'order-1 lg:order-2',
               )}
               style={{ perspective: '1000px' }}
             >
@@ -690,11 +771,10 @@ export function CinematicHero({
             >
             <div
               className={cn(
-                'card-left-text cinematic-no-scrollbar gsap-reveal z-20 flex w-full max-w-[52rem] flex-col justify-center px-1 text-center lg:mb-0 lg:h-full lg:max-h-full lg:min-h-0 lg:max-w-none lg:items-start lg:justify-start lg:overflow-y-auto lg:overscroll-contain lg:px-0 lg:pt-1 lg:text-left',
-                equalThirdsColumns ? 'order-1 lg:order-1 lg:mx-auto lg:w-full lg:max-w-none lg:px-2' : 'order-2 lg:order-1',
+                'card-left-text cinematic-no-scrollbar gsap-reveal z-20 flex w-full max-w-[52rem] flex-col justify-center px-1 text-center lg:mb-0 lg:h-full lg:max-h-full lg:min-h-0 lg:max-w-none lg:items-start lg:justify-start lg:overflow-visible lg:px-0 lg:pt-1 lg:text-left',
+                equalThirdsColumns ? 'order-2 lg:order-1 lg:mx-auto lg:w-full lg:max-w-none lg:px-2' : 'order-2 lg:order-1',
                 equalThirdsColumns ? 'lg:items-center lg:justify-center lg:overflow-visible lg:pt-0 lg:text-center' : '',
               )}
-              onWheel={handleColumnWheel}
             >
               {caseLabel ? (
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-50/75 sm:text-xs min-[1440px]:text-sm">
@@ -756,136 +836,20 @@ export function CinematicHero({
             >
             <div
               className={cn(
-                'card-right-text cinematic-no-scrollbar gsap-reveal z-20 flex w-full min-w-0 flex-col lg:h-full lg:max-h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:pt-1',
+                'card-right-text cinematic-no-scrollbar gsap-reveal z-20 flex w-full min-w-0 flex-col lg:h-full lg:max-h-full lg:min-h-0 lg:overflow-visible lg:pt-1',
                 equalThirdsColumns ? 'order-3 items-center justify-center lg:order-3 lg:w-full lg:max-w-none lg:items-center lg:justify-center lg:px-2' : 'order-3 items-center justify-center lg:order-3',
                 minimalSnippetChrome && !equalThirdsColumns ? 'lg:items-center lg:justify-center' : '',
                 !minimalSnippetChrome && !equalThirdsColumns ? 'lg:items-start lg:justify-start' : '',
                 minimalSnippetChrome && equalThirdsColumns ? 'lg:items-center lg:justify-center lg:overflow-visible lg:pt-0' : '',
               )}
-              onWheel={handleColumnWheel}
             >
-              {minimalSnippetChrome ? (
-                <>
-                  <div
-                    className={cn(
-                      'flex w-full flex-col overflow-hidden rounded-2xl border border-white/18 bg-[#0a0f1a]/90 text-left shadow-[0_30px_90px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl',
-                      equalThirdsColumns
-                        ? 'mx-auto w-full max-w-none sm:max-w-none lg:max-w-none'
-                        : 'max-w-[min(100%,28rem)] sm:max-w-[28rem] lg:max-w-[min(100%,30rem)] lg:scale-[0.94] min-[1440px]:max-w-[42rem] min-[1440px]:scale-100',
-                    )}
-                  >
-                    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                      <div className="flex items-stretch gap-1 border-b border-white/10 bg-black/20 px-2 py-2 sm:px-2.5">
-                        <div className="cinematic-no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto">
-                          {snippets.map((snippet, index) => (
-                            <button
-                              key={snippet.title}
-                              type="button"
-                              onClick={() => setSelectedSnippetIndex(index)}
-                              className={cn(
-                                'shrink-0 rounded-lg border px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.06em] transition-colors sm:px-2.5 sm:text-[10px] min-[1440px]:px-3 min-[1440px]:py-2 min-[1440px]:text-xs',
-                                selectedSnippetIndex === index
-                                  ? 'border-violet-400/45 bg-violet-500/15 text-white shadow-[0_0_20px_rgba(139,92,246,0.2)]'
-                                  : 'border-transparent bg-transparent text-white/45 hover:border-white/10 hover:bg-white/5 hover:text-white/75',
-                              )}
-                            >
-                              {snippet.title}
-                            </button>
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => void handleCopySnippet()}
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-black/30 text-white/70 transition-colors hover:border-white/22 hover:bg-white/10 hover:text-white"
-                          aria-label={copiedCode ? 'Copied' : 'Copy code'}
-                          title={copiedCode ? 'Copied' : 'Copy'}
-                        >
-                          <Copy className="h-4 w-4" aria-hidden="true" />
-                        </button>
-                      </div>
-                      {snippets[selectedSnippetIndex] ? (
-                        <div className="cinematic-no-scrollbar max-h-[12rem] min-h-[10rem] overflow-auto bg-[#03050c] sm:max-h-[16rem] md:max-h-[20rem] lg:max-h-[min(32dvh,18rem)] min-[1440px]:max-h-[26rem]">
-                          <div className="flex gap-0 px-4 py-4 sm:px-5 sm:py-5 min-[1440px]:px-6 min-[1440px]:py-6">
-                            <div
-                              className="select-none pr-3 text-right font-mono text-[10px] leading-[1.55] text-white/28 tabular-nums sm:text-[11px] min-[1440px]:text-[12px]"
-                              aria-hidden="true"
-                            >
-                              {codeLines.map((_, i) => (
-                                <div key={`ln-${i + 1}`}>{i + 1}</div>
-                              ))}
-                            </div>
-                            <pre className="m-0 min-w-0 flex-1 overflow-visible font-mono text-[10px] leading-[1.55] text-slate-100/95 sm:text-[11px] min-[1440px]:text-[12px]">
-                              <code className="block whitespace-pre">{activeCode}</code>
-                            </pre>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                  {stackBelowSnippet ? (
-                    <div
-                      className={cn(
-                        'mt-3 w-full shrink-0 px-0.5',
-                        equalThirdsColumns ? 'mx-auto w-full text-center' : '',
-                      )}
-                    >
-                      <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-50/70 sm:text-[10px]">
-                        {stackLabel}
-                      </p>
-                      <div className={cn('flex flex-wrap justify-center gap-1.5 sm:gap-2 lg:justify-start', equalThirdsColumns ? 'lg:justify-center' : '')}>
-                        {stackItems.map((item) => (
-                          <span
-                            key={item}
-                            className="rounded-full border border-white/15 bg-black/25 px-2 py-0.5 text-[9px] font-semibold text-white/82 sm:px-2.5 sm:py-1 sm:text-[10px] min-[1440px]:px-3 min-[1440px]:py-1.5 min-[1440px]:text-xs"
-                          >
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </>
-              ) : (
-                <div className="w-full max-w-[min(100%,28rem)] overflow-hidden rounded-[1.3rem] border border-white/20 bg-[#050812]/55 text-left shadow-[0_30px_90px_rgba(0,0,0,0.55),inset_0_1px_1px_rgba(255,255,255,0.18)] backdrop-blur-2xl backdrop-saturate-200 sm:max-w-[28rem] lg:max-w-[26rem] lg:origin-top lg:scale-[0.92] min-[1440px]:max-w-[40rem] min-[1440px]:scale-100">
-                  <div className="flex items-center justify-between border-b border-white/10 bg-black/20 px-4 py-3 sm:px-5 sm:py-4 lg:px-4 lg:py-2.5 min-[1440px]:px-6 min-[1440px]:py-5">
-                    <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/65 sm:text-[10px] lg:text-[8px] min-[1440px]:text-xs">
-                        {sourcePanelEyebrow}
-                      </p>
-                      <p className="mt-1 text-base font-black tracking-tight text-white sm:text-lg lg:text-sm min-[1440px]:text-2xl">
-                        {sourcePanelTitle}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1.5" aria-hidden="true">
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-                    </div>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto border-b border-white/10 bg-black/10 px-2.5 py-2.5 sm:px-3 sm:py-3 lg:py-2">
-                    {snippets.map((snippet, index) => (
-                      <button
-                        key={snippet.title}
-                        type="button"
-                        onClick={() => setSelectedSnippetIndex(index)}
-                        className={cn(
-                          'shrink-0 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em] transition-colors sm:px-3 sm:py-1.5 sm:text-[10px] min-[1440px]:px-4 min-[1440px]:py-2 min-[1440px]:text-xs',
-                          selectedSnippetIndex === index
-                            ? 'border-white/35 bg-white/20 text-white shadow-[0_8px_20px_rgba(0,0,0,0.25)]'
-                            : 'border-white/10 bg-black/15 text-white/55 hover:bg-white/10 hover:text-white/85',
-                        )}
-                      >
-                        {snippet.title}
-                      </button>
-                    ))}
-                  </div>
-                  {snippets[selectedSnippetIndex] && (
-                    <pre className="cinematic-no-scrollbar max-h-[12rem] overflow-auto whitespace-pre-wrap bg-[#050712]/70 px-4 py-3 text-[9px] leading-relaxed text-slate-50/95 shadow-[inset_0_1px_24px_rgba(0,0,0,0.45)] sm:max-h-[16rem] sm:px-5 sm:py-4 sm:text-[10px] md:max-h-[20rem] lg:max-h-[min(28dvh,15rem)] lg:px-4 lg:py-3 lg:text-[8px] lg:leading-snug min-[1440px]:max-h-[28rem] min-[1440px]:px-6 min-[1440px]:py-5 min-[1440px]:text-[13px]">
-                      <code>{snippets[selectedSnippetIndex].code.trim()}</code>
-                    </pre>
-                  )}
-                </div>
-              )}
+              <CodeSnippet
+                files={snippets.map((s) => ({ filename: s.title, language: detectLanguage(s.code, s.title), code: s.code }))}
+                autoHeight
+                className={cn(
+                  equalThirdsColumns ? 'w-full' : 'w-full max-w-[28rem] lg:scale-[0.94] min-[1440px]:scale-100',
+                )}
+              />
             </div>
             </div>
           </div>

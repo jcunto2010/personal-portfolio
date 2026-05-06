@@ -1,4 +1,5 @@
 import { CinematicHero } from '../../../components/ui/cinematic-landing-hero'
+import { CinematicHeroMobile } from '../../../components/ui/cinematic-landing-hero-mobile'
 import { useEffect, useMemo, useState } from 'react'
 import { getProjectBySlug } from '../../data/projects.v2'
 import { useLocale } from '../../lib/localeContext'
@@ -8,9 +9,13 @@ export function ReservoSection() {
   const isEs = locale === 'es'
   const project = getProjectBySlug('reservo-ai')
   const [isCompactViewport, setIsCompactViewport] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
 
   useEffect(() => {
-    const updateViewport = () => setIsCompactViewport(window.innerWidth < 1024)
+    const updateViewport = () => {
+      setIsCompactViewport(window.innerWidth < 1024)
+      setIsMobileViewport(window.innerWidth < 1024)
+    }
     updateViewport()
     window.addEventListener('resize', updateViewport)
     return () => window.removeEventListener('resize', updateViewport)
@@ -36,6 +41,7 @@ export function ReservoSection() {
 
   const compactFeatureItems = isCompactViewport ? featureItems.slice(0, 3) : featureItems
   if (!project) return null
+  const HeroComponent = isMobileViewport ? CinematicHeroMobile : CinematicHero
 
   return (
     <section
@@ -48,7 +54,7 @@ export function ReservoSection() {
         overflowY: 'visible',
       }}
     >
-      <CinematicHero
+      <HeroComponent
         tagline1={isEs ? 'Mis proyectos,' : 'My projects,'}
         tagline2={isEs ? 'empezando por Reservo.AI.' : 'starting with Reservo.AI.'}
         cardHeading={
@@ -96,9 +102,9 @@ export function ReservoSection() {
         codeSnippets={
           (
             isEs
-              ? [
+              ?               [
                 {
-                  title: 'Gemini',
+                  title: 'gemini_service.dart',
                   code: `Future<Map<String, dynamic>?> extractReservationInfo(
   String userMessage,
 ) async {
@@ -112,7 +118,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Riverpod auth',
+                  title: 'auth_provider.dart',
                   code: `Future<bool> restoreSessionFromStorage() async {
   await StorageVersionManager.migrateIfNeeded();
   final existingUser =
@@ -127,7 +133,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Biometría',
+                  title: 'biometric_auth.dart',
                   code: `Future<bool> authenticate({
   required String reason,
   bool useErrorDialogs = true,
@@ -146,7 +152,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Citas',
+                  title: 'appointments_repository.dart',
                   code: `Future<Map<String, dynamic>> createAppointment({
   required int empresaId,
   required int entidadId,
@@ -175,9 +181,9 @@ export function ReservoSection() {
 }`,
                 },
               ]
-              : [
+              :               [
                 {
-                  title: 'Gemini',
+                  title: 'gemini_service.dart',
                   code: `Future<Map<String, dynamic>?> extractReservationInfo(
   String userMessage,
 ) async {
@@ -191,7 +197,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Riverpod auth',
+                  title: 'auth_provider.dart',
                   code: `Future<bool> restoreSessionFromStorage() async {
   await StorageVersionManager.migrateIfNeeded();
   final existingUser =
@@ -206,7 +212,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Biometrics',
+                  title: 'biometric_auth.dart',
                   code: `Future<bool> authenticate({
   required String reason,
   bool useErrorDialogs = true,
@@ -225,7 +231,7 @@ export function ReservoSection() {
 }`,
                 },
                 {
-                  title: 'Appointments',
+                  title: 'appointments_repository.dart',
                   code: `Future<Map<String, dynamic>> createAppointment({
   required int empresaId,
   required int entidadId,

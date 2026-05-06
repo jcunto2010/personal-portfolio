@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
-import { Suspense } from 'react'
+import { Suspense, lazy } from 'react'
 import {
   LazyHomeV2,
   LazyProjectsV2,
@@ -9,6 +9,9 @@ import {
 } from './router/routes'
 import './tokens/tokens.css'
 import { LocaleProvider } from './lib/localeContext'
+
+// Skills demo (not lazy for simplicity)
+const LazySkillsDemo = lazy(() => import('./pages/SkillsDemo/SkillsDemoPage'))
 
 /**
  * AppV2 — root of Portfolio V2.
@@ -66,6 +69,14 @@ export default function AppV2() {
               element={
                 <Suspense fallback={<PageFallback />}>
                   <LazyProjectDetailV2 />
+                </Suspense>
+              }
+            />
+            <Route
+              path="skills-demo"
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <LazySkillsDemo />
                 </Suspense>
               }
             />

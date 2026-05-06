@@ -1,4 +1,5 @@
 import { CinematicHero } from '../../../components/ui/cinematic-landing-hero'
+import { CinematicHeroMobile } from '../../../components/ui/cinematic-landing-hero-mobile'
 import { useEffect, useMemo, useState } from 'react'
 import { getProjectBySlug } from '../../data/projects.v2'
 import { useLocale } from '../../lib/localeContext'
@@ -9,9 +10,13 @@ export function StartupConnectSection() {
   const project = getProjectBySlug('startupconnect')
   const reservoProject = getProjectBySlug('reservo-ai')
   const [isCompactViewport, setIsCompactViewport] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
 
   useEffect(() => {
-    const updateViewport = () => setIsCompactViewport(window.innerWidth < 1024)
+    const updateViewport = () => {
+      setIsCompactViewport(window.innerWidth < 1024)
+      setIsMobileViewport(window.innerWidth < 1024)
+    }
     updateViewport()
     window.addEventListener('resize', updateViewport)
     return () => window.removeEventListener('resize', updateViewport)
@@ -37,6 +42,7 @@ export function StartupConnectSection() {
 
   const compactFeatureItems = isCompactViewport ? featureItems.slice(0, 3) : featureItems
   if (!project) return null
+  const HeroComponent = isMobileViewport ? CinematicHeroMobile : CinematicHero
 
   return (
     <section
@@ -49,7 +55,7 @@ export function StartupConnectSection() {
         overflowY: 'visible',
       }}
     >
-      <CinematicHero
+      <HeroComponent
         tagline1={isEs ? 'Ahora vamos con' : "Now let's go with"}
         tagline2={isEs ? 'Startup Connect' : 'Startup Connect'}
         appLabel="StartupConnect"
