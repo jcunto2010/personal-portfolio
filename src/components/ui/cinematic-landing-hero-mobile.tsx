@@ -293,12 +293,11 @@ export function CinematicHeroMobile({
         </div>
       </section>
 
-      {/* Card glassmorphism with scroll animations - clean experience-like style */}
-      <section className="relative w-full px-3 pb-20">
+      {/* Card glassmorphism with scroll animations - Experience card pattern */}
+      <section className="relative w-full pb-20">
         <div
           ref={cardRef}
-          className="mx-auto w-full max-w-[calc(100vw-1.5rem)] rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-3 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
-          style={{ boxSizing: 'border-box' }}
+          className="relative mx-auto w-[min(92vw,34rem)] overflow-hidden rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-4 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
         >
           {/* Header */}
           <div className="mb-6 text-center">
@@ -360,14 +359,11 @@ export function CinematicHeroMobile({
             </div>
           )}
 
-          {/* SNIPPET with new CodeSnippet component - strictly constrained */}
+          {/* SNIPPET with new CodeSnippet component */}
           {codeFiles.length > 0 && (
-            <div ref={snippetRef} className="mt-6 border-t border-white/10 pt-6 will-change-transform" style={{ maxWidth: '100%' }}>
+            <div ref={snippetRef} className="mt-6 border-t border-white/10 pt-6 will-change-transform">
               <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-50/75">Code</p>
-              <div className="w-full" style={{ maxWidth: '100%', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                <style>{`div::-webkit-scrollbar { display: none; }`}</style>
-                <CodeSnippet files={codeFiles} className="w-full" />
-              </div>
+              <CodeSnippet files={codeFiles} />
             </div>
           )}
 

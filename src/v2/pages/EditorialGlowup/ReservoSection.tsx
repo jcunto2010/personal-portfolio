@@ -47,7 +47,7 @@ export function ReservoSection() {
     <section
       id="chapter-reservo"
       aria-label={project.title}
-      className="w-full overflow-x-hidden overflow-y-visible px-4 sm:px-6 lg:px-8"
+      className="w-full overflow-x-hidden overflow-y-visible"
     >
       <HeroComponent
         tagline1={isEs ? 'Mis proyectos,' : 'My projects,'}

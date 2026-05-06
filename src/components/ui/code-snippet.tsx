@@ -103,7 +103,7 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
         </button>
       </div>
 
-      {/* Code content - scrollable area */}
+      {/* Code content - scrollable area with horizontal scroll for long lines */}
       <div 
         className="relative overflow-x-auto"
         style={{
@@ -125,15 +125,14 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
         >
           {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
             <pre
-              className={cn(highlightClassName, 'm-0 p-2 sm:p-3 text-[10px] leading-4 sm:text-xs sm:leading-6')}
+              className={cn(highlightClassName, 'm-0 p-2 text-[9px] leading-3 sm:text-[10px] sm:leading-4')}
               style={{
                 ...style,
                 background: 'transparent',
                 margin: 0,
                 padding: '0.5rem',
-                minWidth: 'auto',
-                width: 'auto',
-                maxWidth: '100%',
+                minWidth: '100%',
+                width: 'max-content',
                 fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
               }}
             >
