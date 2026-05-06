@@ -293,11 +293,11 @@ export function CinematicHeroMobile({
         </div>
       </section>
 
-      {/* Card glassmorphism with scroll animations */}
+      {/* Card glassmorphism with scroll animations - clean experience-like style */}
       <section className="relative px-4 pb-20">
         <div
           ref={cardRef}
-          className="mx-auto w-full max-w-[34rem] rounded-[26px] border border-white/20 bg-[#060b17]/70 px-5 py-6 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl will-change-transform"
+          className="mx-auto w-full max-w-[min(92vw,34rem)] rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-5 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
         >
           {/* Header */}
           <div className="mb-6 text-center">
@@ -345,14 +345,14 @@ export function CinematicHeroMobile({
             </div>
           </div>
 
-          {/* FEATURES with staggered animation */}
+          {/* FEATURES with staggered animation - clean glassmorphism */}
           {featureItems.length > 0 && (
             <div ref={featuresRef} className="mt-6 border-t border-white/10 pt-6">
               <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-50/75">Features</p>
               <div className="grid gap-3">
                 {featureItems.map((feature) => (
-                  <div key={feature} className="feature-item rounded-xl border border-white/15 bg-black/25 p-3 text-left will-change-transform">
-                    <p className="text-sm leading-relaxed text-white/88">{feature}</p>
+                  <div key={feature} className="feature-item rounded-xl border border-white/10 bg-white/[0.06] p-3 text-left will-change-transform backdrop-blur-sm">
+                    <p className="text-sm leading-relaxed text-white/90">{feature}</p>
                   </div>
                 ))}
               </div>
@@ -367,7 +367,7 @@ export function CinematicHeroMobile({
             </div>
           )}
 
-          {/* STACK with staggered chip animation */}
+          {/* STACK with staggered chip animation - clean glassmorphism */}
           {stackItems.length > 0 && (
             <div ref={stackRef} className="mt-6 border-t border-white/10 pt-6 text-center">
               <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-cyan-50/70">{stackLabel}</p>
@@ -375,7 +375,7 @@ export function CinematicHeroMobile({
                 {stackItems.map((item) => (
                   <span
                     key={item}
-                    className="stack-chip rounded-full border border-white/15 bg-black/25 px-2 py-0.5 text-[10px] font-semibold text-white/82 will-change-transform"
+                    className="stack-chip rounded-full border border-white/10 bg-white/[0.08] px-2.5 py-1 text-[10px] font-semibold text-white/90 will-change-transform backdrop-blur-sm"
                   >
                     {item}
                   </span>

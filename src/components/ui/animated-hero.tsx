@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Github, Linkedin } from 'lucide-react'
 import { useLocale } from '../../v2/lib/localeContext'
 import ButtonWithIconDemo from './button-witn-icon'
 
@@ -87,6 +88,30 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
               onClick={onExploreWork}
               className="!border-0"
             />
+          </div>
+
+          {/* Social links */}
+          <div className="flex flex-row gap-4 items-center mt-2">
+            <a
+              href="https://github.com/jcunto2010"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+            >
+              <Github className="w-5 h-5" />
+              <span className="text-sm">GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/jonathan-cuntodiaz-41149a1bb"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+            >
+              <Linkedin className="w-5 h-5" />
+              <span className="text-sm">LinkedIn</span>
+            </a>
           </div>
 
         </div>
