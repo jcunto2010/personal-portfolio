@@ -48,12 +48,7 @@ export function StartupConnectSection() {
     <section
       id="chapter-startupconnect"
       aria-label={project.title}
-      style={{
-        width: '100vw',
-        marginLeft: 'calc(50% - 50vw)',
-        overflowX: 'hidden',
-        overflowY: 'visible',
-      }}
+      className="w-full overflow-x-hidden overflow-y-visible px-4 sm:px-6 lg:px-8"
     >
       <HeroComponent
         tagline1={isEs ? 'Ahora vamos con' : "Now let's go with"}
