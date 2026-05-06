@@ -105,10 +105,9 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
 
       {/* Code content - scrollable area */}
       <div 
-        className="relative"
+        className="relative overflow-x-auto"
         style={{
           maxHeight: autoHeight ? undefined : '320px',
-          overflowX: 'auto',
           overflowY: autoHeight ? 'hidden' : 'auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
@@ -126,14 +125,15 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
         >
           {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
             <pre
-              className={cn(highlightClassName, 'm-0 p-4 text-[11px] leading-5 sm:text-xs sm:leading-6')}
+              className={cn(highlightClassName, 'm-0 p-2 sm:p-3 text-[10px] leading-4 sm:text-xs sm:leading-6')}
               style={{
                 ...style,
                 background: 'transparent',
                 margin: 0,
-                padding: '1rem',
-                minWidth: '100%',
-                width: 'max-content',
+                padding: '0.5rem',
+                minWidth: 'auto',
+                width: 'auto',
+                maxWidth: '100%',
                 fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
               }}
             >

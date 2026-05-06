@@ -294,10 +294,11 @@ export function CinematicHeroMobile({
       </section>
 
       {/* Card glassmorphism with scroll animations - clean experience-like style */}
-      <section className="relative w-full px-3 sm:px-4 pb-20">
+      <section className="relative w-full px-3 pb-20">
         <div
           ref={cardRef}
-          className="mx-auto w-full max-w-[calc(100vw-1.5rem)] sm:max-w-[min(92vw,34rem)] rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-4 sm:px-5 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
+          className="mx-auto w-full max-w-[calc(100vw-1.5rem)] rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-3 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
+          style={{ boxSizing: 'border-box' }}
         >
           {/* Header */}
           <div className="mb-6 text-center">
@@ -309,8 +310,8 @@ export function CinematicHeroMobile({
           </div>
 
           {/* MOCK with animation */}
-          <div ref={mockRef} className="mx-auto flex max-w-[17rem] flex-col items-center justify-center py-4 will-change-transform">
-            <div className="relative mb-4 h-[30rem] w-[15rem] rounded-[2.6rem] border border-white/20 bg-[#050914] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
+          <div ref={mockRef} className="mx-auto flex w-full max-w-[16rem] flex-col items-center justify-center py-4 will-change-transform">
+            <div className="relative mb-4 h-[28rem] w-[14rem] sm:h-[30rem] sm:w-[15rem] rounded-[2.6rem] border border-white/20 bg-[#050914] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
               <div className="relative h-full w-full overflow-hidden rounded-[2.2rem] bg-[#061022]">
                 <div className="absolute inset-x-5 top-4 flex items-center justify-between">
                   <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/65">{appLabel}</span>
@@ -359,11 +360,14 @@ export function CinematicHeroMobile({
             </div>
           )}
 
-          {/* SNIPPET with new CodeSnippet component */}
+          {/* SNIPPET with new CodeSnippet component - strictly constrained */}
           {codeFiles.length > 0 && (
-            <div ref={snippetRef} className="mt-6 border-t border-white/10 pt-6 will-change-transform">
+            <div ref={snippetRef} className="mt-6 border-t border-white/10 pt-6 will-change-transform" style={{ maxWidth: '100%' }}>
               <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-50/75">Code</p>
-              <CodeSnippet files={codeFiles} />
+              <div className="w-full" style={{ maxWidth: '100%', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+                <CodeSnippet files={codeFiles} className="w-full" />
+              </div>
             </div>
           )}
 
