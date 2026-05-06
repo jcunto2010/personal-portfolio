@@ -293,11 +293,11 @@ export function CinematicHeroMobile({
         </div>
       </section>
 
-      {/* Card glassmorphism with scroll animations - centered layout */}
-      <section className="relative flex w-full justify-center pb-20 px-4">
+      {/* Card glassmorphism with scroll animations - mobile edge-to-edge with safe padding */}
+      <section className="relative w-full pb-20">
         <div
           ref={cardRef}
-          className="relative w-full max-w-[32rem] overflow-hidden rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-4 sm:px-6 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
+          className="relative mx-auto w-[calc(100%-1rem)] max-w-[34rem] overflow-hidden rounded-[32px] border border-white/15 bg-[linear-gradient(145deg,rgba(255,255,255,0.13)_0%,rgba(255,255,255,0.035)_100%)] px-3 sm:px-6 py-6 shadow-[0_40px_120px_-28px_rgba(0,0,0,0.78),0_18px_50px_-24px_rgba(6,182,212,0.28),inset_0_1px_1px_rgba(255,255,255,0.24),inset_0_-1px_2px_rgba(0,0,0,0.24)] backdrop-blur-[30px] will-change-transform"
         >
           {/* Header */}
           <div className="mb-6 text-center">
