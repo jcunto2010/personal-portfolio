@@ -257,17 +257,9 @@ export function ReservoSection() {
               ]
           ).slice(0, isCompactViewport ? 3 : 4)
         }
+        videoSrc="https://assets.jonathancuntodiaz.com/reservo_demo.mp4"
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
-        videoStatus={isEs ? 'Video en preparación' : 'Video in progress'}
         videoFlowLabel={isEs ? 'Flujo MVP' : 'MVP Flow'}
-        videoPlaceholderTitle={isEs ? 'Demo pendiente' : 'Demo coming soon'}
-        videoPlaceholderDescription={
-          isEs
-            ? isCompactViewport
-              ? 'Aquí irá el video real: login biométrico, reserva con Gemini y confirmación.'
-              : 'Aquí irá el video real del flujo: login biométrico, reserva con Gemini, calendario y confirmación.'
-            : 'This space will hold the real product walkthrough: biometric login, AI booking, calendar, and confirmation.'
-        }
         metricValue={project.technologies.length}
         metricLabel={isEs ? 'Módulos clave' : 'Core modules'}
         stackLabel={isEs ? 'Stack' : 'Stack'}

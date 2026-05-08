@@ -321,6 +321,8 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
   sourcePanelTitle?: string
   sourcePanelEyebrow?: string
   videoSrc?: string
+  /** Desplazamiento horizontal del video en el mock (px). Positivo = hacia la derecha. */
+  videoTranslateXPx?: number
   videoLabel?: string
   videoStatus?: string
   videoFlowLabel?: string
@@ -371,6 +373,7 @@ export function CinematicHero({
   codeSnippets,
   appLabel = 'Reservo.AI',
   videoSrc,
+  videoTranslateXPx,
   videoLabel = 'Demo video',
   videoStatus = 'Coming soon',
   videoFlowLabel = 'MVP Flow',
@@ -396,6 +399,8 @@ export function CinematicHero({
   className,
   ...props
 }: CinematicHeroProps) {
+  const videoNudgeX = videoTranslateXPx ?? 4
+
   const containerRef = useRef<HTMLDivElement>(null)
   const mainCardRef = useRef<HTMLDivElement>(null)
   const mockupRef = useRef<HTMLDivElement>(null)
@@ -695,34 +700,44 @@ export function CinematicHero({
                   <div className="hardware-btn absolute -right-[3px] top-[170px] z-0 h-[70px] w-[3px] scale-x-[-1] rounded-r-md" aria-hidden="true" />
 
                   <div className="absolute inset-[7px] z-10 overflow-hidden rounded-[2.5rem] bg-[#050914] text-white shadow-[inset_0_0_15px_rgba(0,0,0,1)]">
-                    <div className="screen-glare absolute inset-0 z-40 pointer-events-none" aria-hidden="true" />
+                    {!videoSrc ? (
+                      <div className="screen-glare absolute inset-0 z-40 pointer-events-none" aria-hidden="true" />
+                    ) : null}
 
-                    <div className="absolute left-0 right-0 top-[5px] z-50 mx-auto flex h-[28px] w-[100px] items-center justify-end rounded-full bg-black px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
-                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-                    </div>
-
-                    <div className="relative flex h-full w-full flex-col px-5 pb-7 pt-12">
-                      <div className="phone-widget mockup-widget mb-4 flex flex-shrink-0 items-center justify-between">
-                        <div className="flex flex-col">
-                          <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-neutral-400">{appLabel}</span>
-                          <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">{videoLabel}</span>
-                        </div>
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-neutral-200 shadow-lg shadow-black/50">
-                          JC
-                        </div>
+                    {videoSrc ? (
+                      <div className="absolute inset-0 z-20 overflow-hidden rounded-[2.5rem] bg-[#050914]">
+                        <video
+                          className="pointer-events-none block h-full w-full object-cover object-center"
+                          style={{
+                            transform: `translate3d(${videoNudgeX}px, 0, 0) scale(1.02)`,
+                            transformOrigin: 'center center',
+                          }}
+                          src={videoSrc}
+                          muted
+                          autoPlay
+                          loop
+                          playsInline
+                          preload="auto"
+                        />
                       </div>
+                    ) : (
+                      <>
+                        <div className="absolute left-0 right-0 top-[5px] z-50 mx-auto flex h-[28px] w-[100px] items-center justify-end rounded-full bg-black px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
+                          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+                        </div>
 
-                      <div className="phone-widget mockup-widget widget-depth relative mb-4 flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-[#071427]">
-                        {videoSrc ? (
-                          <video
-                            className="absolute inset-0 h-full w-full object-cover"
-                            src={videoSrc}
-                            muted
-                            playsInline
-                            controls
-                          />
-                        ) : (
-                          <>
+                        <div className="relative flex h-full w-full flex-col px-5 pb-7 pt-12">
+                          <div className="phone-widget mockup-widget mb-4 flex flex-shrink-0 items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-neutral-400">{appLabel}</span>
+                              <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">{videoLabel}</span>
+                            </div>
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-neutral-200 shadow-lg shadow-black/50">
+                              JC
+                            </div>
+                          </div>
+
+                          <div className="phone-widget mockup-widget widget-depth relative mb-4 flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-[2rem] border border-cyan-300/10 bg-[#071427]">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(6,182,212,0.24),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))]" />
                             <div className="absolute inset-x-5 top-5 flex items-center justify-between">
                               <span className="rounded-full border border-cyan-200/15 bg-white/5 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/70">
@@ -737,25 +752,25 @@ export function CinematicHero({
                                 {videoPlaceholderDescription}
                               </p>
                             </div>
-                          </>
-                        )}
-                      </div>
+                          </div>
 
-                      <div className="phone-widget mockup-widget widget-depth flex flex-shrink-0 items-center justify-between rounded-2xl p-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 shadow-inner">
-                            <CalendarCheck className="h-4 w-4 text-emerald-300 drop-shadow-md" aria-hidden="true" />
+                          <div className="phone-widget mockup-widget widget-depth flex flex-shrink-0 items-center justify-between rounded-2xl p-3">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 shadow-inner">
+                                <CalendarCheck className="h-4 w-4 text-emerald-300 drop-shadow-md" aria-hidden="true" />
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-white">{videoStatus}</p>
+                                <p className="text-[10px] text-cyan-100/45">{metricValue} {metricLabel}</p>
+                              </div>
+                            </div>
+                            <CheckCircle2 className="h-5 w-5 text-emerald-300" aria-hidden="true" />
                           </div>
-                          <div>
-                            <p className="text-xs font-bold text-white">{videoStatus}</p>
-                            <p className="text-[10px] text-cyan-100/45">{metricValue} {metricLabel}</p>
-                          </div>
+
+                          <div className="absolute bottom-2 left-1/2 h-[4px] w-[120px] -translate-x-1/2 rounded-full bg-white/20 shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
                         </div>
-                        <CheckCircle2 className="h-5 w-5 text-emerald-300" aria-hidden="true" />
-                      </div>
-
-                      <div className="absolute bottom-2 left-1/2 h-[4px] w-[120px] -translate-x-1/2 rounded-full bg-white/20 shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
 

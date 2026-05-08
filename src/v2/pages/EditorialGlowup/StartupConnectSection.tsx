@@ -182,17 +182,10 @@ export async function createMatch(
               ]
           ).slice(0, isCompactViewport ? 3 : 4)
         }
+        videoSrc="https://assets.jonathancuntodiaz.com/startup_demo.mp4"
+        videoTranslateXPx={1}
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
-        videoStatus={isEs ? 'Video en preparación' : 'Video in progress'}
         videoFlowLabel={isEs ? 'Flujo MVP' : 'MVP Flow'}
-        videoPlaceholderTitle={isEs ? 'Demo pendiente' : 'Demo coming soon'}
-        videoPlaceholderDescription={
-          isEs
-            ? isCompactViewport
-              ? 'Aquí irá el video real: onboarding, swipe matching y chat en tiempo real.'
-              : 'Aquí irá el video real del flujo: onboarding, swipe matching, chat en tiempo real y comunidad.'
-            : 'This space will hold the real product walkthrough: onboarding, swipe matching, realtime chat, and community flow.'
-        }
         metricValue={project.technologies.length}
         metricLabel={isEs ? 'Módulos clave' : 'Core modules'}
         stackLabel={isEs ? 'Stack' : 'Stack'}

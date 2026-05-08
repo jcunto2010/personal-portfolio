@@ -133,6 +133,7 @@ export function CinematicHeroMobile({
   codeSnippets,
   appLabel = 'App',
   videoSrc,
+  videoTranslateXPx,
   videoLabel = 'Demo video',
   videoFlowLabel = 'MVP Flow',
   videoPlaceholderTitle = 'Demo pending',
@@ -141,6 +142,8 @@ export function CinematicHeroMobile({
   className,
   ...props
 }: CinematicHeroProps) {
+  const videoNudgeX = videoTranslateXPx ?? 3
+
   const containerRef = useRef<HTMLDivElement>(null)
   const taglineRef = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -312,36 +315,44 @@ export function CinematicHeroMobile({
           <div ref={mockRef} className="mx-auto flex w-full max-w-[16rem] flex-col items-center justify-center py-4 will-change-transform">
             <div className="relative mb-4 h-[28rem] w-[14rem] sm:h-[30rem] sm:w-[15rem] rounded-[2.6rem] border border-white/20 bg-[#050914] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
               <div className="relative h-full w-full overflow-hidden rounded-[2.2rem] bg-[#061022]">
-                <div className="absolute inset-x-5 top-4 flex items-center justify-between">
-                  <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/65">{appLabel}</span>
-                  <span className="text-[10px] font-semibold text-white/85">{videoLabel}</span>
-                </div>
-                <div className="absolute inset-x-5 top-10 flex items-center justify-between">
-                  <span className="rounded-full border border-cyan-200/20 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-100/75">
-                    {videoFlowLabel}
-                  </span>
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.85)]" />
-                </div>
-                <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-                  {videoSrc ? (
+                {videoSrc ? (
+                  <div className="absolute inset-0 overflow-hidden rounded-[2.2rem] bg-[#061022]">
                     <video
-                      className="absolute inset-0 h-full w-full object-cover"
+                      className="pointer-events-none block h-full w-full object-cover object-center"
+                      style={{
+                        transform: `translate3d(${videoNudgeX}px, 0, 0) scale(1.012)`,
+                        transformOrigin: 'center center',
+                      }}
                       src={videoSrc}
                       muted
                       autoPlay
                       loop
                       playsInline
-                      controls
+                      preload="auto"
                     />
-                  ) : (
-                    <>
-                      <PlayCircle className="mb-4 h-14 w-14 text-cyan-100" aria-hidden="true" />
-                      <p className="text-3xl font-black tracking-tight text-white">{videoPlaceholderTitle}</p>
-                      <p className="mt-3 text-xs leading-relaxed text-cyan-100/65">{videoPlaceholderDescription}</p>
-                    </>
-                  )}
-                </div>
-                </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="absolute inset-x-5 top-4 flex items-center justify-between">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-white/65">{appLabel}</span>
+                      <span className="text-[10px] font-semibold text-white/85">{videoLabel}</span>
+                    </div>
+                    <div className="absolute inset-x-5 top-10 flex items-center justify-between">
+                      <span className="rounded-full border border-cyan-200/20 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-100/75">
+                        {videoFlowLabel}
+                      </span>
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.85)]" />
+                    </div>
+                    <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+                      <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+                        <PlayCircle className="mb-4 h-14 w-14 text-cyan-100" aria-hidden="true" />
+                        <p className="text-3xl font-black tracking-tight text-white">{videoPlaceholderTitle}</p>
+                        <p className="mt-3 text-xs leading-relaxed text-cyan-100/65">{videoPlaceholderDescription}</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
