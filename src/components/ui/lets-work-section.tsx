@@ -74,7 +74,7 @@ export function LetsWorkTogether({
     company: '',
   })
 
-  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsClicked(true)
 
@@ -347,14 +347,16 @@ export function LetsWorkTogether({
 
         </div>
 
-        <div
-          className="group relative cursor-pointer"
+        <button
+          type="button"
+          className="group relative w-full max-w-none cursor-pointer border-0 bg-transparent p-0 text-center font-sans text-inherit outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070B1A]"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          onClick={(e) => handleClick(e as unknown as MouseEvent<HTMLAnchorElement>)}
+          onClick={handleClick}
           style={{
             pointerEvents: isClicked ? 'none' : 'auto',
           }}
+          aria-label={`${copy.headingLine1} ${copy.headingLine2}`}
         >
           <div className="flex flex-col items-center gap-6">
             <h2
@@ -438,7 +440,7 @@ export function LetsWorkTogether({
               }}
             />
           </div>
-        </div>
+        </button>
 
         <div
           className="mt-8 flex flex-col items-center gap-4 text-center transition-all duration-500 delay-100"

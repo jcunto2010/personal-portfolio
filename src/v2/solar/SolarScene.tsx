@@ -1739,7 +1739,7 @@ function SolarSceneWebGL({
             Loading solar system…
           </p>
           <p style={{
-            color: 'rgba(255,255,255,0.35)', fontFamily: FONT_BODY, fontSize: '11px',
+            color: 'rgba(255,255,255,0.35)', fontFamily: FONT_BODY, fontSize: '12px',
             margin: 0,
           }}>
             {glbLoaded} / {initialGroupSize} models ready
@@ -1812,7 +1812,7 @@ function SolarSceneWebGL({
           background: 'rgba(0,0,0,0.7)',
           color: '#93c5fd',
           fontFamily: FONT_BODY,
-          fontSize: '11px',
+          fontSize: '12px',
           fontWeight: 700,
           padding: '0.35rem 0.7rem',
           borderRadius: '0.55rem',

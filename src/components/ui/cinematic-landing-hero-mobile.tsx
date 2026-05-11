@@ -18,6 +18,8 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
+const EMPTY_STRING_LIST: string[] = []
+
 // Helper to detect language from code for syntax highlighting
 function detectLanguage(code: string, filename?: string): string {
   // Detect by filename extension if provided
@@ -132,8 +134,8 @@ export function CinematicHeroMobile({
   cardHeading = 'AI-powered booking in Flutter.',
   cardDescription,
   caseLabel,
-  featureItems = [],
-  stackItems = [],
+  featureItems = EMPTY_STRING_LIST,
+  stackItems = EMPTY_STRING_LIST,
   codeSnippetTitle = 'Snippet',
   codeSnippet,
   codeSnippets,

@@ -654,7 +654,7 @@ export function CinematicHero({
       style={{ perspective: '1500px' }}
       {...props}
     >
-      <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
+      <style>{INJECTED_STYLES}</style>
       <div className="film-grain" aria-hidden="true" />
       <div className="bg-grid-theme absolute inset-0 z-0 opacity-50 pointer-events-none" aria-hidden="true" />
 

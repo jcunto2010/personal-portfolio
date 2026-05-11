@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText as GSAPSplitText } from 'gsap/SplitText'
@@ -50,123 +50,139 @@ export default function SplitText({
   const splitInstanceRef = useRef<GSAPSplitText | null>(null)
   const animationCompletedRef = useRef(false)
   const onCompleteRef = useRef(onLetterAnimationComplete)
-  const [fontsLoaded, setFontsLoaded] = useState(() => document.fonts.status === 'loaded')
 
   useEffect(() => {
     onCompleteRef.current = onLetterAnimationComplete
   }, [onLetterAnimationComplete])
 
-  useEffect(() => {
-    if (document.fonts.status === 'loaded') return
-    void document.fonts.ready.then(() => setFontsLoaded(true))
-  }, [])
-
   useGSAP(
     () => {
-      if (!ref.current || !text || !fontsLoaded) return
-      if (animationCompletedRef.current && !scrub) return
+      if (!ref.current || !text) return
 
-      const el = ref.current
+      let cancelled = false
 
-      if (splitInstanceRef.current) {
-        try {
-          splitInstanceRef.current.revert()
-        } catch {
-          // noop
-        }
-        splitInstanceRef.current = null
-      }
+      const runSetup = () => {
+        if (cancelled || !ref.current || !text) return
+        if (animationCompletedRef.current && !scrub) return
 
-      const startPct = (1 - threshold) * 100
-      const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin)
-      const marginValue = marginMatch ? Number.parseFloat(marginMatch[1]) : 0
-      const marginUnit = marginMatch ? (marginMatch[2] ?? 'px') : 'px'
-      const sign =
-        marginValue === 0
-          ? ''
-          : marginValue < 0
-            ? `-=${Math.abs(marginValue)}${marginUnit}`
-            : `+=${marginValue}${marginUnit}`
-      const start = `top ${startPct}%${sign}`
-      const normalizedGradientWords = new Set(
-        gradientWords.map((word) =>
-          word
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/\p{Diacritic}/gu, '')
-            .replace(/[^a-z0-9]+/gi, ''),
-        ),
-      )
+        const el = ref.current
 
-      let targets: Element[] = []
-      const assignTargets = (self: GSAPSplitText) => {
-        if (splitType.includes('chars') && self.chars.length) targets = self.chars
-        if (!targets.length && splitType.includes('words') && self.words.length) targets = self.words
-        if (!targets.length && splitType.includes('lines') && self.lines.length) targets = self.lines
-        if (!targets.length) targets = self.chars ?? self.words ?? self.lines ?? []
-      }
-
-      const applyGradientToKeywords = (words: Element[]) => {
-        if (!normalizedGradientWords.size) return
-        words.forEach((wordEl) => {
-          const token = (wordEl.textContent ?? '')
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/\p{Diacritic}/gu, '')
-            .replace(/[^a-z0-9]+/gi, '')
-          if (normalizedGradientWords.has(token)) {
-            wordEl.classList.add('split-gradient-keyword')
+        if (splitInstanceRef.current) {
+          try {
+            splitInstanceRef.current.revert()
+          } catch {
+            // noop
           }
+          splitInstanceRef.current = null
+        }
+
+        const startPct = (1 - threshold) * 100
+        const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin)
+        const marginValue = marginMatch ? Number.parseFloat(marginMatch[1]) : 0
+        const marginUnit = marginMatch ? (marginMatch[2] ?? 'px') : 'px'
+        const sign =
+          marginValue === 0
+            ? ''
+            : marginValue < 0
+              ? `-=${Math.abs(marginValue)}${marginUnit}`
+              : `+=${marginValue}${marginUnit}`
+        const start = `top ${startPct}%${sign}`
+        const normalizedGradientWords = new Set(
+          gradientWords.map((word) =>
+            word
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/\p{Diacritic}/gu, '')
+              .replace(/[^a-z0-9]+/gi, ''),
+          ),
+        )
+
+        let targets: Element[] = []
+        const assignTargets = (self: GSAPSplitText) => {
+          if (splitType.includes('chars') && self.chars.length) targets = self.chars
+          if (!targets.length && splitType.includes('words') && self.words.length) targets = self.words
+          if (!targets.length && splitType.includes('lines') && self.lines.length) targets = self.lines
+          if (!targets.length) targets = self.chars ?? self.words ?? self.lines ?? []
+        }
+
+        const applyGradientToKeywords = (words: Element[]) => {
+          if (!normalizedGradientWords.size) return
+          words.forEach((wordEl) => {
+            const token = (wordEl.textContent ?? '')
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/\p{Diacritic}/gu, '')
+              .replace(/[^a-z0-9]+/gi, '')
+            if (normalizedGradientWords.has(token)) {
+              wordEl.classList.add('split-gradient-keyword')
+            }
+          })
+        }
+
+        const splitInstance = new GSAPSplitText(el, {
+          type: splitType,
+          smartWrap: true,
+          autoSplit: splitType === 'lines',
+          linesClass: 'split-line',
+          wordsClass: 'split-word',
+          charsClass: 'split-char',
+          reduceWhiteSpace: false,
+          onSplit: (self) => {
+            assignTargets(self)
+            applyGradientToKeywords(self.words)
+            return gsap.fromTo(
+              targets,
+              { ...from },
+              {
+                ...to,
+                duration,
+                ease,
+                stagger: delay / 1000,
+                scrollTrigger: {
+                  trigger: el,
+                  start,
+                  end,
+                  scrub,
+                  once: !scrub,
+                  fastScrollEnd: scrub ? false : true,
+                  anticipatePin: 0.4,
+                },
+                onComplete: () => {
+                  if (!scrub) animationCompletedRef.current = true
+                  onCompleteRef.current?.()
+                },
+                willChange: 'transform, opacity',
+                force3D: true,
+              },
+            )
+          },
         })
+
+        splitInstanceRef.current = splitInstance
       }
 
-      const splitInstance = new GSAPSplitText(el, {
-        type: splitType,
-        smartWrap: true,
-        autoSplit: splitType === 'lines',
-        linesClass: 'split-line',
-        wordsClass: 'split-word',
-        charsClass: 'split-char',
-        reduceWhiteSpace: false,
-        onSplit: (self) => {
-          assignTargets(self)
-          applyGradientToKeywords(self.words)
-          return gsap.fromTo(
-            targets,
-            { ...from },
-            {
-              ...to,
-              duration,
-              ease,
-              stagger: delay / 1000,
-              scrollTrigger: {
-                trigger: el,
-                start,
-                end,
-                scrub,
-                once: !scrub,
-                fastScrollEnd: scrub ? false : true,
-                anticipatePin: 0.4,
-              },
-              onComplete: () => {
-                if (!scrub) animationCompletedRef.current = true
-                onCompleteRef.current?.()
-              },
-              willChange: 'transform, opacity',
-              force3D: true,
-            },
-          )
-        },
-      })
+      const schedule = () => {
+        if (document.fonts.status === 'loaded') {
+          runSetup()
+        } else {
+          void document.fonts.ready.then(() => {
+            if (!cancelled) runSetup()
+          })
+        }
+      }
 
-      splitInstanceRef.current = splitInstance
+      schedule()
 
       return () => {
-        ScrollTrigger.getAll().forEach((st) => {
-          if (st.trigger === el) st.kill()
-        })
+        cancelled = true
+        const el = ref.current
+        if (el) {
+          ScrollTrigger.getAll().forEach((st) => {
+            if (st.trigger === el) st.kill()
+          })
+        }
         try {
-          splitInstance.revert()
+          splitInstanceRef.current?.revert()
         } catch {
           // noop
         }
@@ -187,7 +203,6 @@ export default function SplitText({
         rootMargin,
         end,
         scrub,
-        fontsLoaded,
       ],
       scope: ref,
     },
