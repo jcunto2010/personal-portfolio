@@ -17,7 +17,7 @@
  * [NV] Phase 4: lateral camera drift per planet.
  */
 
-import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Component, Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { ReactNode, RefObject } from 'react'
 import { Canvas, useFrame, useLoader } from '@react-three/fiber'
@@ -493,6 +493,31 @@ const DEFAULT_AUDIO_DIAG: AudioDiagnostics = {
   audioState: 'idle',
 }
 
+/** Panel + rumble share one reducer so effects can commit a single update per logical event. */
+interface BlackholeUiState {
+  panelVisible: boolean
+  rumbleActive: boolean
+}
+
+const BLACKHOLE_UI_INITIAL: BlackholeUiState = {
+  panelVisible: false,
+  rumbleActive: false,
+}
+
+type BlackholeUiAction = {
+  type: 'set'
+  patch: Partial<Pick<BlackholeUiState, 'panelVisible' | 'rumbleActive'>>
+}
+
+function blackholeUiReducer(state: BlackholeUiState, action: BlackholeUiAction): BlackholeUiState {
+  if (action.type !== 'set') return state
+  const next = { ...state, ...action.patch }
+  if (next.panelVisible === state.panelVisible && next.rumbleActive === state.rumbleActive) {
+    return state
+  }
+  return next
+}
+
 export function SolarScene({
   onSwitchMode,
   mode = 'immersive',
@@ -723,8 +748,8 @@ function SolarSceneWebGL({
   const [uranusPanelVisible, setUranusPanelVisible] = useState(false)
   const uranusPanelManuallyClosedRef = useRef(false)
   const uranusHoldTimerRef = useRef<number | null>(null)
-  const [blackholePanelVisible, setBlackholePanelVisible] = useState(false)
-  const [blackholeRumbleActive, setBlackholeRumbleActive] = useState(false)
+  const [blackholeUi, dispatchBlackholeUi] = useReducer(blackholeUiReducer, BLACKHOLE_UI_INITIAL)
+  const { panelVisible: blackholePanelVisible, rumbleActive: blackholeRumbleActive } = blackholeUi
   const blackholePanelManuallyClosedRef = useRef(false)
   const blackholeHoldTimerRef = useRef<number | null>(null)
   const [activeJourneyPlanetId, setActiveJourneyPlanetId] = useState<PlanetId>('sun')
@@ -1107,8 +1132,7 @@ function SolarSceneWebGL({
 
     if (cameraPhase !== 'blackhole-hold') {
       window.requestAnimationFrame(() => {
-        setBlackholePanelVisible(false)
-        setBlackholeRumbleActive(false)
+        dispatchBlackholeUi({ type: 'set', patch: { panelVisible: false, rumbleActive: false } })
       })
       return
     }
@@ -1116,7 +1140,7 @@ function SolarSceneWebGL({
     blackholePanelManuallyClosedRef.current = false
     blackholeHoldTimerRef.current = window.setTimeout(() => {
       if (!blackholePanelManuallyClosedRef.current) {
-        setBlackholePanelVisible(true)
+        dispatchBlackholeUi({ type: 'set', patch: { panelVisible: true } })
       }
       blackholeHoldTimerRef.current = null
     }, 1000)
@@ -1141,8 +1165,11 @@ function SolarSceneWebGL({
     // Trigger camera rumble (defer to next frame — avoids setState in effect body)
     let rumbleOff = 0
     const rumbleRafId = window.requestAnimationFrame(() => {
-      setBlackholeRumbleActive(true)
-      rumbleOff = window.setTimeout(() => setBlackholeRumbleActive(false), 3000)
+      dispatchBlackholeUi({ type: 'set', patch: { rumbleActive: true } })
+      rumbleOff = window.setTimeout(
+        () => dispatchBlackholeUi({ type: 'set', patch: { rumbleActive: false } }),
+        3000,
+      )
     })
 
     // Synthesize gravity sound — two sine oscillators at 55Hz + 40Hz
@@ -1191,7 +1218,9 @@ function SolarSceneWebGL({
     return () => {
       window.cancelAnimationFrame(rumbleRafId)
       window.clearTimeout(rumbleOff)
-      window.requestAnimationFrame(() => setBlackholeRumbleActive(false))
+      window.requestAnimationFrame(() =>
+        dispatchBlackholeUi({ type: 'set', patch: { rumbleActive: false } }),
+      )
     }
   }, [blackholeCinematicPhase, audioEnabled])
 
@@ -1462,9 +1491,9 @@ function SolarSceneWebGL({
                       window.clearTimeout(blackholeHoldTimerRef.current)
                       blackholeHoldTimerRef.current = null
                     }
-                    setBlackholePanelVisible(false)
+                    dispatchBlackholeUi({ type: 'set', patch: { panelVisible: false } })
                   } else {
-                    setBlackholePanelVisible(true)
+                    dispatchBlackholeUi({ type: 'set', patch: { panelVisible: true } })
                   }
                 }}
               />
@@ -1680,7 +1709,7 @@ function SolarSceneWebGL({
             window.clearTimeout(blackholeHoldTimerRef.current)
             blackholeHoldTimerRef.current = null
           }
-          setBlackholePanelVisible(false)
+          dispatchBlackholeUi({ type: 'set', patch: { panelVisible: false } })
         }}
       />
 

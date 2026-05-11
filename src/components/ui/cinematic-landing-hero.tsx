@@ -29,6 +29,9 @@ export const CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_BOOST = 0.02
 /** Solo StartupConnect: multiplica su `scaleY` un poco más que Reservo (menos alto). */
 export const CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_EXTRA_Y = 0.984
 
+/** Sheen highlight color — applied inline per frame on `.card-sheen` (avoids CSS custom props in rAF). */
+const CINEMATIC_CARD_SHEEN_SPOT = 'rgba(255,255,255,0.06)'
+
 // Helper to detect language from code for syntax highlighting
 function detectLanguage(code: string, filename?: string): string {
   // Detect by filename extension if provided
@@ -214,7 +217,7 @@ const INJECTED_STYLES = `
 
   .card-sheen {
       position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 50;
-      background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06) 0%, transparent 40%);
+      background: radial-gradient(800px circle at 50% 50%, rgba(255,255,255,0.06) 0%, transparent 40%);
       mix-blend-mode: screen; transition: opacity 0.3s ease;
   }
 
@@ -429,6 +432,7 @@ export function CinematicHero({
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mainCardRef = useRef<HTMLDivElement>(null)
+  const cardSheenRef = useRef<HTMLDivElement>(null)
   const mockupRef = useRef<HTMLDivElement>(null)
   const cardVerticalScrollRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
@@ -440,14 +444,15 @@ export function CinematicHero({
       cancelAnimationFrame(requestRef.current)
 
       requestRef.current = requestAnimationFrame(() => {
-        if (!mainCardRef.current || !mockupRef.current) return
+        if (!mainCardRef.current || !cardSheenRef.current || !mockupRef.current) return
 
         const rect = mainCardRef.current.getBoundingClientRect()
         const mouseX = e.clientX - rect.left
         const mouseY = e.clientY - rect.top
 
-        mainCardRef.current.style.setProperty('--mouse-x', `${mouseX}px`)
-        mainCardRef.current.style.setProperty('--mouse-y', `${mouseY}px`)
+        // Direct `background` on the sheen layer only — no inherited `--mouse-*` churn.
+        cardSheenRef.current.style.background =
+          `radial-gradient(800px circle at ${mouseX}px ${mouseY}px, ${CINEMATIC_CARD_SHEEN_SPOT} 0%, transparent 40%)`
 
         const xVal = (e.clientX / window.innerWidth - 0.5) * 2
         const yVal = (e.clientY / window.innerHeight - 0.5) * 2
@@ -688,7 +693,7 @@ export function CinematicHero({
           ref={mainCardRef}
           className="main-card premium-depth-card gsap-reveal relative flex h-[94vh] w-[94vw] max-lg:min-h-0 items-center justify-center overflow-hidden rounded-[30px] pointer-events-auto max-lg:h-auto max-lg:overflow-visible md:h-[90vh] md:w-[90vw] md:rounded-[36px] lg:h-[85vh] lg:w-[85vw] lg:flex-col lg:items-stretch lg:justify-center lg:rounded-[40px] lg:py-3 min-[1440px]:h-[88vh] min-[1440px]:w-[88vw]"
         >
-          <div className="card-sheen" aria-hidden="true" />
+          <div ref={cardSheenRef} className="card-sheen" aria-hidden="true" />
 
           <div
             ref={cardVerticalScrollRef}

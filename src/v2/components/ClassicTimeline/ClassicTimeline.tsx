@@ -15,6 +15,43 @@ interface ClassicTimelineProps {
   entries: ClassicTimelineEntry[]
 }
 
+interface TimelineItemProps {
+  entry: ClassicTimelineEntry
+  idx: number
+}
+
+function TimelineItem({ entry, idx }: TimelineItemProps) {
+  return (
+    <motion.li
+      className={styles.item}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      viewport={{ once: true, margin: '-80px' }}
+    >
+      <div className={styles.markerCol} aria-hidden="true">
+        <div className={styles.marker} />
+      </div>
+
+      <div className={styles.meta}>
+        <p className={styles.itemTitle}>{entry.title}</p>
+        {entry.subtitle ? <p className={styles.itemSubtitle}>{entry.subtitle}</p> : null}
+      </div>
+
+      <div className={styles.body}>
+        <p className={styles.itemDescription}>{entry.description}</p>
+        {entry.bullets && entry.bullets.length > 0 ? (
+          <ul className={styles.bullets}>
+            {entry.bullets.map((bullet, bulletIdx) => (
+              <li key={`${idx}-${bulletIdx}`}>{bullet}</li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    </motion.li>
+  )
+}
+
 export function ClassicTimeline({ heading, intro, entries }: ClassicTimelineProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const headingId = useId()
@@ -24,38 +61,6 @@ export function ClassicTimeline({ heading, intro, entries }: ClassicTimelineProp
     offset: ['start 80%', 'end 20%'],
   })
   const trackHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
-
-  function TimelineItem({ entry, idx }: { entry: ClassicTimelineEntry; idx: number }) {
-    return (
-      <motion.li
-        className={styles.item}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        viewport={{ once: true, margin: '-80px' }}
-      >
-        <div className={styles.markerCol} aria-hidden="true">
-          <div className={styles.marker} />
-        </div>
-
-        <div className={styles.meta}>
-          <p className={styles.itemTitle}>{entry.title}</p>
-          {entry.subtitle ? <p className={styles.itemSubtitle}>{entry.subtitle}</p> : null}
-        </div>
-
-        <div className={styles.body}>
-          <p className={styles.itemDescription}>{entry.description}</p>
-          {entry.bullets && entry.bullets.length > 0 ? (
-            <ul className={styles.bullets}>
-              {entry.bullets.map((bullet, bulletIdx) => (
-                <li key={`${idx}-${bulletIdx}`}>{bullet}</li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      </motion.li>
-    )
-  }
 
   return (
     <section className={styles.root} aria-labelledby={headingId}>
