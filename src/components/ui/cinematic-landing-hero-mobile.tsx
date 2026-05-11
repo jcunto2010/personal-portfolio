@@ -6,7 +6,13 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '../../lib/utils'
 import { CodeSnippet } from './code-snippet'
-import type { CinematicHeroProps } from './cinematic-landing-hero'
+import {
+  CINEMATIC_MOCK_VIDEO_SCALE,
+  CINEMATIC_MOCK_VIDEO_SCALE_X_RATIO,
+  CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO,
+  CINEMATIC_MOCK_VIDEO_TRANSLATE_X_DEFAULT_PX,
+  type CinematicHeroProps,
+} from './cinematic-landing-hero'
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
@@ -134,6 +140,9 @@ export function CinematicHeroMobile({
   appLabel = 'App',
   videoSrc,
   videoTranslateXPx,
+  videoScale,
+  videoScaleXRatio,
+  videoScaleYRatio,
   videoLabel = 'Demo video',
   videoFlowLabel = 'MVP Flow',
   videoPlaceholderTitle = 'Demo pending',
@@ -142,7 +151,12 @@ export function CinematicHeroMobile({
   className,
   ...props
 }: CinematicHeroProps) {
-  const videoNudgeX = videoTranslateXPx ?? 3
+  const videoNudgeX = videoTranslateXPx ?? CINEMATIC_MOCK_VIDEO_TRANSLATE_X_DEFAULT_PX
+  const videoScaleBase = videoScale ?? CINEMATIC_MOCK_VIDEO_SCALE
+  const xRatio = videoScaleXRatio ?? CINEMATIC_MOCK_VIDEO_SCALE_X_RATIO
+  const yRatio = videoScaleYRatio ?? CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO
+  const videoScaleY = videoScaleBase * yRatio
+  const videoScaleX = videoScaleBase * xRatio
 
   const containerRef = useRef<HTMLDivElement>(null)
   const taglineRef = useRef<HTMLDivElement>(null)
@@ -313,14 +327,14 @@ export function CinematicHeroMobile({
 
           {/* MOCK with animation */}
           <div ref={mockRef} className="mx-auto flex w-full max-w-[16rem] flex-col items-center justify-center py-4 will-change-transform">
-            <div className="relative mb-4 h-[28rem] w-[14rem] sm:h-[30rem] sm:w-[15rem] rounded-[2.6rem] border border-white/20 bg-[#050914] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
-              <div className="relative h-full w-full overflow-hidden rounded-[2.2rem] bg-[#061022]">
+            <div className="relative mb-4 h-[28rem] w-[14rem] sm:h-[30rem] sm:w-[15rem] rounded-[2.6rem] border border-white/20 bg-[#050914] p-[7px] shadow-[0_24px_60px_rgba(0,0,0,0.55)]">
+              <div className="relative h-full w-full overflow-hidden rounded-[2.35rem] bg-[#050914]">
                 {videoSrc ? (
-                  <div className="absolute inset-0 overflow-hidden rounded-[2.2rem] bg-[#061022]">
+                  <div className="absolute inset-0 z-20 overflow-hidden rounded-[2.35rem] bg-[#050914]">
                     <video
-                      className="pointer-events-none block h-full w-full object-cover object-center"
+                      className="pointer-events-none block h-full w-full min-h-full min-w-full max-h-none max-w-none object-cover object-center"
                       style={{
-                        transform: `translate3d(${videoNudgeX}px, 0, 0) scale(1.012)`,
+                        transform: `translate3d(${videoNudgeX}px, 0, 0) scaleX(${videoScaleX}) scaleY(${videoScaleY})`,
                         transformOrigin: 'center center',
                       }}
                       src={videoSrc}

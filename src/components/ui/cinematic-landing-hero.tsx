@@ -17,6 +17,18 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger)
 }
 
+/** Phone mock video framing: CinematicHeroMobile must stay in sync. */
+export const CINEMATIC_MOCK_VIDEO_SCALE = 1.05
+export const CINEMATIC_MOCK_VIDEO_TRANSLATE_X_DEFAULT_PX = 4
+/** Escala base solo en X (`scaleX = base × esto`). */
+export const CINEMATIC_MOCK_VIDEO_SCALE_X_RATIO = 1.032
+/** Solo `scaleY`; factor sobre la base (p. ej. 0.992 baja el alto un poco). */
+export const CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO = 0.98
+/** Suma sobre la escala base usada en StartupConnect (`videoScale` = default + esto). */
+export const CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_BOOST = 0.02
+/** Solo StartupConnect: multiplica su `scaleY` un poco más que Reservo (menos alto). */
+export const CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_EXTRA_Y = 0.984
+
 // Helper to detect language from code for syntax highlighting
 function detectLanguage(code: string, filename?: string): string {
   // Detect by filename extension if provided
@@ -323,6 +335,12 @@ export interface CinematicHeroProps extends React.HTMLAttributes<HTMLDivElement>
   videoSrc?: string
   /** Desplazamiento horizontal del video en el mock (px). Positivo = hacia la derecha. */
   videoTranslateXPx?: number
+  /** Escala base del mock; `scaleY = base × Y_RATIO`, `scaleX = base × X_RATIO`. */
+  videoScale?: number
+  /** Sustituye `CINEMATIC_MOCK_VIDEO_SCALE_X_RATIO` si se define. */
+  videoScaleXRatio?: number
+  /** Sustituye `CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO` si se define. */
+  videoScaleYRatio?: number
   videoLabel?: string
   videoStatus?: string
   videoFlowLabel?: string
@@ -374,6 +392,9 @@ export function CinematicHero({
   appLabel = 'Reservo.AI',
   videoSrc,
   videoTranslateXPx,
+  videoScale,
+  videoScaleXRatio,
+  videoScaleYRatio,
   videoLabel = 'Demo video',
   videoStatus = 'Coming soon',
   videoFlowLabel = 'MVP Flow',
@@ -399,7 +420,12 @@ export function CinematicHero({
   className,
   ...props
 }: CinematicHeroProps) {
-  const videoNudgeX = videoTranslateXPx ?? 4
+  const videoNudgeX = videoTranslateXPx ?? CINEMATIC_MOCK_VIDEO_TRANSLATE_X_DEFAULT_PX
+  const videoScaleBase = videoScale ?? CINEMATIC_MOCK_VIDEO_SCALE
+  const xRatio = videoScaleXRatio ?? CINEMATIC_MOCK_VIDEO_SCALE_X_RATIO
+  const yRatio = videoScaleYRatio ?? CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO
+  const videoScaleY = videoScaleBase * yRatio
+  const videoScaleX = videoScaleBase * xRatio
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mainCardRef = useRef<HTMLDivElement>(null)
@@ -707,9 +733,9 @@ export function CinematicHero({
                     {videoSrc ? (
                       <div className="absolute inset-0 z-20 overflow-hidden rounded-[2.5rem] bg-[#050914]">
                         <video
-                          className="pointer-events-none block h-full w-full object-cover object-center"
+                          className="pointer-events-none block h-full w-full min-h-full min-w-full max-h-none max-w-none object-cover object-center"
                           style={{
-                            transform: `translate3d(${videoNudgeX}px, 0, 0) scale(1.02)`,
+                            transform: `translate3d(${videoNudgeX}px, 0, 0) scaleX(${videoScaleX}) scaleY(${videoScaleY})`,
                             transformOrigin: 'center center',
                           }}
                           src={videoSrc}

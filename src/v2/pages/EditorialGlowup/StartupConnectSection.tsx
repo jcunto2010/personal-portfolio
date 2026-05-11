@@ -1,4 +1,10 @@
-import { CinematicHero } from '../../../components/ui/cinematic-landing-hero'
+import {
+  CinematicHero,
+  CINEMATIC_MOCK_VIDEO_SCALE,
+  CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_BOOST,
+  CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_EXTRA_Y,
+  CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO,
+} from '../../../components/ui/cinematic-landing-hero'
 import { CinematicHeroMobile } from '../../../components/ui/cinematic-landing-hero-mobile'
 import { useEffect, useMemo, useState } from 'react'
 import { getProjectBySlug } from '../../data/projects.v2'
@@ -184,6 +190,13 @@ export async function createMatch(
         }
         videoSrc="https://assets.jonathancuntodiaz.com/startup_demo.mp4"
         videoTranslateXPx={1}
+        videoScale={CINEMATIC_MOCK_VIDEO_SCALE + CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_BOOST}
+        videoScaleYRatio={
+          (CINEMATIC_MOCK_VIDEO_SCALE *
+            CINEMATIC_MOCK_VIDEO_SCALE_Y_RATIO *
+            CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_EXTRA_Y) /
+          (CINEMATIC_MOCK_VIDEO_SCALE + CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_BOOST)
+        }
         videoLabel={isEs ? 'Video demo' : 'Demo video'}
         videoFlowLabel={isEs ? 'Flujo MVP' : 'MVP Flow'}
         metricValue={project.technologies.length}
