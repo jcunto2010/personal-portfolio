@@ -19,8 +19,8 @@
 
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -152,7 +152,7 @@ export function AppModeProvider({ children }: { children: ReactNode }) {
 
 /** Throws if used outside AppModeProvider — ensures wiring is explicit. */
 export function useAppMode(): AppModeState {
-  const ctx = useContext(AppModeContext)
+  const ctx = use(AppModeContext)
   if (!ctx) throw new Error('useAppMode must be used inside <AppModeProvider>')
   return ctx
 }

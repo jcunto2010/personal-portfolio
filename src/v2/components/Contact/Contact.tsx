@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   AnimatePresence,
-  motion,
+  m,
   type Variants,
 } from 'framer-motion'
 import {
@@ -249,7 +249,7 @@ const Contact: React.FC = () => {
       <div className={styles.inner}>
         <AnimatePresence mode="sync">
           {showContactLayer && (
-            <motion.div
+            <m.div
               key="contact-panel"
               className={styles.contactLayer}
               variants={contactPanelVariants}
@@ -259,40 +259,40 @@ const Contact: React.FC = () => {
             >
               <div className={styles.contactStack}>
                 <div className={styles.panelHeader}>
-                  <motion.div
+                  <m.div
                     className={styles.panelEyebrow}
                     variants={labelVariants}
                     initial="hidden"
                     animate={phase === 'contact' ? 'visible' : 'hidden'}
                   >
                     {copy.panelEyebrow}
-                  </motion.div>
-                  <motion.div
+                  </m.div>
+                  <m.div
                     className={styles.heroTitle}
                     variants={titleVariants}
                     initial="hidden"
                     animate={phase === 'contact' ? 'visible' : 'hidden'}
                   >
                     {copy.panelTitle}
-                  </motion.div>
+                  </m.div>
                 </div>
 
-                <motion.div
+                <m.div
                   className={styles.rows}
                   variants={contactListContainerVariants}
                   initial="hidden"
                   animate={phase === 'contact' ? 'visible' : 'hidden'}
                 >
-                  <motion.div variants={contactRowVariants} className={styles.rowWrap}>
+                  <m.div variants={contactRowVariants} className={styles.rowWrap}>
                     <div className={styles.emailRow}>
-                      <motion.a
+                      <m.a
                         href={mailtoDraftHref}
                         className={`${styles.row} ${styles.emailRowMain}`}
                         aria-label={copy.ariaMail}
                       >
                         <Mail className={styles.rowIcon} strokeWidth={1.5} aria-hidden />
                         <span className={styles.rowLabel}>{contactV2.email}</span>
-                      </motion.a>
+                      </m.a>
                       <button
                         type="button"
                         className={`${styles.copyEmailBtn}${emailCopied ? ` ${styles.copyEmailBtnDone}` : ''}`}
@@ -302,10 +302,10 @@ const Contact: React.FC = () => {
                         <Copy className={styles.copyEmailIcon} strokeWidth={1.5} aria-hidden />
                       </button>
                     </div>
-                  </motion.div>
+                  </m.div>
 
-                  <motion.div variants={contactRowVariants} className={styles.rowWrap}>
-                    <motion.a
+                  <m.div variants={contactRowVariants} className={styles.rowWrap}>
+                    <m.a
                       href={whatsappDraftHref}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -314,11 +314,11 @@ const Contact: React.FC = () => {
                     >
                       <Phone className={styles.rowIcon} strokeWidth={1.5} aria-hidden />
                       <span className={styles.rowLabel}>{contactV2.whatsappDisplay}</span>
-                    </motion.a>
-                  </motion.div>
+                    </m.a>
+                  </m.div>
 
-                  <motion.div variants={contactRowVariants} className={styles.socialRow}>
-                    <motion.a
+                  <m.div variants={contactRowVariants} className={styles.socialRow}>
+                    <m.a
                       href={contactV2.linkedin}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -327,8 +327,8 @@ const Contact: React.FC = () => {
                       <Linkedin className={styles.rowIcon} strokeWidth={1.5} aria-hidden />
                       <span className={styles.rowLabel}>LinkedIn</span>
                       <ArrowUpRight className={styles.rowChevron} strokeWidth={1.5} aria-hidden />
-                    </motion.a>
-                    <motion.a
+                    </m.a>
+                    <m.a
                       href={contactV2.github}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -337,20 +337,20 @@ const Contact: React.FC = () => {
                       <Github className={styles.rowIcon} strokeWidth={1.5} aria-hidden />
                       <span className={styles.rowLabel}>GitHub</span>
                       <ArrowUpRight className={styles.rowChevron} strokeWidth={1.5} aria-hidden />
-                    </motion.a>
-                  </motion.div>
-                </motion.div>
+                    </m.a>
+                  </m.div>
+                </m.div>
 
-                <motion.div
+                <m.div
                   className={styles.panelMeta}
                   variants={subtextVariants}
                   initial="hidden"
                   animate={phase === 'contact' ? 'visible' : 'hidden'}
                 >
                   {contactV2.location}
-                </motion.div>
+                </m.div>
 
-                <motion.div
+                <m.div
                   initial={{ opacity: 0 }}
                   animate={phase === 'contact' ? { opacity: 1 } : { opacity: 0 }}
                   transition={{ delay: 0.2, duration: 0.4, ease: EASE }}
@@ -359,14 +359,14 @@ const Contact: React.FC = () => {
                     <ArrowLeft className={styles.backIcon} strokeWidth={1.5} aria-hidden />
                     {copy.back}
                   </button>
-                </motion.div>
+                </m.div>
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {showIdleLayer && (
-          <motion.div
+          <m.div
             key="idle-layer"
             className={styles.idleLayer}
             variants={mainBlockVariants}
@@ -397,7 +397,7 @@ const Contact: React.FC = () => {
                   aria-level={2}
                 >
                   <span className={styles.heroLine}>
-                    <motion.span
+                    <m.span
                       className={styles.heroLineInner}
                       animate={{
                         y: isHovered && phase === 'idle' ? '-8%' : '0%',
@@ -405,10 +405,10 @@ const Contact: React.FC = () => {
                       transition={{ duration: 0.7, ease: EASE }}
                     >
                       {copy.idleLine1}
-                    </motion.span>
+                    </m.span>
                   </span>
                   <span className={styles.heroLine}>
-                    <motion.span
+                    <m.span
                       className={styles.heroLineInner}
                       animate={{
                         y: isHovered && phase === 'idle' ? '-8%' : '0%',
@@ -416,12 +416,12 @@ const Contact: React.FC = () => {
                       transition={{ duration: 0.7, ease: EASE, delay: 0.05 }}
                     >
                       <span className={styles.heroLineMuted}>{copy.idleLine2}</span>
-                    </motion.span>
+                    </m.span>
                   </span>
                 </div>
 
                 <div className={styles.arrowBlock}>
-                  <motion.div
+                  <m.div
                     className={styles.decorLine}
                     animate={{
                       scaleX: phase !== 'idle' ? 0 : isHovered ? 1.5 : 1,
@@ -431,7 +431,7 @@ const Contact: React.FC = () => {
                     transition={{ duration: 0.5, ease: EASE }}
                   />
                   <div className={styles.arrowRow}>
-                    <motion.div
+                    <m.div
                       className={styles.arrowCircle}
                       animate={{
                         scale: phase !== 'idle' ? 3 : isHovered ? 1.1 : 1,
@@ -455,7 +455,7 @@ const Contact: React.FC = () => {
                               : 'transparent',
                       }}
                     />
-                    <motion.div
+                    <m.div
                       className={styles.arrowIcon}
                       animate={{
                         x: phase !== 'idle' ? 100 : isHovered ? 2 : 0,
@@ -475,9 +475,9 @@ const Contact: React.FC = () => {
                       }}
                     >
                       <ArrowUpRight className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.5} aria-hidden />
-                    </motion.div>
+                    </m.div>
                   </div>
-                  <motion.div
+                  <m.div
                     className={styles.decorLine}
                     animate={{
                       scaleX: phase !== 'idle' ? 0 : isHovered ? 1.5 : 1,
@@ -490,7 +490,7 @@ const Contact: React.FC = () => {
               </div>
             </div>
 
-            <motion.div
+            <m.div
               className={styles.footnote}
               variants={fadeSlideVariants}
               initial="hidden"
@@ -499,8 +499,8 @@ const Contact: React.FC = () => {
               <div className={styles.blurb} role="paragraph">
                 {copy.blurb}
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </div>
     </div>

@@ -122,8 +122,7 @@ export default function NeuralBackground({
       canvas.width = Math.max(1, Math.floor(width * dpr))
       canvas.height = Math.max(1, Math.floor(height * dpr))
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      canvas.style.width = `${width}px`
-      canvas.style.height = `${height}px`
+      canvas.style.cssText = `width:${width}px;height:${height}px;`
 
       particles = []
       for (let i = 0; i < particleCount; i++) {

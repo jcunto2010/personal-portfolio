@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import styles from './SpaceLoadingScreen.module.css'
 
 function mulberry32(seed: number) {
@@ -65,8 +65,8 @@ export function SpaceLoadingScreen() {
       {/* Subtle stars - matching the intro */}
       <div style={{ position: 'absolute', inset: 0 }}>
         {stars.map((s, i) => (
-          <motion.div
-            key={i}
+          <m.div
+            key={`${s.left}-${s.top}-${s.delay}-${i}`}
             style={{
               position: 'absolute',
               left: s.left,
@@ -147,7 +147,7 @@ export function SpaceLoadingScreen() {
             }}
           >
             {/* Outer glow */}
-            <motion.div
+            <m.div
               style={{
                 position: 'absolute',
                 width: 64,
@@ -169,7 +169,7 @@ export function SpaceLoadingScreen() {
             />
 
             {/* Middle glow */}
-            <motion.div
+            <m.div
               style={{
                 position: 'absolute',
                 width: 40,
@@ -191,7 +191,7 @@ export function SpaceLoadingScreen() {
             />
 
             {/* Inner bright glow */}
-            <motion.div
+            <m.div
               style={{
                 position: 'absolute',
                 width: 24,
@@ -213,7 +213,7 @@ export function SpaceLoadingScreen() {
             />
 
             {/* Core orb with strong glow */}
-            <motion.div
+            <m.div
               style={{
                 width: 14,
                 height: 14,
@@ -239,7 +239,7 @@ export function SpaceLoadingScreen() {
 
       {/* Occasional shooting star */}
       {shootingStars.map((s) => (
-        <motion.div
+        <m.div
           key={s.key}
           style={{
             position: 'absolute',

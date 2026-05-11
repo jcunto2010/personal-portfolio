@@ -1,4 +1,4 @@
-import { createContext, useContext, type MutableRefObject } from 'react'
+import { createContext, use, type MutableRefObject } from 'react'
 import type Lenis from 'lenis'
 
 /**
@@ -14,5 +14,5 @@ import type Lenis from 'lenis'
 export const ScrollContext = createContext<MutableRefObject<Lenis | null> | null>(null)
 
 export function useScrollContext() {
-  return useContext(ScrollContext)
+  return use(ScrollContext)
 }

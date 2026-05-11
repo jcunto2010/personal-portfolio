@@ -154,7 +154,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
       <div className={styles.starfield}>
         {stars.map((star, i) => (
           <div
-            key={i}
+            key={`${star.left}-${star.top}-${star.duration}-${i}`}
             className={`${styles.star} ${shouldAnimate ? styles.starFadeIn : ''}`}
             style={
               {

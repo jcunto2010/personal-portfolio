@@ -790,7 +790,8 @@ function SolarSceneWebGL({
 
   const [tutorialDone, setTutorialDone] = useState(false)
   const [showTutorial, setShowTutorial] = useState(false)
-  const [rotatePromptVisible, setRotatePromptVisible] = useState(false)
+  /** Gate tutorial when rotate-overlay would show — not read by JSX (RotatePrompt mirrors logic). */
+  const rotatePromptVisibleRef = useRef(false)
   const tutorialHasShownRef = useRef(false)
 
   const handleTutorialDone = useCallback(() => {
@@ -803,7 +804,7 @@ function SolarSceneWebGL({
       const isMobile = window.matchMedia('(pointer: coarse)').matches
       const isPortrait = window.innerWidth < window.innerHeight
       const isLandscape = !isPortrait
-      setRotatePromptVisible(isMobile && !(isLandscape && isReady))
+      rotatePromptVisibleRef.current = isMobile && !(isLandscape && isReady)
     }
     computeRotatePrompt()
     window.addEventListener('resize', computeRotatePrompt)
@@ -811,16 +812,43 @@ function SolarSceneWebGL({
   }, [isReady])
 
   useEffect(() => {
-    if (tutorialDone || tutorialHasShownRef.current) return
-    if (cameraPhase !== 'sun-hold') return
-    if (rotatePromptVisible) return
+    let timeoutId: number | null = null
 
-    const t = window.setTimeout(() => {
-      tutorialHasShownRef.current = true
-      setShowTutorial(true)
-    }, 400)
-    return () => window.clearTimeout(t)
-  }, [cameraPhase, tutorialDone, rotatePromptVisible])
+    const clearPendingTutorial = (): void => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+        timeoutId = null
+      }
+    }
+
+    const tryScheduleTutorial = (): void => {
+      if (tutorialDone || tutorialHasShownRef.current) {
+        clearPendingTutorial()
+        return
+      }
+      if (cameraPhase !== 'sun-hold') {
+        clearPendingTutorial()
+        return
+      }
+      if (rotatePromptVisibleRef.current) {
+        clearPendingTutorial()
+        return
+      }
+      if (timeoutId !== null) return
+      timeoutId = window.setTimeout(() => {
+        tutorialHasShownRef.current = true
+        setShowTutorial(true)
+        timeoutId = null
+      }, 400)
+    }
+
+    tryScheduleTutorial()
+    window.addEventListener('resize', tryScheduleTutorial)
+    return () => {
+      window.removeEventListener('resize', tryScheduleTutorial)
+      clearPendingTutorial()
+    }
+  }, [cameraPhase, tutorialDone, isReady])
 
   // Read canvas/camera state via onCreated — no useThree needed outside Canvas
   const handleCanvasCreated = useCallback((state: { camera: THREE.Camera; gl: THREE.WebGLRenderer }) => {

@@ -12,8 +12,8 @@
 
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -69,7 +69,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 const LocaleContext = createContext<LocaleState | null>(null)
 
 export function useLocale(): LocaleState {
-  const ctx = useContext(LocaleContext)
+  const ctx = use(LocaleContext)
   if (!ctx) throw new Error('useLocale must be used inside <LocaleProvider>')
   return ctx
 }

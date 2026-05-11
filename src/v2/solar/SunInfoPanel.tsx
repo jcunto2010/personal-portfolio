@@ -95,17 +95,21 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
                   className={styles.contactBullets}
                   aria-label={locale === 'es' ? 'Contacto' : 'Contact'}
                 >
+                  {/* static list — index key is safe */}
                   {narrative.slice(1).map((line, i) => (
                     <li key={i}>{line}</li>
                   ))}
                 </ul>
               </>
             ) : (
-              narrative.map((paragraph, i) => (
-                <p key={i} className={styles.phaseText}>
-                  {paragraph}
-                </p>
-              ))
+              <>
+                {/* static list — index key is safe */}
+                {narrative.map((paragraph, i) => (
+                  <p key={i} className={styles.phaseText}>
+                    {paragraph}
+                  </p>
+                ))}
+              </>
             )
           ) : (
             <p className={styles.phaseText}>
@@ -116,11 +120,14 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
         {project && (
           <div className={styles.richBlock} aria-label={locale === 'es' ? 'Resumen del proyecto' : 'Project summary'}>
             {narrative.length > 0 ? (
-              narrative.map((paragraph, i) => (
-                <p key={i} className={styles.richDescription}>
-                  {paragraph}
-                </p>
-              ))
+              <>
+                {/* static list — index key is safe */}
+                {narrative.map((paragraph, i) => (
+                  <p key={i} className={styles.richDescription}>
+                    {paragraph}
+                  </p>
+                ))}
+              </>
             ) : (
               description && <p className={styles.richDescription}>{description}</p>
             )}
@@ -197,8 +204,16 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
           role="dialog"
           aria-modal="true"
           aria-label={locale === 'es' ? 'Captura ampliada' : 'Enlarged screenshot'}
+          tabIndex={0}
           onClick={(e) => {
             if (e.target === e.currentTarget) setLightboxThumbSrc(null)
+          }}
+          onKeyDown={(e) => {
+            if (e.target !== e.currentTarget) return
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setLightboxThumbSrc(null)
+            }
           }}
         >
           <div className={styles.lightboxPanel}>

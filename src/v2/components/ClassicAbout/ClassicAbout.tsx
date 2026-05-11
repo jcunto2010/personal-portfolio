@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import styles from './ClassicAbout.module.css'
 
 const LazyClassicAboutShaderBackground = lazy(() =>
@@ -52,11 +52,11 @@ export function ClassicAbout({
       </Suspense>
       <div className={styles.overlayLayer} aria-hidden="true" />
       <div className={styles.stage}>
-        <motion.header style={{ y: translateY }} className={styles.header}>
+        <m.header style={{ y: translateY }} className={styles.header}>
           <h2 className={styles.title}>{title}</h2>
-        </motion.header>
+        </m.header>
 
-        <motion.article style={{ rotateX, scale }} className={styles.card}>
+        <m.article style={{ rotateX, scale }} className={styles.card}>
           <div className={styles.screen}>
             <div className={styles.content}>
               <div className={styles.textColumn}>
@@ -87,7 +87,7 @@ export function ClassicAbout({
               </aside>
             </div>
           </div>
-        </motion.article>
+        </m.article>
       </div>
     </section>
   )

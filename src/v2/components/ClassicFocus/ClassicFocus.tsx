@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import styles from './ClassicFocus.module.css'
 
 interface ClassicFocusProps {
@@ -52,7 +52,7 @@ export function ClassicFocus({ locale }: ClassicFocusProps) {
       <div className={styles.bg} aria-hidden="true" />
 
       <div className={styles.inner}>
-        <motion.p
+        <m.p
           className={styles.eyebrow}
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -60,9 +60,9 @@ export function ClassicFocus({ locale }: ClassicFocusProps) {
           viewport={{ once: true }}
         >
           {eyebrow}
-        </motion.p>
+        </m.p>
 
-        <motion.h2
+        <m.h2
           className={styles.title}
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -70,9 +70,9 @@ export function ClassicFocus({ locale }: ClassicFocusProps) {
           viewport={{ once: true }}
         >
           {title}
-        </motion.h2>
+        </m.h2>
 
-        <motion.div
+        <m.div
           className={styles.grid}
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -86,7 +86,7 @@ export function ClassicFocus({ locale }: ClassicFocusProps) {
               <p className={styles.cardDesc}>{card.desc}</p>
             </article>
           ))}
-        </motion.div>
+        </m.div>
       </div>
     </section>
   )

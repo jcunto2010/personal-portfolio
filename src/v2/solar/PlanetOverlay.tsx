@@ -102,6 +102,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
           {config.id === 'uranus' && content.body.length > 1 ? (
             <>
               <p>{content.body[0]}</p>
+              {/* static list — index key is safe */}
               <ul
                 className={styles.contactBullets}
                 aria-label={locale === 'es' ? 'Contacto' : 'Contact'}
@@ -112,9 +113,12 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
               </ul>
             </>
           ) : (
-            content.body.map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))
+            <>
+              {/* static list — index key is safe */}
+              {content.body.map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </>
           )}
         </div>
       </div>

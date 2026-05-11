@@ -28,7 +28,7 @@ export default function ProjectsV2() {
       </header>
 
       <main className={styles.main}>
-        <ul className={styles.projectList} role="list">
+        <ul className={styles.projectList}>
           {projectsV2.map((project, index) => {
             const description = isEs ? (project.descriptionEs ?? project.description) : project.description
             const highlights = isEs ? (project.highlightsEs ?? project.highlights ?? []) : (project.highlights ?? [])

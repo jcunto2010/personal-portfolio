@@ -9,6 +9,8 @@ gsap.registerPlugin(ScrollTrigger, GSAPSplitText, useGSAP)
 type SplitTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p'
 type SplitType = 'chars' | 'words' | 'lines' | 'words, chars'
 
+const EMPTY_GRADIENT_WORDS: string[] = []
+
 interface SplitTextProps {
   tag?: SplitTag
   text: string
@@ -31,7 +33,7 @@ interface SplitTextProps {
 export default function SplitText({
   text,
   className = '',
-  gradientWords = [],
+  gradientWords = EMPTY_GRADIENT_WORDS,
   delay = 50,
   duration = 1.25,
   ease = 'power3.out',

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Github, Linkedin } from 'lucide-react'
 import { useLocale } from '../../v2/lib/localeContext'
 import ButtonWithIconDemo from './button-witn-icon'
@@ -52,7 +52,7 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
               </span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1 h-[1.08em]">
                 {titles.map((title, index) => (
-                  <motion.span
+                  <m.span
                     key={title}
                     className="absolute font-semibold text-sky-300 whitespace-nowrap"
                     initial={{ opacity: 0, y: -70 }}
@@ -64,7 +64,7 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
                     }
                   >
                     {title}
-                  </motion.span>
+                  </m.span>
                 ))}
               </span>
             </h1>

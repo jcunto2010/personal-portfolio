@@ -8,7 +8,7 @@
  */
 
 import { useCallback, useMemo, useState, type CSSProperties, type ReactElement } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, m } from 'framer-motion'
 import { useLocale, type V2Locale } from '../lib/localeContext'
 
 /** Alineado con `src/v2/tokens/tokens.css` — Proxima Nova en V2 */
@@ -248,7 +248,7 @@ export default function OnboardingTutorial({ onDone }: OnboardingTutorialProps):
   return (
     <AnimatePresence onExitComplete={handleExitComplete}>
       {overlayVisible && (
-        <motion.div
+        <m.div
           role="dialog"
           aria-modal="true"
           aria-labelledby="onboarding-tutorial-title"
@@ -284,9 +284,16 @@ export default function OnboardingTutorial({ onDone }: OnboardingTutorialProps):
               flexDirection: 'column',
               minHeight: 0,
             }}
+            tabIndex={0}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                e.stopPropagation()
+              }
+            }}
           >
-            <motion.div
+            <m.div
               key={`${locale}-${safeStep}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -348,7 +355,7 @@ export default function OnboardingTutorial({ onDone }: OnboardingTutorialProps):
                   {current.desc}
                 </p>
               </div>
-            </motion.div>
+            </m.div>
 
             <div
               style={{
@@ -412,7 +419,7 @@ export default function OnboardingTutorial({ onDone }: OnboardingTutorialProps):
               </button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

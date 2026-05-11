@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
+import { LazyMotion, domAnimation } from 'framer-motion'
 import {
   LazyHomeV2,
   LazyProjectsV2,
@@ -36,53 +37,55 @@ function V2Layout() {
 export default function AppV2() {
   return (
     <LocaleProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<V2Layout />}>
-            <Route
-              index
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <LazyHomeV2 />
-                </Suspense>
-              }
-            />
-            <Route
-              path="classic-mode"
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <LazyClassicModePage />
-                </Suspense>
-              }
-            />
-            <Route path="editorial-glowup" element={<Navigate to="/classic-mode" replace />} />
-            <Route
-              path="projects"
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <LazyProjectsV2 />
-                </Suspense>
-              }
-            />
-            <Route
-              path="projects/:slug"
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <LazyProjectDetailV2 />
-                </Suspense>
-              }
-            />
-            <Route
-              path="skills-demo"
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <LazySkillsDemo />
-                </Suspense>
-              }
-            />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <LazyMotion features={domAnimation} strict>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<V2Layout />}>
+              <Route
+                index
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <LazyHomeV2 />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="classic-mode"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <LazyClassicModePage />
+                  </Suspense>
+                }
+              />
+              <Route path="editorial-glowup" element={<Navigate to="/classic-mode" replace />} />
+              <Route
+                path="projects"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <LazyProjectsV2 />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="projects/:slug"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <LazyProjectDetailV2 />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="skills-demo"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <LazySkillsDemo />
+                  </Suspense>
+                }
+              />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </LazyMotion>
     </LocaleProvider>
   )
 }

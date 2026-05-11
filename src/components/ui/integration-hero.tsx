@@ -89,14 +89,14 @@ export function IntegrationHero({
           {/* Row 1 - scrolling left */}
           <div className="flex gap-8 whitespace-nowrap animate-scroll-left">
             {repeatedIcons(ICONS_ROW1, 4).map((tech, i) => (
-              <TechBubble key={`r1-${i}`} tech={tech} />
+              <TechBubble key={`r1-${tech.name}-${i}`} tech={tech} />
             ))}
           </div>
 
           {/* Row 2 - scrolling right */}
           <div className="flex gap-8 whitespace-nowrap mt-6 animate-scroll-right">
             {repeatedIcons(ICONS_ROW2, 4).map((tech, i) => (
-              <TechBubble key={`r2-${i}`} tech={tech} />
+              <TechBubble key={`r2-${tech.name}-${i}`} tech={tech} />
             ))}
           </div>
 

@@ -138,9 +138,10 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
               }}
             >
               {tokens.map((line, i) => {
+                const lineSignature = line.map((t) => t.content).join('')
                 const lineProps = getLineProps({ line, key: i })
                 return (
-                  <div key={i} {...lineProps} style={{ display: 'flex' }}>
+                  <div key={`${lineSignature}-${i}`} {...lineProps} style={{ display: 'flex' }}>
                     {/* Line number */}
                     <span 
                       className="select-none pr-4 text-right text-slate-600/60"

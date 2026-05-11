@@ -49,6 +49,15 @@ export default tseslint.config(
     },
   },
 
+  // React Three Fiber and @react-three/drei expose valid JSX props (attach, geometry, args, frustumCulled, …)
+  // that are not DOM attributes. Tools that mirror react/no-unknown-property still flag them; ignore here.
+  {
+    files: ['src/v2/solar/**/*.tsx'],
+    rules: {
+      'react/no-unknown-property': 'off',
+    },
+  },
+
   // Provider + hook in one module, or route config + lazy components — valid pattern; HMR rule is noisy here.
   {
     files: [

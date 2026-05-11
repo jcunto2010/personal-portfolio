@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, m } from 'framer-motion'
 import { useLocale } from '../lib/localeContext'
 
 export interface RotatePromptProps {
@@ -97,8 +97,7 @@ export default function RotatePrompt({ isReady }: RotatePromptProps): ReactEleme
       const dpr = window.devicePixelRatio || 1
       canvas.width = Math.max(1, Math.floor(w * dpr))
       canvas.height = Math.max(1, Math.floor(h * dpr))
-      canvas.style.width = `${w}px`
-      canvas.style.height = `${h}px`
+      canvas.style.cssText = `width:${w}px;height:${h}px;`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
 
@@ -136,7 +135,7 @@ export default function RotatePrompt({ isReady }: RotatePromptProps): ReactEleme
   return (
     <AnimatePresence>
       {show && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -346,7 +345,7 @@ export default function RotatePrompt({ isReady }: RotatePromptProps): ReactEleme
             .rotatePrompt__dot:nth-child(2) { animation-delay: 0.15s; }
             .rotatePrompt__dot:nth-child(3) { animation-delay: 0.3s; }
           `}</style>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   )

@@ -402,6 +402,7 @@ export function useDiscreteShotNavigation(
       clearIntentAccumulator()
     }
 
+    // passive: wheel + touchmove must stay non-passive — both handlers call preventDefault() when discrete navigation consumes the gesture.
     el.addEventListener('wheel', handleWheel, { passive: false })
     el.addEventListener('touchstart', handleTouchStart, { passive: true })
     el.addEventListener('touchmove', handleTouchMove, { passive: false })

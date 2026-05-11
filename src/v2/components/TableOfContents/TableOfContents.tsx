@@ -78,7 +78,7 @@ export function TableOfContents() {
       className={styles.toc}
       aria-label={locale === 'es' ? 'Capítulos de la página' : 'Page chapters'}
     >
-      <ol className={styles.list} role="list">
+      <ol className={styles.list}>
         {chapters.map(({ id, label }) => (
           <li key={id} className={styles.item}>
             <button

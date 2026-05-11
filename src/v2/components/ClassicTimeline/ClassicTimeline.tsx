@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { m, useScroll, useTransform } from 'framer-motion'
 import { useId, useRef } from 'react'
 import styles from './ClassicTimeline.module.css'
 
@@ -20,9 +20,9 @@ interface TimelineItemProps {
   idx: number
 }
 
-function TimelineItem({ entry, idx }: TimelineItemProps) {
+function TimelineItem({ entry, idx: _idx }: TimelineItemProps) {
   return (
-    <motion.li
+    <m.li
       className={styles.item}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -43,12 +43,12 @@ function TimelineItem({ entry, idx }: TimelineItemProps) {
         {entry.bullets && entry.bullets.length > 0 ? (
           <ul className={styles.bullets}>
             {entry.bullets.map((bullet, bulletIdx) => (
-              <li key={`${idx}-${bulletIdx}`}>{bullet}</li>
+              <li key={`${entry.title}-b-${bulletIdx}-${bullet}`}>{bullet}</li>
             ))}
           </ul>
         ) : null}
       </div>
-    </motion.li>
+    </m.li>
   )
 }
 
@@ -74,12 +74,12 @@ export function ClassicTimeline({ heading, intro, entries }: ClassicTimelineProp
       <div className={styles.listWrap} ref={containerRef}>
         <div className={styles.track} aria-hidden="true">
           <div className={styles.trackBase} />
-          <motion.div className={styles.trackFill} style={{ height: trackHeight }} />
+          <m.div className={styles.trackFill} style={{ height: trackHeight }} />
         </div>
 
         <ol className={styles.list}>
           {entries.map((entry, idx) => (
-            <TimelineItem key={`${entry.title}-${idx}`} entry={entry} idx={idx} />
+            <TimelineItem key={`${idx}-${entry.title}`} entry={entry} idx={idx} />
           ))}
         </ol>
       </div>
