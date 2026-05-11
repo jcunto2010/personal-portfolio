@@ -4,6 +4,9 @@ import { useLocale } from '../lib/localeContext'
 import { getPlanetSectionLabel } from './planetSectionLabel'
 import { getPlanetContent } from './planetContent'
 import { getProjectBySlug } from '../data/projects.v2'
+import { getImmersivePlanetCaseStudy } from '../data/immersivePlanetCaseStudy'
+import { PhoneMockVideo } from '../../components/ui/phone-mock-video'
+import { CodeSnippet } from '../../components/ui/code-snippet'
 import styles from './SunInfoPanel.module.css'
 
 export interface SunInfoPanelProps {
@@ -29,32 +32,22 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
     locale === 'es'
       ? (project?.highlightsEs ?? project?.highlights ?? [])
       : (project?.highlights ?? [])
-  const thumbs = project?.thumbnails ?? []
 
-  const [lightboxThumbSrc, setLightboxThumbSrc] = useState<string | null>(null)
-  const [lightboxThumbAlt, setLightboxThumbAlt] = useState<string>('')
+  const [compactCaseStudy, setCompactCaseStudy] = useState(false)
 
-  // Prevent background scroll while lightbox is open.
-  useEffect(() => {
-    if (!lightboxThumbSrc) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
-  }, [lightboxThumbSrc])
-
-  useEffect(() => {
-    if (!lightboxThumbSrc) return
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setLightboxThumbSrc(null)
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [lightboxThumbSrc])
+  const caseStudy = getImmersivePlanetCaseStudy(config.id, compactCaseStudy)
 
   useEffect(() => {
     if (!open) return
     closeBtnRef.current?.focus()
   }, [open])
+
+  useEffect(() => {
+    const update = () => setCompactCaseStudy(window.innerWidth < 1024)
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   if (!open) return null
 
@@ -64,7 +57,7 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
       aria-label={`${config.label} information`}
     >
       <section
-        className={`${styles.card} ${project ? styles.cardRich : ''}`}
+        className={`${styles.card} ${project ? styles.cardRich : ''} ${caseStudy ? styles.cardCaseStudy : ''}`}
         aria-label="Sun phase information"
       >
         <div className={styles.cardHeader}>
@@ -153,37 +146,30 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
               </ul>
             )}
 
-            {thumbs.length > 0 && (
-              <div className={styles.richThumbs} aria-hidden="true">
-                {thumbs.slice(0, 4).map((t) => (
-                  <button
-                    key={t.src}
-                    type="button"
-                    className={styles.richThumbButton}
-                    aria-label={t.alt || (locale === 'es' ? 'Ampliar captura' : 'Enlarge screenshot')}
-                    onClick={() => {
-                      setLightboxThumbSrc(t.src)
-                      setLightboxThumbAlt(t.alt || '')
-                    }}
-                  >
-                    <img
-                      src={t.src}
-                      alt=""
-                      className={styles.richThumbImg}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        // Hide broken thumbnails (missing assets) and keep the card layout stable.
-                        const img = e.currentTarget
-                        img.style.display = 'none'
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
+            {caseStudy && (
+              <>
+                <div className={styles.caseStudyMock}>
+                  <PhoneMockVideo
+                    videoSrc={caseStudy.video.src}
+                    videoTranslateXPx={caseStudy.video.videoTranslateXPx}
+                    videoScale={caseStudy.video.videoScale}
+                    videoScaleXRatio={caseStudy.video.videoScaleXRatio}
+                    videoScaleYRatio={caseStudy.video.videoScaleYRatio}
+                    ariaLabel={locale === 'es' ? 'Video demo del proyecto' : 'Project demo video'}
+                    className="origin-top scale-[0.48] min-[380px]:scale-[0.54] min-[480px]:scale-[0.60] lg:scale-[0.68]"
+                  />
+                </div>
+                <div className={styles.caseStudySnippet}>
+                  <CodeSnippet
+                    files={caseStudy.codeFiles}
+                    autoHeight={false}
+                    className="w-full max-w-none shadow-none"
+                  />
+                </div>
+              </>
             )}
 
-            {(project?.codeSnippetEs || project?.codeSnippetEn) && (
+            {(project?.codeSnippetEs || project?.codeSnippetEn) && !caseStudy && (
               <div className={styles.richCodeBlock} aria-label={locale === 'es' ? 'Snippet de código' : 'Code snippet'}>
                 <pre className={styles.richCodePre}>
                   <code>
@@ -197,44 +183,6 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
           </div>
         )}
       </section>
-
-      {lightboxThumbSrc && (
-        <div
-          className={styles.lightboxBackdrop}
-          role="dialog"
-          aria-modal="true"
-          aria-label={locale === 'es' ? 'Captura ampliada' : 'Enlarged screenshot'}
-          tabIndex={0}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setLightboxThumbSrc(null)
-          }}
-          onKeyDown={(e) => {
-            if (e.target !== e.currentTarget) return
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              setLightboxThumbSrc(null)
-            }
-          }}
-        >
-          <div className={styles.lightboxPanel}>
-            <button
-              type="button"
-              className={styles.lightboxClose}
-              aria-label={locale === 'es' ? 'Cerrar' : 'Close'}
-              onClick={() => setLightboxThumbSrc(null)}
-            >
-              ✕
-            </button>
-            <img
-              src={lightboxThumbSrc}
-              alt={lightboxThumbAlt}
-              className={styles.lightboxImg}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-        </div>
-      )}
     </aside>
   )
 }
