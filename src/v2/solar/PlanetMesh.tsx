@@ -35,6 +35,7 @@ interface FallbackSphereProps {
 }
 
 function FallbackSphere({ radius, color, position, baseScale, hitRadius, onClick }: FallbackSphereProps) {
+  // `hovered` drives visible material (emissiveIntensity) — must stay as state so JSX updates.
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -95,7 +96,7 @@ function GLBModel({
   const { scene } = useGLTFV2(modelPath)
   const groupRef  = useRef<THREE.Group>(null)
   const spinRef   = useRef<THREE.Group>(null)
-  const [hovered, setHovered]  = useState(false)
+  const hoveredRef = useRef(false)
   const currentScale = useRef(artisticScale)
 
   const norm = useMemo(
@@ -122,7 +123,7 @@ function GLBModel({
 
   useFrame((_state, delta) => {
     if (!groupRef.current) return
-    const target = (enableHoverScale && hovered) ? artisticScale * HOVER_SCALE_FACTOR : artisticScale
+    const target = (enableHoverScale && hoveredRef.current) ? artisticScale * HOVER_SCALE_FACTOR : artisticScale
     currentScale.current = THREE.MathUtils.lerp(currentScale.current, target, LERP_SPEED)
     groupRef.current.scale.setScalar(currentScale.current)
 
@@ -140,8 +141,8 @@ function GLBModel({
       scale={artisticScale}
       frustumCulled={false}
       onClick={(e) => { e.stopPropagation(); onClick?.() }}
-      onPointerOver={(e) => { e.stopPropagation(); setHovered(true) }}
-      onPointerOut={() => setHovered(false)}
+      onPointerOver={(e) => { e.stopPropagation(); hoveredRef.current = true }}
+      onPointerOut={() => { hoveredRef.current = false }}
     >
       {/*
         Inner centring wrapper: centres the bounding-box to origin, scales so

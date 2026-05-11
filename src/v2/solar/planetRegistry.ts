@@ -123,7 +123,7 @@ export interface PlanetConfig {
   rotationSpeed: number
 }
 
-export const ACTIVE_PLANET_HYSTERESIS = 0.015
+const ACTIVE_PLANET_HYSTERESIS = 0.015
 
 // Canonical GLB URL string for cache key deduplication.
 // `useGLTF` (suspend-react) is sensitive to the exact URL string.
@@ -430,11 +430,7 @@ export const SOLAR_GLB_MODEL_URLS: readonly string[] = Object.freeze([
   ),
 ])
 
-export function getPlanetFocusCenter(config: PlanetConfig): number {
-  return (config.focusStart + config.focusEnd) * 0.5
-}
-
-export function getActivePlanetByProgress(progress: number): PlanetConfig {
+function getActivePlanetByProgress(progress: number): PlanetConfig {
   const clamped = Math.min(1, Math.max(0, progress))
   return (
     PLANET_REGISTRY.find(
@@ -451,12 +447,6 @@ export function getNextPlanetById(id: PlanetId): PlanetConfig | null {
   const index = getPlanetIndexById(id)
   if (index === -1 || index === PLANET_REGISTRY.length - 1) return null
   return PLANET_REGISTRY[index + 1]
-}
-
-export function getPreviousPlanetById(id: PlanetId): PlanetConfig | null {
-  const index = getPlanetIndexById(id)
-  if (index <= 0) return null
-  return PLANET_REGISTRY[index - 1]
 }
 
 export function getStableActivePlanet(
@@ -488,58 +478,4 @@ export function getStableActivePlanet(
   }
 
   return resolved
-}
-
-// ── Phase resolution ───────────────────────────────────────────────────────────
-
-export type CameraPhase = 'approach' | 'hold' | 'depart'
-
-/**
- * Given global scroll progress, determine which planet is the "active camera
- * target" and which sub-phase the camera is in.
- *
- * Returns the active planet config, the phase, and a normalised phase-local
- * t in [0, 1] representing how far through that phase we are.
- */
-export function resolveCameraPhase(progress: number): {
-  planet: PlanetConfig
-  next: PlanetConfig | null
-  phase: CameraPhase
-  phaseT: number
-} {
-  const p = Math.min(1, Math.max(0, progress))
-
-  // Find the planet whose outer envelope [focusStart, focusEnd] contains p.
-  // Fall back to last planet if we're past everything.
-  let planet: PlanetConfig = PLANET_REGISTRY[PLANET_REGISTRY.length - 1]
-  for (const cfg of PLANET_REGISTRY) {
-    if (p >= cfg.focusStart && p <= cfg.focusEnd) {
-      planet = cfg
-      break
-    }
-  }
-
-  const next = getNextPlanetById(planet.id)
-
-  let phase: CameraPhase
-  let phaseT: number
-
-  if (p < planet.settleStart) {
-    // APPROACH phase: approachStart → settleStart
-    const len = planet.settleStart - planet.approachStart
-    phaseT = len > 0 ? Math.min(1, Math.max(0, (p - planet.approachStart) / len)) : 1
-    phase = 'approach'
-  } else if (p < planet.departStart) {
-    // HOLD phase: settleStart → departStart
-    const len = planet.departStart - planet.settleStart
-    phaseT = len > 0 ? Math.min(1, Math.max(0, (p - planet.settleStart) / len)) : 1
-    phase = 'hold'
-  } else {
-    // DEPART phase: departStart → focusEnd
-    const len = planet.focusEnd - planet.departStart
-    phaseT = len > 0 ? Math.min(1, Math.max(0, (p - planet.departStart) / len)) : 1
-    phase = 'depart'
-  }
-
-  return { planet, next, phase, phaseT }
 }

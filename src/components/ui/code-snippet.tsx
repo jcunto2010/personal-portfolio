@@ -165,20 +165,3 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
     </div>
   )
 }
-
-// Utility for single file usage
-interface SingleCodeSnippetProps {
-  code: string
-  language?: string
-  filename?: string
-  className?: string
-}
-
-export function SingleCodeSnippet({
-  code,
-  language = 'typescript',
-  filename = 'snippet.ts',
-  className,
-}: SingleCodeSnippetProps) {
-  return <CodeSnippet files={[{ filename, language, code }]} className={className} />
-}

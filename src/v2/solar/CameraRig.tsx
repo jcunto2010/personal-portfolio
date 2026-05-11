@@ -209,7 +209,7 @@ function phaseProgress(p: number, planet: PlanetConfig, phase: 'approach' | 'hol
 
 // ── CameraRig props ───────────────────────────────────────────────────────────
 
-export interface CameraRigShotProps {
+interface CameraRigShotProps {
   currentShotId?: ShotId
   nextShotId?: ShotId
   shotProgress?: number

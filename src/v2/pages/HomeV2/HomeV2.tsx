@@ -3,20 +3,11 @@ import { ClassicRebuildPage } from '../../components/ClassicRebuild/ClassicRebui
 /**
  * Home — Cosmic Editorial
  *
- * Editorial content is composed from ClassicRebuild and data modules:
- *   - Skills: src/v2/data/skills.v2.ts
- *   - Experience: src/v2/data/experience.v2.ts
- *   - Contact: src/v2/components/Contact/Contact.tsx (+ ClassicRebuild footer block)
+ * Editorial content is composed from ClassicRebuild and data modules
+ * (e.g. experience, projects, contact under `src/v2/data`).
  *
- * Scroll layer (T-002):
- *   - Lenis provides smooth scroll via `useLenis`.
- *   - GSAP + ScrollTrigger reveal animations via `useChapterReveal`.
- *   - Both are disabled when `prefers-reduced-motion: reduce` is active.
- *
- * WebGL ambient layer wired in T-003.
- *
- * Internal chapter navigation uses programmatic scroll (scrollToChapter)
- * instead of native hash anchors so chapter IDs never collide with the URL path.
+ * Internal chapter navigation uses programmatic scroll (`scrollToChapter`) instead
+ * of native hash anchors so chapter IDs never collide with the URL path.
  *
  * To deep-link to a chapter, append ?chapter=<id> to the Home route:
  *   /?chapter=chapter-notes

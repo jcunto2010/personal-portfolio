@@ -14,7 +14,7 @@ export const contactV2 = {
 }
 
 /** Textos prellenados para mailto y WhatsApp según el idioma V2 (selector en EntryGate / shell). */
-export const contactDraftByLocale = {
+const contactDraftByLocale = {
   en: {
     emailSubject: 'Contact from your portfolio',
     emailBody: `Hi Jonathan,

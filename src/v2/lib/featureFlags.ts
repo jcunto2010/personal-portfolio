@@ -28,5 +28,3 @@ export const featureFlags = {
   enableGA4:    true,
   enableSentry: false,
 } as const
-
-export type FeatureFlags = typeof featureFlags

@@ -7,7 +7,7 @@
  */
 
 import { featureFlags } from '../featureFlags'
-import { getConsent, onConsentChange } from './consentStore'
+import { getConsent } from './consentStore'
 import { ga4StubProvider } from './ga4'
 import { sentryStubProvider } from './sentry'
 import type {
@@ -68,28 +68,4 @@ export async function initTelemetry(): Promise<TelemetryHandles> {
   }
 
   return _handles
-}
-
-/**
- * Devuelve los handles activos (stubs en esta fase).
- * Seguros de usar: sus métodos son NO-OP cuando los proveedores no están cargados.
- */
-export function getTelemetry(): TelemetryHandles {
-  return _handles
-}
-
-/**
- * Registra un listener que re-evalúa los proveedores cuando cambia el consentimiento.
- * Devuelve una función de cleanup.
- *
- * En esta fase no tiene efecto práctico porque los flags están en false.
- * Cuando se activen, permitirá activar/desactivar tracking en caliente.
- */
-export function watchConsentForTelemetry(): () => void {
-  return onConsentChange(async (_newConsent) => {
-    // Re-init solo si hay flags activos (no en esta fase).
-    if (featureFlags.enableGA4 || featureFlags.enableSentry) {
-      await initTelemetry()
-    }
-  })
 }

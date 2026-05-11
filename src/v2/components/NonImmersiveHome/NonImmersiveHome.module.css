@@ -1,8 +1,7 @@
 /* NonImmersiveHome scaffold — Phase 1
    Wrapper that hosts the existing HomeV2 editorial content
    when the user is in non-immersive (Classic) mode.
-   Minimal extra styling — the child HomeV2 already has all
-   chapter and layout CSS in HomeV2.module.css.            */
+   Minimal extra styling — the child HomeV2 delegates layout to ClassicRebuild. */
 
 .root {
   position: relative;

@@ -11,7 +11,7 @@ export default function SkillsDemoPage() {
       {/* Comparison note */}
       <div className="max-w-4xl mx-auto px-6 py-12 text-center">
         <p className="text-[#B8C0D9] text-sm">
-          This is the new IntegrationHero component. Compare with the current SkillsSection.
+          This is the IntegrationHero skills block used on the classic-mode page.
         </p>
         <div className="flex gap-4 justify-center mt-4">
           <a

@@ -2,9 +2,9 @@ import { useCallback, useRef, useState } from 'react'
 import type { AppMode } from './appModeContext'
 import { projectsV2 } from '../data/projects.v2'
 
-export type JourneyStatus = 'idle' | 'loading' | 'ready' | 'error'
+type JourneyStatus = 'idle' | 'loading' | 'ready' | 'error'
 
-export interface JourneyLoaderSnapshot {
+interface JourneyLoaderSnapshot {
   mode: AppMode
   status: JourneyStatus
   ready: boolean
@@ -17,7 +17,7 @@ export interface JourneyLoaderSnapshot {
   error: string | null
 }
 
-export interface JourneyLoaderController extends JourneyLoaderSnapshot {
+interface JourneyLoaderController extends JourneyLoaderSnapshot {
   /** Start (or restart) loading for the current mode. */
   start: () => void
   /** Reset back to idle; does not clear any underlying caches. */

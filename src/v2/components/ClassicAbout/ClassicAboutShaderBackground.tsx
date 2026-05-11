@@ -87,11 +87,8 @@ export function ClassicAboutShaderBackground() {
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8))
     renderer.setClearColor(0x000000, 0)
-    renderer.domElement.style.position = 'absolute'
-    renderer.domElement.style.inset = '0'
-    renderer.domElement.style.width = '100%'
-    renderer.domElement.style.height = '100%'
-    renderer.domElement.style.display = 'block'
+    renderer.domElement.style.cssText =
+      'position:absolute;inset:0;width:100%;height:100%;display:block;'
     container.appendChild(renderer.domElement)
 
     let running = true

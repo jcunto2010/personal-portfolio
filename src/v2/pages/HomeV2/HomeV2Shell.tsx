@@ -190,6 +190,11 @@ function HomeV2Inner() {
 
   const journeyLoader = useJourneyLoader(mode)
 
+  const resolvedEntryPhase: EntryPhase =
+    entryPhase === 'loading' && journeyLoader.status === 'ready'
+      ? 'ready'
+      : entryPhase
+
   // E2E bypass: ensure Home content renders immediately (no EntryGate).
   useEffect(() => {
     if (!isE2E) return
@@ -213,23 +218,17 @@ function HomeV2Inner() {
     }
   }, [entryPhase, journeyStart, journeyReset])
 
-  useEffect(() => {
-    if (entryPhase === 'loading' && journeyLoader.status === 'ready') {
-      setEntryPhase('ready')
-    }
-  }, [entryPhase, journeyLoader.status])
-
   // Start / stop audio in response to audioEnabled + entered state.
   useEffect(() => {
     // Audio solo debe sonar en "immersive" (modo inmersivo).
     // En "non-immersive" (modo clásico) forzamos stop para evitar música.
-    if (entryPhase === 'ready' && audioEnabled && mode === 'immersive') {
+    if (resolvedEntryPhase === 'ready' && audioEnabled && mode === 'immersive') {
       audio.play()
     } else {
       audio.stop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entryPhase, audioEnabled, mode])
+  }, [resolvedEntryPhase, audioEnabled, mode])
 
   // Stop audio when unmounting (navigation away from Home).
   useEffect(() => {
@@ -265,7 +264,7 @@ function HomeV2Inner() {
   }, [entryPhase, mode])
 
   const entryGate =
-    entryPhase === 'select' ? (
+    resolvedEntryPhase === 'select' ? (
       <EntryGate onEnter={handleEnter} skipAnimations={hasEnteredOnce} />
     ) : null
 
@@ -291,7 +290,7 @@ function HomeV2Inner() {
           document.body,
         )}
 
-      {entryPhase === 'loading' && mode === 'immersive' && (
+      {resolvedEntryPhase === 'loading' && mode === 'immersive' && (
         <>
           <SpaceLoadingScreen />
           {journeyLoader.status === 'error' && (
@@ -334,7 +333,7 @@ function HomeV2Inner() {
         </>
       )}
 
-      {entryPhase === 'loading' && mode === 'non-immersive' && (
+      {resolvedEntryPhase === 'loading' && mode === 'non-immersive' && (
         <>
           <SpaceLoadingScreen />
           <div
@@ -370,7 +369,7 @@ function HomeV2Inner() {
         </>
       )}
 
-      {entryPhase === 'ready' && mode === 'non-immersive' && (
+      {resolvedEntryPhase === 'ready' && mode === 'non-immersive' && (
         <NonImmersiveHome onSwitchMode={handleSwitchMode}>
           <Suspense
             fallback={
@@ -388,7 +387,7 @@ function HomeV2Inner() {
         </NonImmersiveHome>
       )}
 
-      {entryPhase === 'ready' && mode === 'immersive' && (
+      {resolvedEntryPhase === 'ready' && mode === 'immersive' && (
         <>
           <ImmersiveErrorBoundary
             onReset={handleSwitchMode}
@@ -398,7 +397,7 @@ function HomeV2Inner() {
               <LazySolarScene
                 onSwitchMode={handleSwitchMode}
                 mode={mode}
-                entered={entryPhase === 'ready'}
+                entered={resolvedEntryPhase === 'ready'}
                 audioEnabled={audioEnabled}
                 audioDiagnostics={audio.diagnostics}
                 onReady={() => setImmersiveSceneReady(true)}

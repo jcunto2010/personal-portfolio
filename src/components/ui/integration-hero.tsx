@@ -162,8 +162,3 @@ function TechBubble({ tech }: { tech: TechLogo }) {
     </div>
   )
 }
-
-// Demo wrapper for standalone use
-export default function IntegrationHeroDemo() {
-  return <IntegrationHero />
-}

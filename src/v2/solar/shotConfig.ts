@@ -509,9 +509,3 @@ export function getNextShot(id: ShotId): ShotConfig | undefined {
   if (idx === -1 || idx === SHOT_REGISTRY.length - 1) return undefined
   return SHOT_REGISTRY[idx + 1]
 }
-
-export function getPrevShot(id: ShotId): ShotConfig | undefined {
-  const idx = SHOT_REGISTRY.findIndex((s) => s.id === id)
-  if (idx <= 0) return undefined
-  return SHOT_REGISTRY[idx - 1]
-}

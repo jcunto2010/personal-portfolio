@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import styles from './ExpandOnHoverIconButton.module.css'
 
-export type ExpandOnHoverIconButtonVariant = 'immersive' | 'classic'
+type ExpandOnHoverIconButtonVariant = 'immersive' | 'classic'
 
 export type ExpandOnHoverIconButtonProps = {
   label: string

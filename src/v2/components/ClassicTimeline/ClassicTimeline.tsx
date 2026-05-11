@@ -2,7 +2,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { useId, useRef } from 'react'
 import styles from './ClassicTimeline.module.css'
 
-export interface ClassicTimelineEntry {
+interface ClassicTimelineEntry {
   title: string
   subtitle?: string
   description: string

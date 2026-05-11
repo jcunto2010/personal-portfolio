@@ -22,7 +22,7 @@ const AUDIO_URL =
   import.meta.env.VITE_AUDIO_URL ?? '/assets/audio/shona-theme.mp3'
 const DEFAULT_VOLUME = 0.4
 
-export type AudioState = 'idle' | 'loading' | 'ready' | 'playing' | 'error'
+type AudioState = 'idle' | 'loading' | 'ready' | 'playing' | 'error'
 
 export interface AudioDiagnostics {
   /** true once HTMLAudioElement has been created */

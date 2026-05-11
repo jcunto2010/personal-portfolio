@@ -1,6 +1,4 @@
-import { lazy, Suspense } from 'react'
-import { Navigate } from 'react-router-dom'
-import type { RouteObject } from 'react-router-dom'
+import { lazy } from 'react'
 
 /**
  * Lazy-loaded page components.
@@ -36,42 +34,3 @@ export function PageFallback() {
     </div>
   )
 }
-
-export const v2Routes: RouteObject[] = [
-  {
-    index: true,
-    element: (
-      <Suspense fallback={<PageFallback />}>
-        <LazyHomeV2 />
-      </Suspense>
-    ),
-  },
-  {
-    path: 'classic-mode',
-    element: (
-      <Suspense fallback={<PageFallback />}>
-        <LazyClassicModePage />
-      </Suspense>
-    ),
-  },
-  {
-    path: 'editorial-glowup',
-    element: <Navigate to="/classic-mode" replace />,
-  },
-  {
-    path: 'projects',
-    element: (
-      <Suspense fallback={<PageFallback />}>
-        <LazyProjectsV2 />
-      </Suspense>
-    ),
-  },
-  {
-    path: 'projects/:slug',
-    element: (
-      <Suspense fallback={<PageFallback />}>
-        <LazyProjectDetailV2 />
-      </Suspense>
-    ),
-  },
-]
