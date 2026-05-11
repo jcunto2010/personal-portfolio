@@ -633,10 +633,10 @@ export function CinematicHero({
         )}
       >
         <span className="relative z-10 inline-flex items-center gap-2 transition-all duration-500">
-          <Github className="h-5 w-5 min-[1440px]:h-6 min-[1440px]:w-6" aria-hidden="true" />
+          <Github className="size-5 min-[1440px]:size-6" aria-hidden="true" />
           {action.label}
         </span>
-        <span className="absolute right-1.5 flex h-11 w-11 items-center justify-center rounded-full bg-[#F5F7FF] text-[#070B1A] transition-all duration-500 group-hover:right-[calc(100%-50px)] group-hover:rotate-45 min-[1440px]:right-2 min-[1440px]:h-12 min-[1440px]:w-12 min-[1440px]:group-hover:right-[calc(100%-56px)]">
+        <span className="absolute right-1.5 flex size-11 items-center justify-center rounded-full bg-[#F5F7FF] text-[#070B1A] transition-all duration-500 group-hover:right-[calc(100%-50px)] group-hover:rotate-45 min-[1440px]:right-2 min-[1440px]:size-12 min-[1440px]:group-hover:right-[calc(100%-56px)]">
           <ArrowUpRight size={19} aria-hidden="true" />
         </span>
       </a>
@@ -659,7 +659,7 @@ export function CinematicHero({
       <div className="bg-grid-theme absolute inset-0 z-0 opacity-50 pointer-events-none" aria-hidden="true" />
 
       <div className="hero-text-wrapper transform-style-3d absolute inset-0 z-10 flex w-full flex-col items-center justify-center px-5 text-center will-change-transform">
-        <h2 className="text-track gsap-reveal text-3d-matte mb-1 max-w-[95vw] py-1.5 text-4xl font-bold leading-[1.14] tracking-tight sm:text-5xl md:text-6xl lg:text-[6rem] min-[1440px]:text-[8rem]">
+        <h2 className="text-track gsap-reveal text-3d-matte mb-1 max-w-[95vw] py-1.5 text-4xl font-semibold leading-[1.14] tracking-tight sm:text-5xl md:text-6xl lg:text-[6rem] min-[1440px]:text-[8rem]">
           {tagline1}
         </h2>
         <h2 className="text-days gsap-reveal text-silver-matte max-w-[95vw] py-1.5 text-4xl font-extrabold leading-[1.14] tracking-tighter sm:text-5xl md:text-6xl lg:text-[6rem] min-[1440px]:text-[8rem]">
@@ -669,7 +669,7 @@ export function CinematicHero({
 
       {showFinalCta && (
         <div className="cta-wrapper gsap-reveal absolute inset-0 z-10 flex w-full flex-col items-center justify-center px-4 text-center pointer-events-auto will-change-transform">
-          <h2 className="text-silver-matte mb-5 max-w-[94vw] py-2 text-3xl font-bold leading-[1.14] tracking-tight sm:text-4xl md:text-5xl lg:text-7xl min-[1440px]:text-[6.5rem]">
+          <h2 className="text-silver-matte mb-5 max-w-[94vw] py-2 text-3xl font-semibold leading-[1.14] tracking-tight sm:text-4xl md:text-5xl lg:text-7xl min-[1440px]:text-[6.5rem]">
             {ctaHeading}
           </h2>
           <p className="mx-auto mb-10 max-w-[22rem] text-base font-light leading-relaxed text-[#B8C0D9] sm:max-w-xl sm:text-lg md:text-xl min-[1440px]:max-w-3xl min-[1440px]:text-2xl">
@@ -753,8 +753,8 @@ export function CinematicHero({
                       </div>
                     ) : (
                       <>
-                        <div className="absolute left-0 right-0 top-[5px] z-50 mx-auto flex h-[28px] w-[100px] items-center justify-end rounded-full bg-black px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
-                          <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+                        <div className="absolute left-0 right-0 top-[5px] z-50 mx-auto flex h-[28px] w-[100px] items-center justify-end rounded-full bg-zinc-950 px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
+                          <div className="size-1.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
                         </div>
 
                         <div className="relative flex h-full w-full flex-col px-5 pb-7 pt-12">
@@ -763,7 +763,7 @@ export function CinematicHero({
                               <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-neutral-400">{appLabel}</span>
                               <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">{videoLabel}</span>
                             </div>
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-neutral-200 shadow-lg shadow-black/50">
+                            <div className="flex size-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-neutral-200 shadow-lg shadow-black/50">
                               JC
                             </div>
                           </div>
@@ -774,10 +774,10 @@ export function CinematicHero({
                               <span className="rounded-full border border-cyan-200/15 bg-white/5 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-100/70">
                                 {videoFlowLabel}
                               </span>
-                              <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.9)]" />
+                              <span className="size-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.9)]" />
                             </div>
                             <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-6 text-center">
-                              <PlayCircle className="mb-5 h-16 w-16 flex-shrink-0 text-cyan-100 drop-shadow-[0_0_24px_rgba(6,182,212,0.45)]" aria-hidden="true" />
+                              <PlayCircle className="mb-5 size-16 flex-shrink-0 text-cyan-100 drop-shadow-[0_0_24px_rgba(6,182,212,0.45)]" aria-hidden="true" />
                               <p className="text-2xl font-black tracking-tight text-white">{videoPlaceholderTitle}</p>
                               <p className="mt-3 max-w-[13rem] text-xs leading-relaxed text-cyan-100/55">
                                 {videoPlaceholderDescription}
@@ -787,15 +787,15 @@ export function CinematicHero({
 
                           <div className="phone-widget mockup-widget widget-depth flex flex-shrink-0 items-center justify-between rounded-2xl p-3">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 shadow-inner">
-                                <CalendarCheck className="h-4 w-4 text-emerald-300 drop-shadow-md" aria-hidden="true" />
+                              <div className="flex size-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 shadow-inner">
+                                <CalendarCheck className="size-4 text-emerald-300 drop-shadow-md" aria-hidden="true" />
                               </div>
                               <div>
                                 <p className="text-xs font-bold text-white">{videoStatus}</p>
                                 <p className="text-[10px] text-cyan-100/45">{metricValue} {metricLabel}</p>
                               </div>
                             </div>
-                            <CheckCircle2 className="h-5 w-5 text-emerald-300" aria-hidden="true" />
+                            <CheckCircle2 className="size-5 text-emerald-300" aria-hidden="true" />
                           </div>
 
                           <div className="absolute bottom-2 left-1/2 h-[4px] w-[120px] -translate-x-1/2 rounded-full bg-white/20 shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
@@ -827,7 +827,7 @@ export function CinematicHero({
                   {caseLabel}
                 </p>
               ) : null}
-              <h3 className="mb-2 text-xl font-bold tracking-tight text-white sm:text-2xl md:text-[1.65rem] lg:text-4xl min-[1440px]:text-5xl">
+              <h3 className="mb-2 text-xl font-semibold tracking-tight text-white sm:text-2xl md:text-[1.65rem] lg:text-4xl min-[1440px]:text-5xl">
                 {cardHeading}
               </h3>
               <p
@@ -849,7 +849,7 @@ export function CinematicHero({
                     key={feature}
                     className="phone-widget widget-depth flex items-center gap-2.5 rounded-xl p-2.5 text-left sm:gap-3 sm:rounded-2xl sm:p-3 lg:gap-2 lg:rounded-lg lg:p-2"
                   >
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-cyan-100" aria-hidden="true" />
+                    <CheckCircle2 className="size-4 flex-shrink-0 text-cyan-100" aria-hidden="true" />
                     <p className="text-[11px] leading-relaxed text-white/82 sm:text-xs min-[1440px]:text-sm">{feature}</p>
                   </div>
                 ))}

@@ -24,7 +24,7 @@ import { Canvas, useFrame, useLoader } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 import { useGLTFV2 } from './useGLTFV2'
-import { getPlanetIndexById, getStableActivePlanet, PLANET_REGISTRY, SUN_GLB_URL } from './planetRegistry'
+import { getPlanetIndexById, getStableActivePlanet, PLANET_MAP, PLANET_REGISTRY, SUN_GLB_URL } from './planetRegistry'
 import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
 import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
@@ -430,7 +430,7 @@ if (!IS_SAFE) {
     // Preload: string canónica para deduplicación de caché.
     useGLTFV2.preload(SUN_GLB_URL)
     for (const id of ['earth', 'mercury', 'venus'] as const) {
-      const cfg = PLANET_REGISTRY.find((p) => p.id === id)
+      const cfg = PLANET_MAP.get(id)
       if (cfg?.modelPath) useGLTFV2.preload(cfg.modelPath)
     }
   }
@@ -613,13 +613,10 @@ function SolarSceneWebGL({
         ? 'Activar sonido'
         : 'Unmute sound'
 
-  const immersiveScrollRegionLabel = useMemo(
-    () =>
-      locale === 'es'
-        ? 'Experiencia solar — desplázate con la rueda o desliza para explorar'
-        : 'Solar system experience — scroll or swipe to explore',
-    [locale],
-  )
+  const immersiveScrollRegionLabel =
+    locale === 'es'
+      ? 'Experiencia solar — desplázate con la rueda o desliza para explorar'
+      : 'Solar system experience — scroll or swipe to explore'
 
   // React 18 StrictMode (dev) mounts/unmounts components immediately to
   // surface side-effects. Our cleanup calls `useGLTF.clear()` which
@@ -1600,7 +1597,7 @@ function SolarSceneWebGL({
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: '#000',
+                    background: '#09090b',
                     opacity: blackOpacity,
                     pointerEvents: 'none',
                     zIndex: 100,

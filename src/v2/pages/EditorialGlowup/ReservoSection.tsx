@@ -9,12 +9,10 @@ export function ReservoSection() {
   const isEs = locale === 'es'
   const project = getProjectBySlug('reservo-ai')
   const [isCompactViewport, setIsCompactViewport] = useState(false)
-  const [isMobileViewport, setIsMobileViewport] = useState(false)
 
   useEffect(() => {
     const updateViewport = () => {
       setIsCompactViewport(window.innerWidth < 1024)
-      setIsMobileViewport(window.innerWidth < 1024)
     }
     updateViewport()
     window.addEventListener('resize', updateViewport)
@@ -41,7 +39,7 @@ export function ReservoSection() {
 
   const compactFeatureItems = isCompactViewport ? featureItems.slice(0, 3) : featureItems
   if (!project) return null
-  const HeroComponent = isMobileViewport ? CinematicHeroMobile : CinematicHero
+  const HeroComponent = isCompactViewport ? CinematicHeroMobile : CinematicHero
 
   return (
     <section

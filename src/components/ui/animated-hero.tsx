@@ -69,7 +69,7 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl min-[1440px]:text-2xl leading-relaxed tracking-tight text-slate-300 max-w-2xl min-[1440px]:max-w-3xl text-center mx-auto">
+            <p className="text-lg md:text-xl min-[1440px]:text-2xl leading-relaxed tracking-tight text-zinc-300 max-w-2xl min-[1440px]:max-w-3xl text-center mx-auto">
               {isEs
                 ? 'De Ingeniería Industrial al desarrollo de software: frontend moderno, apps con IA y productos digitales con foco en negocio, datos y ejecución.'
                 : 'From Industrial Engineering to software development: modern frontend, AI-powered apps, and digital products focused on business, data, and execution.'}
@@ -97,9 +97,9 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
-              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
             >
-              <Github className="w-5 h-5" />
+              <Github className="size-5" />
               <span className="text-sm">GitHub</span>
             </a>
             <a
@@ -107,9 +107,9 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
             >
-              <Linkedin className="w-5 h-5" />
+              <Linkedin className="size-5" />
               <span className="text-sm">LinkedIn</span>
             </a>
           </div>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { projectsV2 } from '../../data/projects.v2'
 import { useLocale } from '../../lib/localeContext'
 import styles from './ProjectsV2.module.css'
@@ -11,6 +12,14 @@ import styles from './ProjectsV2.module.css'
 export default function ProjectsV2() {
   const { locale } = useLocale()
   const isEs = locale === 'es'
+  const [currentYear, setCurrentYear] = useState<number | null>(null)
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      setCurrentYear(new Date().getFullYear())
+    })
+    return () => cancelAnimationFrame(id)
+  }, [])
 
   return (
     <div className={styles.page}>
@@ -110,7 +119,7 @@ export default function ProjectsV2() {
 
       <footer className={styles.footer}>
         <p className={styles.footerText}>
-          © {new Date().getFullYear()} Jonathan Cunto Díaz
+          ©{currentYear !== null ? ` ${currentYear}` : ''} Jonathan Cunto Díaz
         </p>
       </footer>
     </div>

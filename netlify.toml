@@ -14,7 +14,7 @@
 # Applied to every response served from /dist.
 # CSP is also set via <meta> in index.html for completeness.
 # Note: unsafe-eval is required by Three.js/WebGL GLSL shader compilation.
-# Headers defined here must stay in sync with scripts/security-headers.mjs
+# Canonical header values live in this [[headers]] block (and CSP meta in index.html).
 # See: docs/security-roadmap.md for planned CSP hardening.
 [[headers]]
   for = "/*"

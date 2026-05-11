@@ -42,7 +42,7 @@ export function SpaceLoadingScreen() {
         position: 'fixed',
         inset: 0,
         // Must be fully opaque so the 3D scene never bleeds through underneath.
-        backgroundColor: '#000000',
+        backgroundColor: '#09090b',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

@@ -99,7 +99,7 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
           )}
           aria-label={copied ? 'Copied!' : 'Copy code'}
         >
-          {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
                   <div key={`${lineSignature}-${i}`} {...lineProps} style={{ display: 'flex' }}>
                     {/* Line number */}
                     <span 
-                      className="select-none pr-4 text-right text-slate-600/60"
+                      className="select-none pr-4 text-right text-zinc-600/60"
                       style={{ minWidth: '2rem', flexShrink: 0 }}
                     >
                       {i + 1}

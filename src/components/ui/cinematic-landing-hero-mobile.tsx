@@ -307,7 +307,7 @@ export function CinematicHeroMobile({
       {/* Taglines with animation */}
       <section className="relative flex min-h-[72vh] items-center justify-center px-5 py-10 text-center">
         <div ref={taglineRef} className="will-change-transform">
-          <h2 className="text-4xl font-bold leading-[1.14] tracking-tight sm:text-5xl">{tagline1}</h2>
+          <h2 className="text-4xl font-semibold leading-[1.14] tracking-tight sm:text-5xl">{tagline1}</h2>
           <h2 className="mt-2 text-4xl font-extrabold leading-[1.14] tracking-tight sm:text-5xl">{tagline2}</h2>
         </div>
       </section>
@@ -323,7 +323,7 @@ export function CinematicHeroMobile({
             {caseLabel ? (
               <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-50/75">{caseLabel}</p>
             ) : null}
-            <h3 className="text-3xl font-bold tracking-tight text-white">{cardHeading}</h3>
+            <h3 className="text-3xl font-semibold tracking-tight text-white">{cardHeading}</h3>
             {cardDescription ? <div className="mt-2 text-sm leading-relaxed text-white/80">{cardDescription}</div> : null}
           </div>
 
@@ -357,11 +357,11 @@ export function CinematicHeroMobile({
                       <span className="rounded-full border border-cyan-200/20 bg-white/5 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-cyan-100/75">
                         {videoFlowLabel}
                       </span>
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.85)]" />
+                      <span className="size-2 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.85)]" />
                     </div>
                     <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
                       <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                        <PlayCircle className="mb-4 h-14 w-14 text-cyan-100" aria-hidden="true" />
+                        <PlayCircle className="mb-4 size-14 text-cyan-100" aria-hidden="true" />
                         <p className="text-3xl font-black tracking-tight text-white">{videoPlaceholderTitle}</p>
                         <p className="mt-3 text-xs leading-relaxed text-cyan-100/65">{videoPlaceholderDescription}</p>
                       </div>

@@ -75,7 +75,7 @@ export function IntegrationHero({
       {/* Content */}
       <div className="relative max-w-7xl mx-auto px-6 text-center">
         {/* Title */}
-        <h2 className="text-4xl lg:text-6xl font-bold tracking-tight text-[#F5F7FF]">
+        <h2 className="text-4xl lg:text-6xl font-semibold tracking-tight text-[#F5F7FF]">
           {title}
         </h2>
 
@@ -141,7 +141,7 @@ export function IntegrationHero({
 function TechBubble({ tech }: { tech: TechLogo }) {
   return (
     <div
-      className="h-20 w-20 flex-shrink-0 rounded-full flex items-center justify-center group cursor-pointer transition-all duration-300 hover:scale-110"
+      className="size-20 flex-shrink-0 rounded-full flex items-center justify-center group cursor-pointer transition-all duration-300 hover:scale-110"
       style={{
         background: `radial-gradient(circle at 30% 30%, ${tech.color}25, ${tech.color}08 50%, transparent 70%), linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.1) 100%)`,
         boxShadow: `0 8px 32px ${tech.color}20, inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.1)`,
@@ -151,7 +151,7 @@ function TechBubble({ tech }: { tech: TechLogo }) {
     >
       <svg 
         viewBox="0 0 24 24" 
-        className="w-9 h-9 transition-all duration-300 group-hover:scale-105"
+        className="size-9 transition-all duration-300 group-hover:scale-105"
         style={{ 
           fill: tech.color,
           filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,

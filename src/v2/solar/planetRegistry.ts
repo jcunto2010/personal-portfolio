@@ -426,7 +426,11 @@ export const PLANET_MAP = new Map<PlanetId, PlanetConfig>(
 /** Unique GLB URLs for the solar scene — GPU disposal + `useGLTF.clear` when exiting immersive mode. */
 export const SOLAR_GLB_MODEL_URLS: readonly string[] = Object.freeze([
   ...new Set(
-    PLANET_REGISTRY.map((p) => p.modelPath).filter((path): path is string => path.length > 0),
+    PLANET_REGISTRY.reduce<string[]>((acc, p) => {
+      const path = p.modelPath
+      if (path.length > 0) acc.push(path)
+      return acc
+    }, []),
   ),
 ])
 

@@ -267,6 +267,7 @@ export default function OnboardingTutorial({ onDone }: OnboardingTutorialProps):
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         >
           <div
+            role="button"
             style={{
               width: '70vw',
               height: '70vh',
