@@ -13,6 +13,137 @@ interface EntryGateProps {
 
 const STAR_COUNT = 150
 
+const CREDITS = [
+  {
+    section: { en: '3D Models', es: 'Modelos 3D' },
+    items: [
+      {
+        title: 'The Star "Sun"',
+        author: 'ARCTIC WOLVES™',
+        url: 'https://skfb.ly/oTDVZ',
+        license: 'CC BY 4.0',
+      },
+      { title: 'Mercury', author: 'Yanez Designs', url: 'https://skfb.ly/6AOGX', license: 'CC BY 4.0' },
+      {
+        title: 'Venus Realistic 8K',
+        author: 'Shady Tex',
+        url: 'https://skfb.ly/oKrFX',
+        license: 'CC BY 4.0',
+      },
+      { title: 'Planet Earth', author: 'Thomas Kole', url: 'https://skfb.ly/Ft8J', license: 'CC BY 4.0' },
+      {
+        title: 'The Moon',
+        author: 'SebastianSosnowski',
+        url: 'https://skfb.ly/6s9oz',
+        license: 'CC BY 4.0',
+      },
+      { title: 'Mars', author: 'AirStudios', url: 'https://skfb.ly/6Uynr', license: 'CC BY 4.0' },
+      { title: 'Jupiter', author: 'Nestaeric', url: 'https://skfb.ly/puNrn', license: 'CC BY 4.0' },
+      { title: 'Saturn', author: 'Nestaeric', url: 'https://skfb.ly/orVqA', license: 'CC BY 4.0' },
+      { title: 'Neptune', author: 'Nestaeric', url: 'https://skfb.ly/pDAHv', license: 'CC BY 4.0' },
+      {
+        title: 'Uranus',
+        author: 'SebastianSosnowski',
+        url: 'https://skfb.ly/6THRF',
+        license: 'CC BY 4.0',
+      },
+      { title: 'Black Hole', author: 'Nestaeric', url: 'https://skfb.ly/pq8CF', license: 'CC BY 4.0' },
+      {
+        title: 'Event Horizon Shader',
+        author: 'Radiant Shaders',
+        url: 'https://radiant-shaders.com/shader/event-horizon',
+      },
+    ],
+  },
+  {
+    section: { en: 'Textures & Skybox', es: 'Texturas y Skybox' },
+    items: [
+      {
+        title: 'Solar System Scope Textures',
+        author: 'Solar System Scope',
+        url: 'https://www.solarsystemscope.com/textures/',
+        license: 'CC BY 4.0',
+        note: 'Milky Way starfield, Uranus maps',
+      },
+    ],
+  },
+  {
+    section: { en: 'Music', es: 'Música' },
+    items: [
+      {
+        title: 'Shona Theme',
+        author: 'Jake Chudnow',
+        url: 'https://www.junodownload.com',
+        note: 'Licensed via Juno Download',
+      },
+    ],
+  },
+  {
+    section: { en: 'UI Components', es: 'Componentes UI' },
+    items: [
+      {
+        title: 'Aceternity UI',
+        author: 'Manu Arora',
+        url: 'https://ui.aceternity.com',
+        note: 'Timeline, animated components',
+      },
+      {
+        title: 'Magic UI',
+        author: 'Dillion Verma',
+        url: 'https://magicui.design',
+        note: 'Animated hero patterns',
+      },
+      {
+        title: 'Framer Motion',
+        author: 'Framer',
+        url: 'https://www.framer.com/motion/',
+        license: 'MIT',
+      },
+      {
+        title: 'React Three Fiber + Drei',
+        author: 'Poimandres',
+        url: 'https://github.com/pmndrs/react-three-fiber',
+        license: 'MIT',
+      },
+      {
+        title: 'GSAP + SplitText',
+        author: 'GreenSock',
+        url: 'https://gsap.com',
+        note: 'Commercial license',
+      },
+      {
+        title: 'Lenis',
+        author: 'Studio Freight',
+        url: 'https://lenis.darkroom.engineering',
+        license: 'MIT',
+      },
+    ],
+  },
+  {
+    section: { en: 'Typography', es: 'Tipografía' },
+    items: [
+      {
+        title: 'Proxima Nova',
+        author: 'Mark Simonson Studio',
+        url: 'https://www.marksimonson.com/fonts/view/proxima-nova',
+        note: 'Commercial license — primary UI typeface (V2)',
+      },
+      {
+        title: 'PP Object Sans',
+        author: 'Pangram Pangram Foundry',
+        url: 'https://pangrampangram.com/products/object-sans',
+        note: 'Commercial license',
+      },
+      {
+        title: 'PP Neue Machina',
+        author: 'Pangram Pangram Foundry',
+        url: 'https://pangrampangram.com/products/neue-machina',
+        note: 'Commercial license',
+      },
+    ],
+  },
+] as const
+
 function mulberry32(seed: number) {
   let t = seed >>> 0
   return () => {
@@ -73,6 +204,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
 
   const shouldAnimate = !skipAnimations && !reduceMotion
   const [animateIntro, setAnimateIntro] = useState(false)
+  const [creditsOpen, setCreditsOpen] = useState(false)
 
   // Trigger CSS animations after the initial paint, so LCP isn't delayed by JS/parse time.
   useEffect(() => {
@@ -83,6 +215,15 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     const id = requestAnimationFrame(() => setAnimateIntro(true))
     return () => cancelAnimationFrame(id)
   }, [shouldAnimate])
+
+  useEffect(() => {
+    if (!creditsOpen) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setCreditsOpen(false)
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [creditsOpen])
 
   const isEs = locale === 'es'
   const ui = isEs
@@ -103,6 +244,11 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         audioAriaOff: 'Activar sonido',
         classicLabel: 'Modo clásico',
         classicSub: 'Experiencia editorial enfocada en contenido',
+        creditsBtn: 'Créditos',
+        creditsTitle: 'Créditos',
+        creditsClose: 'Cerrar créditos',
+        creditsNote:
+          'Si eres el autor de algún recurso listado aquí y los términos de atribución son incorrectos, contáctame directamente.',
       }
     : {
         ariaEntry: 'Portfolio entry',
@@ -121,6 +267,11 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         audioAriaOff: 'Unmute sound',
         classicLabel: 'Classic mode',
         classicSub: 'Editorial experience focused on content',
+        creditsBtn: 'Credits',
+        creditsTitle: 'Credits',
+        creditsClose: 'Close credits',
+        creditsNote:
+          'If you are the author of any resource listed here and the attribution terms are incorrect, please contact me directly.',
       }
 
   async function commitSelection(nextMode: AppMode) {
@@ -342,6 +493,95 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         }
         aria-hidden="true"
       />
+
+      {/* Credits trigger — bottom center */}
+      <button
+        type="button"
+        className={styles.creditsBtn}
+        onClick={() => setCreditsOpen(true)}
+        style={
+          shouldAnimate
+            ? {
+                opacity: 0,
+                animation: animateIntro ? 'introFadeIn 1.5s ease forwards' : undefined,
+                animationDelay: animateIntro ? '9.5s' : undefined,
+              }
+            : { opacity: 1 }
+        }
+      >
+        {ui.creditsBtn}
+      </button>
+
+      {/* Credits overlay card */}
+      {creditsOpen && (
+        <div
+          className={styles.creditsOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label={ui.creditsTitle}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setCreditsOpen(false)
+          }}
+        >
+          <div className={styles.creditsCard}>
+            {/* Header */}
+            <div className={styles.creditsHeader}>
+              <h2 className={styles.creditsTitle}>{ui.creditsTitle}</h2>
+              <button
+                type="button"
+                className={styles.creditsCloseBtn}
+                onClick={() => setCreditsOpen(false)}
+                aria-label={ui.creditsClose}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Scrollable body */}
+            <div className={styles.creditsBody}>
+              {CREDITS.map((group) => (
+                <div key={group.section.en} className={styles.creditsSection}>
+                  <div className={styles.creditsSectionHeader}>
+                    <h3 className={styles.creditsSectionTitle}>
+                      {isEs ? group.section.es : group.section.en}
+                    </h3>
+                  </div>
+                  {group.items.map((item) => (
+                    <div key={item.title} className={styles.creditsItem}>
+                      <div className={styles.creditsItemMain}>
+                        <a
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.creditsItemTitle}
+                        >
+                          {item.title}
+                        </a>
+                        {'license' in item && item.license && (
+                          <span className={styles.creditsItemBadge}>{item.license}</span>
+                        )}
+                      </div>
+                      <div className={styles.creditsItemMeta}>
+                        <span className={styles.creditsItemAuthor}>{item.author}</span>
+                        {'note' in item && item.note && (
+                          <>
+                            <span className={styles.creditsDot} aria-hidden="true">
+                              ·
+                            </span>
+                            <span className={styles.creditsItemNote}>{item.note}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              <p className={styles.creditsFooterNote}>{ui.creditsNote}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
