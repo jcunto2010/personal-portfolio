@@ -58,6 +58,8 @@ export default function AppV2() {
                 }
               />
               <Route path="editorial-glowup" element={<Navigate to="/classic-mode" replace />} />
+              {/* Same OG shell as / via postbuild dist/share/index.html; redirect humans to home */}
+              <Route path="share" element={<Navigate to="/" replace />} />
               <Route
                 path="projects"
                 element={

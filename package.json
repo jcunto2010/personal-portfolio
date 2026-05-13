@@ -18,6 +18,7 @@
     "bundle:check": "node scripts/bundle-check.cjs",
     "copy:draco": "node scripts/copy-draco.mjs",
     "prebuild": "npm run copy:draco",
+    "postbuild": "node scripts/write-share-html.mjs",
     "lhci": "lhci autorun",
     "postinstall": "patch-package",
     "ci": "npm run build && npm run bundle:check"
