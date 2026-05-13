@@ -100,6 +100,12 @@ const IS_SAFE  = getQueryParam('safe')
 
 const FINALE_THRESHOLD     = 0.90
 
+/**
+ * After `cameraPhase` enters `*-hold`, info panels open following this delay (ms).
+ * `0` = next macrotask (feels immediate; avoids synchronous setState in the effect body).
+ */
+const INFO_PANEL_HOLD_OPEN_MS = 0
+
 /** Discrete journey indices for progressive GLB groups (scroll stays at 0 in discrete mode). */
 const EARTH_SHOT_REGISTRY_INDEX = getPlanetIndexById('earth')
 const MARS_SHOT_REGISTRY_INDEX = getPlanetIndexById('mars')
@@ -896,7 +902,7 @@ function SolarSceneWebGL({
 
   // Sun panel visibility contract:
   // - Only appears in `sun-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (sunHoldTimerRef.current) {
@@ -918,7 +924,7 @@ function SolarSceneWebGL({
         setSunPanelVisible(true)
       }
       sunHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (sunHoldTimerRef.current) {
@@ -930,7 +936,7 @@ function SolarSceneWebGL({
 
   // Mercury panel visibility contract:
   // - Only appears in `mercury-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (mercuryHoldTimerRef.current) {
@@ -949,7 +955,7 @@ function SolarSceneWebGL({
         setMercuryPanelVisible(true)
       }
       mercuryHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (mercuryHoldTimerRef.current) {
@@ -980,7 +986,7 @@ function SolarSceneWebGL({
         setVenusPanelVisible(true)
       }
       venusHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (venusHoldTimerRef.current) {
@@ -992,7 +998,7 @@ function SolarSceneWebGL({
 
   // Earth panel visibility contract:
   // - Only appears in `earth-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (earthHoldTimerRef.current) {
@@ -1011,7 +1017,7 @@ function SolarSceneWebGL({
         setEarthPanelVisible(true)
       }
       earthHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (earthHoldTimerRef.current) {
@@ -1023,7 +1029,7 @@ function SolarSceneWebGL({
 
   // Moon panel visibility contract:
   // - Only appears in `moon-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (moonHoldTimerRef.current) {
@@ -1042,7 +1048,7 @@ function SolarSceneWebGL({
         setMoonPanelVisible(true)
       }
       moonHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (moonHoldTimerRef.current) {
@@ -1054,7 +1060,7 @@ function SolarSceneWebGL({
 
   // Mars panel visibility contract:
   // - Only appears in `mars-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (marsHoldTimerRef.current) {
@@ -1073,7 +1079,7 @@ function SolarSceneWebGL({
         setMarsPanelVisible(true)
       }
       marsHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (marsHoldTimerRef.current) {
@@ -1085,7 +1091,7 @@ function SolarSceneWebGL({
 
   // Neptune panel visibility contract:
   // - Only appears in `neptune-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (neptuneHoldTimerRef.current) {
@@ -1104,7 +1110,7 @@ function SolarSceneWebGL({
         setNeptunePanelVisible(true)
       }
       neptuneHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (neptuneHoldTimerRef.current) {
@@ -1116,7 +1122,7 @@ function SolarSceneWebGL({
 
   // Uranus panel visibility contract:
   // - Only appears in `uranus-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (uranusHoldTimerRef.current) {
@@ -1135,7 +1141,7 @@ function SolarSceneWebGL({
         setUranusPanelVisible(true)
       }
       uranusHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (uranusHoldTimerRef.current) {
@@ -1147,7 +1153,7 @@ function SolarSceneWebGL({
 
   // Blackhole panel visibility contract:
   // - Only appears in `blackhole-hold`
-  // - Shows 1s after entering hold
+  // - Shows immediately after entering hold
   // - Hides immediately when leaving hold
   useEffect(() => {
     if (blackholeHoldTimerRef.current) {
@@ -1168,7 +1174,7 @@ function SolarSceneWebGL({
         dispatchBlackholeUi({ type: 'set', patch: { panelVisible: true } })
       }
       blackholeHoldTimerRef.current = null
-    }, 1000)
+    }, INFO_PANEL_HOLD_OPEN_MS)
 
     return () => {
       if (blackholeHoldTimerRef.current) {
