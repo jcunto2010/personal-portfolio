@@ -1,13 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import { LazyMotion, domAnimation } from 'framer-motion'
-import {
-  LazyHomeV2,
-  LazyProjectsV2,
-  LazyProjectDetailV2,
-  LazyClassicModePage,
-  PageFallback,
-} from './router/routes'
+import { LazyHomeV2, LazyClassicModePage, PageFallback } from './router/routes'
 import './tokens/tokens.css'
 import { LocaleProvider } from './lib/localeContext'
 
@@ -50,6 +44,14 @@ export default function AppV2() {
                 }
               />
               <Route
+                path="cinematic-mode"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <LazyHomeV2 />
+                  </Suspense>
+                }
+              />
+              <Route
                 path="classic-mode"
                 element={
                   <Suspense fallback={<PageFallback />}>
@@ -60,22 +62,6 @@ export default function AppV2() {
               <Route path="editorial-glowup" element={<Navigate to="/classic-mode" replace />} />
               {/* Same OG shell as / via postbuild dist/share/index.html; redirect humans to home */}
               <Route path="share" element={<Navigate to="/" replace />} />
-              <Route
-                path="projects"
-                element={
-                  <Suspense fallback={<PageFallback />}>
-                    <LazyProjectsV2 />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="projects/:slug"
-                element={
-                  <Suspense fallback={<PageFallback />}>
-                    <LazyProjectDetailV2 />
-                  </Suspense>
-                }
-              />
               <Route
                 path="skills-demo"
                 element={

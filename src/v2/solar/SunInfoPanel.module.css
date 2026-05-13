@@ -12,7 +12,7 @@
   justify-content: center;
 
   color: rgba(255, 255, 255, 0.9);
-  font-family: var(--v2-font-body, system-ui, sans-serif);
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
   font-style: italic;
   overflow: hidden;
 }
@@ -47,7 +47,7 @@
 
 .planetName {
   margin: 0;
-  font-family: var(--v2-font-display, system-ui, sans-serif);
+  font-family: var(--v2-font-display, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
   font-size: clamp(1.75rem, 3.1vw, 2.35rem);
   font-weight: 300;
   letter-spacing: -0.02em;
@@ -123,6 +123,15 @@
   max-height: min(82vh, 720px);
 }
 
+/* Uranus — LetsWork actions + contact form (embedded) */
+.cardUranus {
+  max-height: min(82vh, 680px);
+}
+
+.uranusLetsWork {
+  margin-top: 0.65rem;
+}
+
 .caseStudyMock {
   margin-top: 1rem;
   display: flex;
@@ -161,6 +170,7 @@
 
 .phaseText {
   margin: 1.15rem 0 0;
+  font-family: var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif);
   font-size: 1.3rem;
   line-height: 1.92;
   color: rgba(255, 255, 255, 0.86);

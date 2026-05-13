@@ -218,20 +218,20 @@ export async function createMatch(
           {
             label: isEs ? 'Reservo.AI' : 'Reservo.AI',
             sublabel: isEs ? 'Ver código' : 'View source',
-            href: reservoProject?.githubUrl ?? '/projects/reservo-ai',
+            href: reservoProject?.githubUrl ?? '/classic-mode#chapter-reservo',
             variant: 'dark',
           },
           {
             label: isEs ? 'Startup Connect' : 'Startup Connect',
             sublabel: isEs ? 'Ver código' : 'View source',
-            href: project.githubUrl ?? '/projects/startupconnect',
+            href: project.githubUrl ?? '/classic-mode#chapter-startupconnect',
             variant: 'dark',
           },
         ]}
         secondaryAction={{
           label: 'GitHub',
           sublabel: isEs ? 'Ver código' : 'View source',
-          href: project.githubUrl ?? '/projects/startupconnect',
+          href: project.githubUrl ?? '/classic-mode#chapter-startupconnect',
           variant: 'dark',
         }}
       />

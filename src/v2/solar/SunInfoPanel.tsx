@@ -4,7 +4,9 @@ import { useLocale } from '../lib/localeContext'
 import { getPlanetSectionLabel } from './planetSectionLabel'
 import { getPlanetContent } from './planetContent'
 import { getProjectBySlug } from '../data/projects.v2'
+import { contactV2 } from '../data/contact.v2'
 import { getImmersivePlanetCaseStudy } from '../data/immersivePlanetCaseStudy'
+import { LetsWorkTogether } from '../../components/ui/lets-work-section'
 import { PhoneMockVideo } from '../../components/ui/phone-mock-video'
 import { CodeSnippet } from '../../components/ui/code-snippet'
 import styles from './SunInfoPanel.module.css'
@@ -57,7 +59,7 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
       aria-label={`${config.label} information`}
     >
       <section
-        className={`${styles.card} ${project ? styles.cardRich : ''} ${caseStudy ? styles.cardCaseStudy : ''}`}
+        className={`${styles.card} ${project ? styles.cardRich : ''} ${caseStudy ? styles.cardCaseStudy : ''} ${config.id === 'uranus' && !project ? styles.cardUranus : ''}`}
         aria-label="Sun phase information"
       >
         <div className={styles.cardHeader}>
@@ -81,19 +83,64 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
 
         {!project &&
           (narrative.length > 0 ? (
-            config.id === 'uranus' && narrative.length > 1 ? (
-              <>
-                <p className={styles.phaseText}>{narrative[0]}</p>
-                <ul
-                  className={styles.contactBullets}
-                  aria-label={locale === 'es' ? 'Contacto' : 'Contact'}
-                >
-                  {/* static list — index key is safe */}
-                  {narrative.slice(1).map((line, i) => (
-                    <li key={i}>{line}</li>
-                  ))}
-                </ul>
-              </>
+            config.id === 'uranus' ? (
+              <div className={styles.uranusLetsWork}>
+                {narrative.map((paragraph, i) => (
+                  <p key={i} className={styles.phaseText}>
+                    {paragraph}
+                  </p>
+                ))}
+                <LetsWorkTogether
+                  variant="embedded"
+                  locale={locale === 'es' ? 'es' : 'en'}
+                  bookCallHref="https://calendly.com/cnto-jnthn-97/30min"
+                  githubHref={contactV2.github}
+                  linkedinHref={contactV2.linkedin}
+                  copy={
+                    locale === 'es'
+                      ? {
+                          backLabel: 'Regresar',
+                          successLabel: 'Perfecto',
+                          successTitle: 'Conversemos',
+                          bookCallLabel: 'Agendar llamada',
+                          discussLabel: 'Enviar correo',
+                          githubLabel: 'Ver GitHub',
+                          linkedinLabel: 'LinkedIn',
+                          headingLine1: 'Trabajemos',
+                          headingLine2: 'juntos',
+                          description: '',
+                          formTitle: 'Cuéntame sobre tu proyecto',
+                          nameLabel: 'Nombre',
+                          emailLabel: 'Correo',
+                          messageLabel: 'Mensaje',
+                          sendLabel: 'Enviar mensaje',
+                          sendingLabel: 'Enviando...',
+                          formSuccessLabel: 'Mensaje enviado. Te responderé pronto.',
+                          formErrorLabel: 'Algo salió mal. Inténtalo nuevamente.',
+                        }
+                      : {
+                          backLabel: 'Back',
+                          successLabel: 'Perfect',
+                          successTitle: "Let's talk",
+                          bookCallLabel: 'Book a call',
+                          discussLabel: 'Email me',
+                          githubLabel: 'View GitHub',
+                          linkedinLabel: 'LinkedIn',
+                          headingLine1: "Let's work",
+                          headingLine2: 'together',
+                          description: '',
+                          formTitle: 'Tell me about your project',
+                          nameLabel: 'Name',
+                          emailLabel: 'Email',
+                          messageLabel: 'Message',
+                          sendLabel: 'Send message',
+                          sendingLabel: 'Sending...',
+                          formSuccessLabel: 'Message sent. I will get back to you soon.',
+                          formErrorLabel: 'Something went wrong. Please try again.',
+                        }
+                    }
+                  />
+                </div>
             ) : (
               <>
                 {/* static list — index key is safe */}

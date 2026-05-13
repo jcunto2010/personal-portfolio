@@ -29,6 +29,11 @@ interface LetsWorkTogetherProps {
   githubHref?: string
   linkedinHref?: string
   locale?: 'en' | 'es'
+  /**
+   * `embedded` — compact panel (e.g. Uranus overlay): skips hero CTA, opens actions immediately;
+   * optional back control only when the contact form is open.
+   */
+  variant?: 'full' | 'embedded'
 }
 
 const defaultCopy: LetsWorkTogetherCopy = {
@@ -60,10 +65,12 @@ export function LetsWorkTogether({
   githubHref = 'https://github.com/jcunto2010',
   linkedinHref = 'https://www.linkedin.com/in/jonathan-cuntodiaz-41149a1bb',
   locale = 'en',
+  variant = 'full',
 }: LetsWorkTogetherProps) {
+  const isEmbedded = variant === 'embedded'
   const [isHovered, setIsHovered] = useState(false)
-  const [isClicked, setIsClicked] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [isClicked, setIsClicked] = useState(isEmbedded)
+  const [showSuccess, setShowSuccess] = useState(isEmbedded)
   const [hoveredAction, setHoveredAction] = useState<string | null>(null)
   const [showContactForm, setShowContactForm] = useState(false)
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
@@ -102,6 +109,12 @@ export function LetsWorkTogether({
   }
 
   const handleBack = () => {
+    if (isEmbedded && showContactForm) {
+      setShowContactForm(false)
+      setFormStatus('idle')
+      return
+    }
+    if (isEmbedded) return
     setShowSuccess(false)
     setIsClicked(false)
     setHoveredAction(null)
@@ -129,13 +142,233 @@ export function LetsWorkTogether({
     }
   }
 
+  const formClass =
+    isEmbedded
+      ? 'flex w-full flex-col gap-2.5 transition-all duration-500'
+      : 'flex w-[min(92vw,28rem)] flex-col gap-3 transition-all duration-500'
+
+  const pillClass = isEmbedded
+    ? 'relative flex w-full items-center justify-between gap-2 overflow-hidden rounded-full px-4 py-2.5 transition-all duration-500 sm:px-6 sm:py-3'
+    : 'relative flex w-[17rem] sm:w-[19rem] min-[1440px]:w-[22rem] items-center justify-between gap-3 overflow-hidden rounded-full px-6 py-3 transition-all duration-500 sm:px-8 sm:py-4'
+
+  const textareaClass = isEmbedded
+    ? 'min-h-24 resize-none rounded-2xl border border-white/25 bg-white/10 px-4 py-2.5 text-sm text-white caret-white outline-none backdrop-blur-md placeholder:text-white/45 focus:border-white/45 focus:ring-1 focus:ring-white/20'
+    : 'min-h-32 resize-none rounded-2xl border-0 bg-white px-5 py-3 text-sm text-[#070B1A] outline-none placeholder:text-[#070B1A]/45'
+
+  const inputClass = isEmbedded
+    ? 'rounded-2xl border border-white/25 bg-white/10 px-4 py-2.5 text-sm text-white caret-white outline-none backdrop-blur-md placeholder:text-white/45 focus:border-white/45 focus:ring-1 focus:ring-white/20'
+    : 'rounded-2xl border-0 bg-white px-5 py-3 text-sm text-[#070B1A] outline-none placeholder:text-[#070B1A]/45'
+
+  const submitClass = isEmbedded
+    ? 'rounded-full border border-white/35 bg-white/15 px-6 py-3 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-colors duration-300 hover:border-white/50 hover:bg-white/22 disabled:cursor-not-allowed disabled:opacity-60'
+    : 'rounded-full bg-white px-6 py-3 text-sm font-medium text-[#070B1A] transition-colors duration-300 hover:bg-[#070B1A] hover:text-white disabled:cursor-not-allowed disabled:opacity-70'
+
+  const formTitleClass = isEmbedded
+    ? 'text-center text-sm font-medium tracking-wide text-white/90'
+    : 'text-center text-sm font-medium tracking-wide text-white/80'
+
+  const actionList = [
+    { id: 'book', label: copy.bookCallLabel, icon: Calendar, onClick: handleBookCall },
+    { id: 'discuss', label: copy.discussLabel, icon: Mail, onClick: handleDiscuss },
+    { id: 'github', label: copy.githubLabel, icon: Github, onClick: () => openHref(githubHref) },
+    { id: 'linkedin', label: copy.linkedinLabel, icon: Linkedin, onClick: () => openHref(linkedinHref) },
+  ] as const
+
+  const renderFormFields = (
+    <form
+      onSubmit={handleFormSubmit}
+      className={formClass}
+      style={
+        isEmbedded
+          ? undefined
+          : {
+              opacity: showSuccess ? 1 : 0,
+              transform: showSuccess ? 'translateY(0)' : 'translateY(15px)',
+              transitionDelay: '150ms',
+            }
+      }
+    >
+      <p className={formTitleClass}>{copy.formTitle}</p>
+      <input
+        value={formData.name}
+        onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))}
+        className={inputClass}
+        placeholder={copy.nameLabel}
+        minLength={2}
+        maxLength={120}
+        required
+      />
+      <input
+        value={formData.email}
+        onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))}
+        className={inputClass}
+        placeholder={copy.emailLabel}
+        type="email"
+        maxLength={160}
+        required
+      />
+      <textarea
+        value={formData.message}
+        onChange={(event) => setFormData((current) => ({ ...current, message: event.target.value }))}
+        className={textareaClass}
+        placeholder={copy.messageLabel}
+        minLength={10}
+        maxLength={2000}
+        required
+      />
+      <input
+        value={formData.company}
+        onChange={(event) => setFormData((current) => ({ ...current, company: event.target.value }))}
+        className="hidden"
+        tabIndex={-1}
+        autoComplete="off"
+      />
+      <button
+        type="submit"
+        disabled={formStatus === 'submitting'}
+        className={submitClass}
+      >
+        {formStatus === 'submitting' ? copy.sendingLabel : copy.sendLabel}
+      </button>
+      {formStatus === 'success' ? (
+        <p className="text-center text-xs text-emerald-200">{copy.formSuccessLabel}</p>
+      ) : null}
+      {formStatus === 'error' ? <p className="text-center text-xs text-red-200">{copy.formErrorLabel}</p> : null}
+    </form>
+  )
+
+  const renderActionButtons = (embedded: boolean) => (
+    <div className={embedded ? 'flex w-full flex-col items-stretch gap-3' : 'flex flex-col items-center gap-4'}>
+      {actionList.map((action, idx) => {
+        const isButtonHovered = hoveredAction === action.id
+        const Icon = action.icon
+        return (
+          <button
+            key={action.id}
+            type="button"
+            onClick={action.onClick}
+            onMouseEnter={() => setHoveredAction(action.id)}
+            onMouseLeave={() => setHoveredAction(null)}
+            className={
+              embedded
+                ? 'group relative flex w-full justify-start transition-all duration-500 cursor-pointer appearance-none border-0 bg-transparent p-0'
+                : 'group relative flex items-center gap-4 transition-all duration-500 cursor-pointer appearance-none border-0 bg-transparent p-0'
+            }
+            style={{
+              transform: showSuccess
+                ? isButtonHovered
+                  ? 'translateY(0) scale(1.02)'
+                  : 'translateY(0) scale(1)'
+                : 'translateY(15px) scale(1)',
+              opacity: showSuccess ? 1 : 0,
+              transitionDelay: `${150 + idx * 70}ms`,
+              backgroundColor: 'transparent',
+            }}
+          >
+            {!embedded ? (
+              <div
+                className="h-px w-8 bg-border transition-all duration-500 sm:w-12"
+                style={{
+                  transform: isButtonHovered ? 'scaleX(0)' : 'scaleX(1)',
+                  opacity: isButtonHovered ? 0 : 0.5,
+                }}
+              />
+            ) : null}
+
+            <div
+              className={
+                embedded
+                  ? `${pillClass} border border-white/25 bg-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-all duration-300 group-hover:border-white/42 group-hover:bg-white/[0.18]`
+                  : pillClass
+              }
+              style={
+                embedded
+                  ? undefined
+                  : {
+                      backgroundColor: isButtonHovered ? '#070B1A' : '#F5F7FF',
+                      boxShadow: isButtonHovered
+                        ? '0 0 30px rgba(0,0,0,0.1), 0 10px 40px rgba(0,0,0,0.08)'
+                        : 'none',
+                    }
+              }
+            >
+              <Icon
+                className={`size-4 shrink-0 transition-all duration-500 sm:size-5 ${embedded ? 'text-white' : ''}`}
+                strokeWidth={1.5}
+                style={
+                  embedded
+                    ? undefined
+                    : { color: isButtonHovered ? '#F5F7FF' : '#070B1A' }
+                }
+              />
+              <span
+                className={`text-xs font-medium tracking-wide transition-all duration-500 sm:text-sm min-[1440px]:text-base min-[1440px]:text-lg ${embedded ? 'text-white' : ''}`}
+                style={
+                  embedded
+                    ? undefined
+                    : { color: isButtonHovered ? '#F5F7FF' : '#070B1A' }
+                }
+              >
+                {action.label}
+              </span>
+              <ArrowUpRight
+                className={`size-4 shrink-0 transition-all duration-500 sm:size-5 ${embedded ? 'text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5' : ''}`}
+                strokeWidth={1.5}
+                style={
+                  embedded
+                    ? undefined
+                    : {
+                        color: isButtonHovered ? '#F5F7FF' : '#070B1A',
+                        transform: isButtonHovered ? 'translate(3px, -3px) scale(1.1)' : 'translate(0, 0) scale(1)',
+                      }
+                }
+              />
+            </div>
+
+            {!embedded ? (
+              <div
+                className="h-px w-8 bg-border transition-all duration-500 sm:w-12"
+                style={{
+                  transform: isButtonHovered ? 'scaleX(0)' : 'scaleX(1)',
+                  opacity: isButtonHovered ? 0 : 0.5,
+                }}
+              />
+            ) : null}
+          </button>
+        )
+      })}
+    </div>
+  )
+
+  const fontStack = {
+    fontFamily: "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)",
+  }
+
+  if (isEmbedded) {
+    return (
+      <div className="w-full not-italic" style={fontStack}>
+        {showContactForm && (
+          <button
+            type="button"
+            onClick={handleBack}
+            className="mb-3 flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-md transition-colors hover:border-white/35 hover:bg-white/[0.18]"
+          >
+            <ArrowLeft className="size-3.5" strokeWidth={1.8} />
+            {copy.backLabel}
+          </button>
+        )}
+        {!showContactForm && copy.description.trim() ? (
+          <p className="mb-4 text-center text-[13px] leading-relaxed text-white/88">{copy.description}</p>
+        ) : null}
+        {showContactForm ? renderFormFields : renderActionButtons(true)}
+      </div>
+    )
+  }
+
   return (
     <section
       className="flex min-h-screen items-center justify-center px-6 bg-transparent"
-      style={{
-        background: 'transparent',
-        fontFamily: "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)",
-      }}
+      style={{ background: 'transparent', ...fontStack }}
     >
       <div className="relative flex flex-col items-center gap-12">
         <div
@@ -178,173 +411,7 @@ export function LetsWorkTogether({
             </h3>
           </div>
 
-          {showContactForm ? (
-            <form
-              onSubmit={handleFormSubmit}
-              className="flex w-[min(92vw,28rem)] flex-col gap-3 transition-all duration-500"
-              style={{
-                opacity: showSuccess ? 1 : 0,
-                transform: showSuccess ? 'translateY(0)' : 'translateY(15px)',
-                transitionDelay: '150ms',
-              }}
-            >
-              <p className="text-center text-sm font-medium tracking-wide text-white/80">
-                {copy.formTitle}
-              </p>
-              <input
-                value={formData.name}
-                onChange={(event) => setFormData((current) => ({ ...current, name: event.target.value }))}
-                className="rounded-2xl border-0 bg-white px-5 py-3 text-sm text-[#070B1A] outline-none placeholder:text-[#070B1A]/45"
-                placeholder={copy.nameLabel}
-                minLength={2}
-                maxLength={120}
-                required
-              />
-              <input
-                value={formData.email}
-                onChange={(event) => setFormData((current) => ({ ...current, email: event.target.value }))}
-                className="rounded-2xl border-0 bg-white px-5 py-3 text-sm text-[#070B1A] outline-none placeholder:text-[#070B1A]/45"
-                placeholder={copy.emailLabel}
-                type="email"
-                maxLength={160}
-                required
-              />
-              <textarea
-                value={formData.message}
-                onChange={(event) => setFormData((current) => ({ ...current, message: event.target.value }))}
-                className="min-h-32 resize-none rounded-2xl border-0 bg-white px-5 py-3 text-sm text-[#070B1A] outline-none placeholder:text-[#070B1A]/45"
-                placeholder={copy.messageLabel}
-                minLength={10}
-                maxLength={2000}
-                required
-              />
-              <input
-                value={formData.company}
-                onChange={(event) => setFormData((current) => ({ ...current, company: event.target.value }))}
-                className="hidden"
-                tabIndex={-1}
-                autoComplete="off"
-              />
-              <button
-                type="submit"
-                disabled={formStatus === 'submitting'}
-                className="rounded-full bg-white px-6 py-3 text-sm font-medium text-[#070B1A] transition-colors duration-300 hover:bg-[#070B1A] hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {formStatus === 'submitting' ? copy.sendingLabel : copy.sendLabel}
-              </button>
-              {formStatus === 'success' ? (
-                <p className="text-center text-xs text-emerald-200">{copy.formSuccessLabel}</p>
-              ) : null}
-              {formStatus === 'error' ? (
-                <p className="text-center text-xs text-red-200">{copy.formErrorLabel}</p>
-              ) : null}
-            </form>
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-            {[
-              {
-                id: 'book',
-                label: copy.bookCallLabel,
-                icon: Calendar,
-                onClick: handleBookCall,
-              },
-              {
-                id: 'discuss',
-                label: copy.discussLabel,
-                icon: Mail,
-                onClick: handleDiscuss,
-              },
-              {
-                id: 'github',
-                label: copy.githubLabel,
-                icon: Github,
-                onClick: () => openHref(githubHref),
-              },
-              {
-                id: 'linkedin',
-                label: copy.linkedinLabel,
-                icon: Linkedin,
-                onClick: () => openHref(linkedinHref),
-              },
-            ].map((action, idx) => {
-              const isButtonHovered = hoveredAction === action.id
-              const Icon = action.icon
-
-              return (
-                <button
-                  key={action.id}
-                  onClick={action.onClick}
-                  onMouseEnter={() => setHoveredAction(action.id)}
-                  onMouseLeave={() => setHoveredAction(null)}
-                  className="group relative flex items-center gap-4 transition-all duration-500 cursor-pointer appearance-none border-0 bg-transparent p-0"
-                  style={{
-                    transform: showSuccess
-                      ? isButtonHovered
-                        ? 'translateY(0) scale(1.02)'
-                        : 'translateY(0) scale(1)'
-                      : 'translateY(15px) scale(1)',
-                    opacity: showSuccess ? 1 : 0,
-                    transitionDelay: `${150 + idx * 70}ms`,
-                    backgroundColor: 'transparent',
-                  }}
-                >
-                  <div
-                    className="h-px w-8 bg-border transition-all duration-500 sm:w-12"
-                    style={{
-                      transform: isButtonHovered ? 'scaleX(0)' : 'scaleX(1)',
-                      opacity: isButtonHovered ? 0 : 0.5,
-                    }}
-                  />
-
-                  <div
-                    className="relative flex w-[17rem] sm:w-[19rem] min-[1440px]:w-[22rem] items-center justify-between gap-3 overflow-hidden rounded-full px-6 py-3 transition-all duration-500 sm:px-8 sm:py-4"
-                    style={{
-                      backgroundColor: isButtonHovered ? '#070B1A' : '#F5F7FF',
-                      boxShadow: isButtonHovered
-                        ? '0 0 30px rgba(0,0,0,0.1), 0 10px 40px rgba(0,0,0,0.08)'
-                        : 'none',
-                    }}
-                  >
-                    <Icon
-                      className="size-4 transition-all duration-500 sm:size-5"
-                      strokeWidth={1.5}
-                      style={{
-                        color: isButtonHovered ? '#F5F7FF' : '#070B1A',
-                      }}
-                    />
-                    <span
-                      className="text-sm min-[1440px]:text-lg font-medium tracking-wide transition-all duration-500 sm:text-base"
-                      style={{
-                        color: isButtonHovered ? '#F5F7FF' : '#070B1A',
-                      }}
-                    >
-                      {action.label}
-                    </span>
-                    <ArrowUpRight
-                      className="size-4 transition-all duration-500 sm:size-5"
-                      strokeWidth={1.5}
-                      style={{
-                        color: isButtonHovered ? '#F5F7FF' : '#070B1A',
-                        transform: isButtonHovered
-                          ? 'translate(3px, -3px) scale(1.1)'
-                          : 'translate(0, 0) scale(1)',
-                      }}
-                    />
-                  </div>
-
-                  <div
-                    className="h-px w-8 bg-border transition-all duration-500 sm:w-12"
-                    style={{
-                      transform: isButtonHovered ? 'scaleX(0)' : 'scaleX(1)',
-                      opacity: isButtonHovered ? 0 : 0.5,
-                    }}
-                  />
-                </button>
-              )
-            })}
-            </div>
-          )}
-
+          {showContactForm ? renderFormFields : renderActionButtons(false)}
         </div>
 
         <button
@@ -353,9 +420,7 @@ export function LetsWorkTogether({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onClick={handleClick}
-          style={{
-            pointerEvents: isClicked ? 'none' : 'auto',
-          }}
+          style={{ pointerEvents: isClicked ? 'none' : 'auto' }}
           aria-label={`${copy.headingLine1} ${copy.headingLine2}`}
         >
           <div className="flex flex-col items-center gap-6">

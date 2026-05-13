@@ -7,10 +7,11 @@
  * they are surfaced as console warnings with [AXE-WARN] prefix.
  *
  * Pages audited:
- *   - Home V2   (/)
- *   - Projects  (/projects)
- *   - Reservo.AI detail  (/projects/reservo-ai)
- *   - StartupConnect detail  (/projects/startupconnect)
+ *   - Home V2        (/)
+ *
+ * Note: Standalone /projects routes were removed; project content lives in classic-mode
+ * on-page. Axe is not run on /classic-mode until SplitText/GSAP markup satisfies
+ * aria-prohibited-attr on split paragraphs (see AboutTextBlock + SplitText).
  *
  * Non-home URLs append ?e2e=1 so EntryGate stays bypassed under Playwright baseURL resolution.
  *
@@ -71,13 +72,10 @@ function formatViolations(violations: Awaited<ReturnType<typeof auditPage>>['blo
 }
 
 test.describe('Axe accessibility audit — V2', () => {
-  // ── Home V2 ───────────────────────────────────────────────────────────────
-
   test('Home V2 — zero critical/serious Axe violations', async ({ page }) => {
     await page.goto('')
     await page.waitForSelector('#chapter-intro', { timeout: 15000 })
 
-    // Let animations settle so Axe doesn't flag transitional opacity states
     await page.waitForTimeout(1500)
 
     const { blocking } = await auditPage(page)
@@ -85,51 +83,6 @@ test.describe('Axe accessibility audit — V2', () => {
     expect(
       blocking,
       `Critical/serious violations on Home V2:${formatViolations(blocking)}`,
-    ).toHaveLength(0)
-  })
-
-  // ── Projects listing ──────────────────────────────────────────────────────
-
-  test('Projects page — zero critical/serious Axe violations', async ({ page }) => {
-    await page.goto('/projects?e2e=1')
-    await page.waitForSelector('h1, h2', { timeout: 15000 })
-    await page.waitForTimeout(1000)
-
-    const { blocking } = await auditPage(page)
-
-    expect(
-      blocking,
-      `Critical/serious violations on /projects:${formatViolations(blocking)}`,
-    ).toHaveLength(0)
-  })
-
-  // ── Reservo.AI detail ─────────────────────────────────────────────────────
-
-  test('Reservo.AI detail — zero critical/serious Axe violations', async ({ page }) => {
-    await page.goto('/projects/reservo-ai?e2e=1')
-    await page.waitForSelector('h1, h2', { timeout: 15000 })
-    await page.waitForTimeout(1000)
-
-    const { blocking } = await auditPage(page)
-
-    expect(
-      blocking,
-      `Critical/serious violations on /projects/reservo-ai:${formatViolations(blocking)}`,
-    ).toHaveLength(0)
-  })
-
-  // ── StartupConnect detail ─────────────────────────────────────────────────
-
-  test('StartupConnect detail — zero critical/serious Axe violations', async ({ page }) => {
-    await page.goto('/projects/startupconnect?e2e=1')
-    await page.waitForSelector('h1, h2', { timeout: 15000 })
-    await page.waitForTimeout(1000)
-
-    const { blocking } = await auditPage(page)
-
-    expect(
-      blocking,
-      `Critical/serious violations on /projects/startupconnect:${formatViolations(blocking)}`,
     ).toHaveLength(0)
   })
 })

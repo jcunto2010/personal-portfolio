@@ -271,7 +271,7 @@ export function ReservoSection() {
         secondaryAction={{
           label: 'GitHub',
           sublabel: isEs ? 'Ver código' : 'View source',
-          href: project.githubUrl ?? '/projects/reservo-ai',
+          href: project.githubUrl ?? '/classic-mode#chapter-reservo',
           variant: 'dark',
         }}
       />

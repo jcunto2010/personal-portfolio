@@ -1,4 +1,3 @@
-import { contactV2 } from '../data/contact.v2'
 import type { V2Locale } from '../lib/localeContext'
 
 export interface PlanetContent {
@@ -52,11 +51,6 @@ const PLANET_CONTENT_EN: Record<string, PlanetContent> = {
   uranus: {
     body: [
       'Open to frontend roles, mobile development, and product-engineering collaborations where both technical depth and business context matter.',
-      `Email: ${contactV2.email}`,
-      `WhatsApp: ${contactV2.whatsappDisplay}`,
-      `GitHub: ${contactV2.github}`,
-      `LinkedIn: ${contactV2.linkedin}`,
-      `Based in ${contactV2.location}.`,
     ],
   },
   blackhole: {
@@ -115,11 +109,6 @@ const PLANET_CONTENT_ES: Record<string, PlanetContent> = {
   uranus: {
     body: [
       'Abierto a roles frontend, desarrollo mobile y colaboraciones de producto-ingeniería donde tanto la profundidad técnica como el contexto de negocio importan.',
-      `Correo: ${contactV2.email}`,
-      `WhatsApp: ${contactV2.whatsappDisplay}`,
-      `GitHub: ${contactV2.github}`,
-      `LinkedIn: ${contactV2.linkedin}`,
-      `Basado en ${contactV2.location}.`,
     ],
   },
   blackhole: {

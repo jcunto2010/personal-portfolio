@@ -6,10 +6,6 @@ import { lazy } from 'react'
  */
 /** HomeV2Shell wires AppModeProvider, EntryGate, and the audio shell. */
 export const LazyHomeV2 = lazy(() => import('../pages/HomeV2/HomeV2Shell'))
-export const LazyProjectsV2 = lazy(() => import('../pages/ProjectsV2/ProjectsV2'))
-export const LazyProjectDetailV2 = lazy(
-  () => import('../pages/ProjectDetailV2/ProjectDetailV2'),
-)
 export const LazyClassicModePage = lazy(
   () => import('../pages/EditorialGlowup/EditorialGlowupPage'),
 )

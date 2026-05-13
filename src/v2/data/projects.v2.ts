@@ -6,7 +6,7 @@
  */
 
 export interface ProjectV2 {
-  /** URL-safe slug used for /projects/:slug */
+  /** Stable id for `getProjectBySlug` (e.g. reservo-ai, startupconnect) */
   slug: string
   title: string
   tagline: string

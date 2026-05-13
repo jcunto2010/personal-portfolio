@@ -2,7 +2,7 @@
  * T-006 — Home V2 critical-path tests
  *
  * Entry point : http://localhost:5173/?e2e=1
- * Router      : BrowserRouter  →  rutas limpias (/, /projects, …)
+ * Router      : BrowserRouter  →  rutas limpias (/, /classic-mode, …)
  *
  * Covered by this file:
  *   ✓ Home V2 loads without JS error

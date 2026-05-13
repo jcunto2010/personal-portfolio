@@ -41,9 +41,13 @@
  *   the WebGL bundle is never included in the non-immersive code path.
  *
  * [NV] Phase 4: add audio controls HUD (volume slider, mute button).
+ *
+ * Automated tests can open `/cinematic-mode` to skip the Entry Gate and load the
+ * immersive Solar scene (audio off, no fullscreen prompt). Same shell as `/`.
  */
 
-import { Component, lazy, Suspense, useEffect, useState } from 'react'
+import { Component, lazy, Suspense, useEffect, useLayoutEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import { AppModeProvider, useAppMode } from '../../lib/appModeContext'
@@ -181,10 +185,16 @@ class ImmersiveErrorBoundary extends Component<
 function HomeV2Inner() {
   const { mode, audioEnabled, setMode, setAudioEnabled, exitFullscreen } = useAppMode()
   const audio = useAudioShell()
+  const location = useLocation()
+  const isCinematicTestRoute = location.pathname === '/cinematic-mode'
 
   type EntryPhase = 'select' | 'loading' | 'ready'
   const isE2E = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('e2e') === '1'
-  const [entryPhase, setEntryPhase] = useState<EntryPhase>(() => (isE2E ? 'ready' : 'select'))
+  const [entryPhase, setEntryPhase] = useState<EntryPhase>(() => {
+    if (isCinematicTestRoute) return 'loading'
+    if (isE2E) return 'ready'
+    return 'select'
+  })
   const [immersiveSceneReady, setImmersiveSceneReady] = useState(false)
   const [hasEnteredOnce, setHasEnteredOnce] = useState(false)
 
@@ -195,15 +205,23 @@ function HomeV2Inner() {
       ? 'ready'
       : entryPhase
 
-  // E2E bypass: ensure Home content renders immediately (no EntryGate).
+  // `/cinematic-mode`: sync immersive mode before effects so journey loader preloads WebGL (not classic).
+  useLayoutEffect(() => {
+    if (!isCinematicTestRoute) return
+    setMode('immersive')
+    setAudioEnabled(false)
+    setHasEnteredOnce(true)
+  }, [isCinematicTestRoute, setMode, setAudioEnabled])
+
+  // E2E bypass: ensure Home content renders immediately (no EntryGate). Skipped on `/cinematic-mode`.
   useEffect(() => {
-    if (!isE2E) return
+    if (!isE2E || isCinematicTestRoute) return
     setMode('non-immersive')
     setAudioEnabled(false)
     setHasEnteredOnce(true)
     setEntryPhase('ready')
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isE2E])
+  }, [isE2E, isCinematicTestRoute])
 
   // Orquesta la transición select → loading → ready
   // Nota: no depender de `journeyLoader` entero — el snapshot cambia cada render y

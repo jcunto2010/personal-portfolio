@@ -7,8 +7,22 @@ on:
     branches: [main]
 
 jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm audit --audit-level=high
+        # Falla el CI si hay vulnerabilidades HIGH o CRITICAL.
+        # "moderate" y "low" no bloquean — demasiado ruido para un portafolio.
+
   checks:
-    name: Lint · Build · Unit tests · Audit
+    name: Lint · Build · Unit tests
+    needs: audit
     runs-on: ubuntu-latest
 
     steps:
@@ -32,12 +46,6 @@ jobs:
 
       - name: Unit tests
         run: npm run test:unit
-
-      - name: Security audit (high+)
-        # Fails on high or critical vulnerabilities.
-        # If a false positive blocks CI, document the exception in docs/CONVENTIONS.md
-        # and override with: npm audit --audit-level=high --ignore-scripts
-        run: npm audit --audit-level=high
 
   # ──────────────────────────────────────────────────────────────────────────
   # T-005: quality gates — bundle check + Lighthouse CI
