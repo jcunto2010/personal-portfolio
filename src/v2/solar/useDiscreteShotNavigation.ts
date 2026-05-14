@@ -18,8 +18,8 @@
  *   venus    → wheel down → earth    | wheel up → mercury
  *   earth    → wheel down → moon     | wheel up → venus
  *   moon     → wheel down → mars     | wheel up → earth
- *   mars     → wheel down → neptune  | wheel up → moon
- *   neptune  → wheel down → uranus   | wheel up → mars
+ *   mars     → wheel down → neptune | wheel up → moon
+ *   neptune  → wheel down → uranus  | wheel up → mars
  *   uranus   → wheel down → blackhole| wheel up → neptune
  *   blackhole→ wheel up   → uranus (optional; see ALLOW_SCROLL_BACK_FROM_BLACKHOLE_TO_URANUS)
  *            | wheel down → RESET LOOP → sun
@@ -202,7 +202,7 @@ export function useDiscreteShotNavigation(
   }, [])
 
   /**
-   * Cinematic Uranus → Blackhole transition.
+   * Cinematic Uranus → Blackhole transition (outer ice-giant shot pose).
    * Sets isBlackholeCinematic=true and locks input via isTransitioningRef.
    * CameraRig drives blackholeCinematicTRef [0..1] and calls onBlackholeCinematicComplete.
    */

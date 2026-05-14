@@ -30,7 +30,7 @@ interface LetsWorkTogetherProps {
   linkedinHref?: string
   locale?: 'en' | 'es'
   /**
-   * `embedded` — compact panel (e.g. Uranus overlay): skips hero CTA, opens actions immediately;
+   * `embedded` — compact panel (e.g. Neptune contact overlay): skips hero CTA, opens actions immediately;
    * optional back control only when the contact form is open.
    */
   variant?: 'full' | 'embedded'

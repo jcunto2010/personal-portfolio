@@ -10,7 +10,7 @@
  */
 
 import type { AudioDiagnostics } from '../lib/useAudioShell'
-import type { LoadingGroup } from './planetRegistry'
+import type { PlanetId } from './planetRegistry'
 import { PLANET_REGISTRY } from './planetRegistry'
 import type { ShotId } from './shotConfig'
 import type { ShotPhaseId } from './CameraRig'
@@ -30,7 +30,8 @@ export interface DebugHUDProps {
   canvasSize: { width: number; height: number }
   cameraPos: { x: number; y: number; z: number }
   scrollProgress: number
-  activeGroups: Set<LoadingGroup>
+  /** Planet IDs allowed to load GLB assets (progressive unlock). */
+  activePlanetLoads: Set<PlanetId>
   glbLoaded: number
   glbFailed: number
   audioEnabled: boolean
@@ -75,7 +76,7 @@ export function DebugHUD({
   canvasSize,
   cameraPos,
   scrollProgress,
-  activeGroups,
+  activePlanetLoads,
   glbLoaded,
   glbFailed,
   audioEnabled,
@@ -91,8 +92,10 @@ export function DebugHUD({
   discreteTransitionDirection,
   discreteWheelIntent,
 }: DebugHUDProps) {
-  // Rendered planets excludes blackhole and uranus (uranus uses procedural mesh, not GLB pipeline).
-  const renderedPlanetCount = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus').length
+  // Rendered GLB planets: `neptune` uses procedural mesh in Canvas, not this count.
+  const renderedPlanetCount = PLANET_REGISTRY.filter(
+    (p) => p.id !== 'blackhole' && p.id !== 'neptune',
+  ).length
   // Clamp to 0 — glbLoaded can temporarily exceed renderedPlanetCount during async batches.
   const placeholderCount = Math.max(0, renderedPlanetCount - glbLoaded - glbFailed)
 
@@ -211,7 +214,7 @@ export function DebugHUD({
           </td></tr>
 
           {/* Planet loading */}
-          <Row label="activeGroups" value={[...activeGroups].join(', ')} />
+          <Row label="activePlanetLoads" value={[...activePlanetLoads].sort().join(', ')} />
           <Row label="planets (placeholder)" value={String(placeholderCount)} warn={placeholderCount < 0} />
           <Row label="GLB loaded" value={`${glbLoaded} / ${renderedPlanetCount}`} />
           <Row label="GLB failed" value={String(glbFailed)} warn={glbFailed > 0} />

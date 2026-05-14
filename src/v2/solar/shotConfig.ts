@@ -366,6 +366,7 @@ const MARS_SHOT: ShotConfig = {
 //   Use smaller offset: lookAt.x = -20 + 1.2 = -18.8
 //   depth ≈ √((−18.8+17.2)²+0.16+7.84) = √(2.56+0.16+7.84) ≈ √10.56 ≈ 3.25u
 //   angular = atan(1.2/3.25) ≈ 20.3°  → 50% - 27% = 23% from right = 77% from left  ✓ left side
+// ── Neptune shot — inner ice giant slot; VISUAL: procedural Uranus (tight LEFT framing)
 const NEPTUNE_SHOT: ShotConfig = {
   id:      'neptune',
   planetId: 'neptune',
@@ -375,8 +376,10 @@ const NEPTUNE_SHOT: ShotConfig = {
   holdStart:            0.76,
   holdEnd:              0.81,
   exitStart:            0.81,
-  cameraPosition: [-17.2, 1.4, -272.2],
-  lookAt:         [-17.8, 1.0, -275.0],
+  // Pulled back vs legacy Neptune-GLB framing: procedural sphere ~1.48u (matches old ~1.5u sphere fill)
+  // Slight +X on camera keeps the planet disk in the left third with panel space on the right.
+  cameraPosition: [-16.35, 1.48, -270.95],
+  lookAt:         [-18.4, 1.0, -275.0],
 }
 
 // ── Uranus shot ────────────────────────────────────────────────────────────────
@@ -388,34 +391,12 @@ const NEPTUNE_SHOT: ShotConfig = {
 //   Rings  (Ring_3_0):         radius = 1000  native units, doubleSided=true, flat in XY plane (Z≈0)
 //   normScale = 0.001000  (dominant axis = 2000 native units)
 //
-// With scale=9.0:
-//   Sphere world radius  = 441.1 × 0.001 × 9.0 ≈ 3.97u
-//   Ring   world radius  = 1000  × 0.001 × 9.0 = 9.0u
+// With scale=18.0 (3× the Neptune-slot GLB scale):
+//   Sphere world radius  = 441.1 × 0.001 × 18.0 ≈ 7.94u
+//   Ring   world radius  = 1000  × 0.001 × 18.0 = 18.0u
 //
-// FOV: 45° vertical  →  ~75° horizontal at 16:9
-//
-// COMPOSITION: Uranus SPHERE fills ~90% of frame height, RIGHT SIDE of screen.
-// Uranus = Contact / final approach — last station before closure.
-// Laterality: Uranus = RIGHT side (camera to the LEFT of Uranus, X=16 vs X=22).
-// ─────────────────────────────────────────────────────────────────────────────
-//
-// TARGET vertical fill = 90% of frame height → sphere fills 90% of FOV45
-//   fill_angle = 0.90 × 45° = 40.5°  →  half_angle = 20.25°
-//   required dist = sphR / tan(20.25°) = 4.0 / 0.369 ≈ 10.8u
-//
-// Camera framing for Uranus:
-//   Camera at [16, -1, -319.5], Uranus at [22, -1, -328].
-//   Δ cam→uranus = [-6, 0, -8.5], dist ≈ 10.4u  ✓ ~90% fill height
-//
-//   To place Uranus on the RIGHT 50% of the frame, the lookAt must be shifted
-//   LEFT of Uranus so the camera "looks past" the left side of the screen,
-//   pushing Uranus into the right half.
-//
-//   FOV_h at 16:9 ≈ 75°. Half-frame horizontal = 37.5°.
-//   Right-half centre = 75% from left = offset of +18.75° from frame centre.
-//   At dist 10.4u: lateral shift needed ≈ 10.4 × tan(18.75°) ≈ 3.5u to the LEFT.
-//   lookAt.x = 22 - 3.5 ≈ 18.5  (shift left so Uranus drifts right in frame)
-//   lookAt = [18.5, -1, -328]
+// Framing: camera ~19u from planet keeps the sphere within ~45° vertical FOV; lookAt.x
+// well left of centre so Neptune sits on the RIGHT side of the frame.
 const URANUS_SHOT: ShotConfig = {
   id:      'uranus',
   planetId: 'uranus',
@@ -425,8 +406,8 @@ const URANUS_SHOT: ShotConfig = {
   holdStart:            0.88,
   holdEnd:              0.93,
   exitStart:            0.93,
-  cameraPosition: [16.0, -1.0, -319.5],
-  lookAt:         [18.5, -1.0, -328.0],
+  cameraPosition: [10.9, -1.0, -312.3],
+  lookAt:         [13.0, -1.0, -328.0],
 }
 
 // ── Blackhole shot ─────────────────────────────────────────────────────────────
@@ -493,7 +474,8 @@ const BLACKHOLE_SHOT: ShotConfig = {
 }
 
 // ── Shot registry ─────────────────────────────────────────────────────────────
-// All discrete stations: Sun → Mercury → Venus → Earth → Moon → Mars → Neptune → Uranus → Blackhole
+// All discrete stations: Sun → … → Mars → Neptune → Uranus → Blackhole
+// (Orbital distance: inner ice giant `neptune` id before outer `uranus` id — matches 3D positions.)
 export const SHOT_REGISTRY: ShotConfig[] = [SUN_SHOT, MERCURY_SHOT, VENUS_SHOT, EARTH_SHOT, MOON_SHOT, MARS_SHOT, NEPTUNE_SHOT, URANUS_SHOT, BLACKHOLE_SHOT]
 
 export const SHOT_MAP = new Map<ShotId, ShotConfig>(

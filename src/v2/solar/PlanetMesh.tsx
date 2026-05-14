@@ -1,8 +1,7 @@
 /**
  * PlanetMesh — planets with GLB auto-normalisation.
  *
- * All planets with GLBs (sun, mercury, venus, earth, moon, mars, neptune;
- * uranus and blackhole are handled outside this component) use the same path:
+ * All planets with GLBs (see `planetRegistry.modelPath`; inner ice giant is procedural).
  *
  *   outer group  → world position + artisticScale (lerped for hover)
  *   inner group  → bounding-box centring offset + normScale (from computeNormParams)
@@ -17,7 +16,7 @@ import type { ReactNode } from 'react'
 import { useGLTFV2 } from './useGLTFV2'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import type { PlanetConfig, LoadingGroup } from './planetRegistry'
+import type { PlanetConfig, PlanetId } from './planetRegistry'
 import { computeNormParams, disableFrustumCulling } from './glbNormalization'
 
 const HOVER_SCALE_FACTOR = 1.08
@@ -184,12 +183,18 @@ class GLBErrorBoundary extends Component<GLBErrorBoundaryProps, ErrorBoundarySta
 
 export interface PlanetMeshProps {
   config: PlanetConfig
-  activeGroups: Set<LoadingGroup>
+  /** Planet IDs whose GLB may mount (progressive loading). */
+  allowedPlanetLoads: Set<PlanetId>
   onPlanetClick?: (config: PlanetConfig) => void
   onGlbLoaded?: () => void
 }
 
-export function PlanetMesh({ config, activeGroups, onPlanetClick, onGlbLoaded }: PlanetMeshProps) {
+export function PlanetMesh({
+  config,
+  allowedPlanetLoads,
+  onPlanetClick,
+  onGlbLoaded,
+}: PlanetMeshProps) {
   const handleClick = onPlanetClick ? () => onPlanetClick(config) : undefined
   const hitRadius   = config.scale * 1.35
 
@@ -204,7 +209,7 @@ export function PlanetMesh({ config, activeGroups, onPlanetClick, onGlbLoaded }:
     />
   )
 
-  if (!activeGroups.has(config.loadingGroup)) return fallback
+  if (!allowedPlanetLoads.has(config.id)) return fallback
 
   return (
     <GLBErrorBoundary fallback={fallback}>

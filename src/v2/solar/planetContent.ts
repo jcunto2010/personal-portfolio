@@ -56,7 +56,7 @@ const PLANET_CONTENT_EN: Record<string, PlanetContent> = {
   blackhole: {
     body: [
       "You've crossed the event horizon — there's no going back, only forward.",
-      "If something you saw here sparked an idea, a question, or an opportunity: that's exactly the kind of gravity worth following. Reach out via Uranus, or find me on LinkedIn and GitHub.",
+      "If something you saw here sparked an idea, a question, or an opportunity: that's exactly the kind of gravity worth following. Reach out via Neptune, or find me on LinkedIn and GitHub.",
       "The journey resets from the Sun — but the conversation doesn't have to.",
     ],
   },
@@ -114,7 +114,7 @@ const PLANET_CONTENT_ES: Record<string, PlanetContent> = {
   blackhole: {
     body: [
       'Cruzaste el horizonte de eventos — ya no hay vuelta atrás, solo hacia adelante.',
-      'Si algo de lo que viste aquí generó una idea, una pregunta o una oportunidad: esa es exactamente la clase de gravedad que vale la pena seguir. Escríbeme desde Urano, o encuéntrame en LinkedIn y GitHub.',
+      'Si algo de lo que viste aquí generó una idea, una pregunta o una oportunidad: esa es exactamente la clase de gravedad que vale la pena seguir. Escríbeme desde Neptuno, o encuéntrame en LinkedIn y GitHub.',
       'El viaje reinicia desde el Sol — pero la conversación no tiene por qué hacerlo.',
     ],
   },

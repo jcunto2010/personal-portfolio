@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PlanetConfig } from './planetRegistry'
 import { useLocale } from '../lib/localeContext'
 import { getPlanetSectionLabel } from './planetSectionLabel'
+import { getPlanetDisplayName } from './planetDisplayName'
 import { getPlanetContent } from './planetContent'
 import { getProjectBySlug } from '../data/projects.v2'
 import { contactV2 } from '../data/contact.v2'
@@ -53,18 +54,22 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
 
   if (!open) return null
 
+  const displayName = getPlanetDisplayName(config.id, locale)
+
   return (
     <aside
       className={`${styles.panel} ${align === 'left' ? styles.panelLeft : styles.panelRight}`}
-      aria-label={`${config.label} information`}
+      aria-label={
+        locale === 'es' ? `Información de ${displayName}` : `${displayName} information`
+      }
     >
       <section
-        className={`${styles.card} ${project ? styles.cardRich : ''} ${caseStudy ? styles.cardCaseStudy : ''} ${config.id === 'uranus' && !project ? styles.cardUranus : ''}`}
+        className={`${styles.card} ${project ? styles.cardRich : ''} ${caseStudy ? styles.cardCaseStudy : ''} ${config.section === 'Contact' && !project ? styles.cardUranus : ''}`}
         aria-label="Sun phase information"
       >
         <div className={styles.cardHeader}>
           <div className={styles.titleBlock}>
-            <h2 className={styles.planetName}>{config.label}</h2>
+            <h2 className={styles.planetName}>{displayName}</h2>
             <p className={styles.portfolioPhase}>
               <span className={styles.dot} aria-hidden="true" style={{ background: config.accentColor }} />
               {getPlanetSectionLabel(config.id, locale)}
@@ -75,7 +80,9 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
             type="button"
             className={styles.closeBtn}
             onClick={onClose}
-            aria-label={locale === 'es' ? 'Cerrar panel de información' : 'Close Sun info panel'}
+            aria-label={
+              locale === 'es' ? `Cerrar información de ${displayName}` : `Close ${displayName} info panel`
+            }
           >
             ✕
           </button>
@@ -83,7 +90,7 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
 
         {!project &&
           (narrative.length > 0 ? (
-            config.id === 'uranus' ? (
+            config.section === 'Contact' ? (
               <div className={styles.uranusLetsWork}>
                 {narrative.map((paragraph, i) => (
                   <p key={i} className={styles.phaseText}>
@@ -153,7 +160,7 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
             )
           ) : (
             <p className={styles.phaseText}>
-              {config.label} — {getPlanetSectionLabel(config.id, locale)}
+              {displayName} — {getPlanetSectionLabel(config.id, locale)}
             </p>
           ))}
 

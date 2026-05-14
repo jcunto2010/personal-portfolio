@@ -24,6 +24,7 @@ import { getPlanetContent } from './planetContent'
 import styles from './PlanetOverlay.module.css'
 import { useLocale } from '../lib/localeContext'
 import { getPlanetSectionLabel } from './planetSectionLabel'
+import { getPlanetDisplayName } from './planetDisplayName'
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const labelId = `planet-overlay-title-${config.id}`
   const { locale } = useLocale()
+  const displayName = getPlanetDisplayName(config.id, locale)
 
   // Focus close button on mount
   useEffect(() => {
@@ -52,7 +54,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
   }, [onClose])
 
   const content = getPlanetContent(config.id, locale) ?? {
-    body: [`${config.label} — ${config.section}`],
+    body: [`${displayName} — ${getPlanetSectionLabel(config.id, locale)}`],
   }
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -80,7 +82,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
               aria-hidden="true"
             />
             <h2 id={labelId} className={styles.planetName}>
-              {config.label}
+              {displayName}
             </h2>
             <p className={styles.sectionLabel}>{getPlanetSectionLabel(config.id, locale)}</p>
           </div>
@@ -90,7 +92,9 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
             type="button"
             className={styles.closeBtn}
             onClick={onClose}
-            aria-label={`Close ${config.label} panel`}
+            aria-label={
+              locale === 'es' ? `Cerrar panel de ${displayName}` : `Close ${displayName} panel`
+            }
           >
             ✕
           </button>
@@ -99,27 +103,9 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
         <hr className={styles.divider} />
 
         <div className={styles.body}>
-          {config.id === 'uranus' && content.body.length > 1 ? (
-            <>
-              <p>{content.body[0]}</p>
-              {/* static list — index key is safe */}
-              <ul
-                className={styles.contactBullets}
-                aria-label={locale === 'es' ? 'Contacto' : 'Contact'}
-              >
-                {content.body.slice(1).map((line, i) => (
-                  <li key={i}>{line}</li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <>
-              {/* static list — index key is safe */}
-              {content.body.map((paragraph, i) => (
-                <p key={i}>{paragraph}</p>
-              ))}
-            </>
-          )}
+          {content.body.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
+          ))}
         </div>
       </div>
     </div>

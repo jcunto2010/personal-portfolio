@@ -14,8 +14,8 @@
  * Earth       → Projects Hub
  * Moon        → Reservo.AI  (orbits Earth, same orbital shell)
  * Mars        → StartupConnect
- * Neptune     → Experience
- * Uranus      → Contact / final approach
+ * Slot `neptune` (card: Uranus) → Experience — procedural cyan ice-giant mesh
+ * Slot `uranus`  (card: Neptune) → Contact — Neptune GLB mesh
  * Blackhole   → Grand Finale / reset loop to start
  *
  * Positions are in "scene units" along the Z-axis (camera travels +Z → −Z).
@@ -27,13 +27,12 @@
  *     here are intentional artistic choices, not physical accuracy.
  *   - Moon is smaller than Earth; Sun is the largest.
  *
- * Loading groups (progressive — driven by discrete shot navigation in SolarScene)
+ * Loading groups (legacy metadata on `PlanetConfig`; runtime unlocking uses
+ * `useAllowedPlanetLoads` in SolarScene — per-planet `Set<PlanetId>`).
  * ────────────────────────────────────────────────────────────────────────────────
  * group "initial" : sun, mercury, venus, earth — loaded on immersive entry
- * group "mid"     : moon, mars — activated when discrete journey reaches earth
- *                    (prefetch while still on earth so Luna/Marte are ready in time)
- * group "deep"    : neptune — activated when discrete journey reaches mars
- * Blackhole has no GLB (procedural shader). Uranus uses a procedural mesh, not GLB.
+ * Further prefetch (see `useAllowedPlanetLoads`): Mercury→moon, Venus→mars, Earth→inner ice;
+ *   from **Mars** onward the Neptune GLB (`uranus` slot) mounts for a distant read, avoiding a pop at the inner-ice shot.
  *
  * Phase subdivision per planet (scroll progress, normalised 0..1)
  * ───────────────────────────────────────────────────────────────
@@ -62,8 +61,8 @@ export type PlanetId =
   | 'blackhole'
 
 /**
- * Which progressive loading wave this body belongs to.
- * See file-level doc for the full strategy.
+ * Legacy wave label on each planet (initial / mid / deep). Runtime GLB mounting is gated by
+ * `useAllowedPlanetLoads` in SolarScene via `PlanetConfig.id`, not this field alone.
  */
 export type LoadingGroup = 'initial' | 'mid' | 'deep'
 
@@ -324,8 +323,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   // ── Group 3: deep — loaded only when scroll progress ≥ DEEP_LOAD_THRESHOLD ──
   {
     id: 'neptune',
-    label: 'Neptune',
+    label: 'Uranus',
     section: 'Experience',
+    /** Procedural Uranus-style mesh at this slot (visual). GLB path kept for asset preload only. */
     modelPath: '/assets/solar/models/neptune.glb',
     // LEFT lane (-X). Camera hold pose is on the right.
     position: [-20, 1.0, -275],
@@ -341,7 +341,7 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
     // world radius = fallbackRadius × scale). Match the sphere vs ring-bbox
     // fraction (~0.25) so the placeholder matches the GLB sphere, not the ring extent.
     fallbackRadius: 0.25,
-    accentColor: '#5C6BC0',
+    accentColor: '#80CBC4',
     loadingGroup: 'deep',
     focusStart:   0.68,
     approachStart: 0.68,
@@ -358,34 +358,32 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   },
   {
     id: 'uranus',
-    label: 'Uranus',
+    label: 'Neptune',
     section: 'Contact',
-    /** Procedural mesh + textures in SolarScene — no GLB in immersive. */
+    /** SolarScene draws neptune.glb at this slot (visual). */
     modelPath: '',
     // RIGHT lane (+X). Camera hold pose is on the left.
     position: [22, -1.0, -328],
     // New 3MB GLB: normScale=0.001, dominant axis = 2000 native units.
-    // scale=9.0 → sphere world radius = 441.1 × 0.001 × 9.0 ≈ 3.97u
-    //           → ring  world radius  = 1000  × 0.001 × 9.0 = 9.0u
-    scale: 9.0,
+    // scale=18 (3× legacy 6) after aesthetic Neptune-GLB swap at this slot.
+    // Sphere world radius = 441.1 × 0.001 × 18.0 ≈ 7.94u
+    scale: 18.0,
     normalizedRadiusTarget: 1,
     // fallbackRadius in NORMALISED space.
     // SuspenseFallbackSphere/FallbackSphere: effective world radius = fallbackRadius × scale.
-    // 1.0 × 9.0 = 9.0u — clearly visible teal sphere while GLB loads.
+    // 1.0 × 18.0 — placeholder matches GLB sphere scale while loading.
     fallbackRadius: 1.0,
-    accentColor: '#80CBC4',
+    accentColor: '#5C6BC0',
     loadingGroup: 'deep',
     focusStart:   0.80,
     approachStart: 0.80,
     settleStart:   0.84,
     departStart:   0.88,
     focusEnd:     0.91,
-    // Offsets derived from URANUS_SHOT: cam=[16,-1,-319.5], look=[22,-1,-328], pos=[22,-1,-328].
-    // cameraOffset = cam - pos = [-6, 0, 8.5]
-    // lookAtOffset = look - pos = [0, 0, 0]
-    cameraOffsetX: -6.0,
+    // URANUS_SHOT: cam − pos ≈ [−11.1, 0, 15.7] (pull back for scale-18 Neptune GLB)
+    cameraOffsetX: -11.1,
     cameraOffsetY: 0.0,
-    cameraOffsetZ: 8.5,
+    cameraOffsetZ: 15.7,
     lookAtOffsetX: 0.0,
     lookAtOffsetY: 0.0,
     lookAtOffsetZ: 0.0,

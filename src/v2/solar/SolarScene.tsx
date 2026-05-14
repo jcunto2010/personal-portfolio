@@ -25,7 +25,7 @@ import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 import { useGLTFV2 } from './useGLTFV2'
 import { getPlanetIndexById, getStableActivePlanet, PLANET_MAP, PLANET_REGISTRY, SUN_GLB_URL } from './planetRegistry'
-import type { LoadingGroup, PlanetConfig, PlanetId } from './planetRegistry'
+import type { PlanetConfig, PlanetId } from './planetRegistry'
 import { PlanetMesh } from './PlanetMesh'
 import { PlanetOverlay } from './PlanetOverlay'
 import { SunInfoPanel } from './SunInfoPanel'
@@ -106,9 +106,11 @@ const FINALE_THRESHOLD     = 0.90
  */
 const INFO_PANEL_HOLD_OPEN_MS = 0
 
-/** Discrete journey indices for progressive GLB groups (scroll stays at 0 in discrete mode). */
-const EARTH_SHOT_REGISTRY_INDEX = getPlanetIndexById('earth')
-const MARS_SHOT_REGISTRY_INDEX = getPlanetIndexById('mars')
+/** Discrete journey indices for progressive GLB unlock (monotonic peak along `PLANET_REGISTRY` shot order). */
+const PREFETCH_MOON_AFTER_MERcury_SHOT = getPlanetIndexById('mercury')
+const PREFETCH_MARS_AFTER_VENUS_SHOT = getPlanetIndexById('venus')
+const PREFETCH_INNER_ICE_GIANT_AFTER_EARTH_SHOT = getPlanetIndexById('earth')
+const PREFETCH_OUTER_ICE_GIANT_AFTER_MARS_SHOT = getPlanetIndexById('mars')
 // Matches INTRO_START in CameraRig — CameraRig snaps to this on frame 1.
 // Matches INTRO_START in CameraRig.tsx — CameraRig snaps to this on frame 1.
 const INITIAL_CAMERA_POSITION: [number, number, number] = [36.0, 28.0, 44.0]
@@ -238,11 +240,24 @@ function NebulaBackground({ visible }: { visible: boolean }) {
 //   tex1.png  → clouds baseColor  (material "material_1", BLEND)
 //   tex2.jpg  → clouds normalMap  (material "material_1")
 //
-// Uranus position: [22, -1, -328]  (matches planetRegistry + shotConfig)
-// Sphere world radius: 4.0u
+// Procedural "Uranus look" at the `neptune` slot — world radius tuned to match ~Neptune GLB sphere
+// (~1.5u) at NEPTUNE_SHOT distance so framing matches the original Neptune composition (left third).
+const URANUS_SPHERE_R = 1.48
 
-const URANUS_POS: [number, number, number] = [22, -1.0, -328]
-const URANUS_SPHERE_R = 4.0
+/** Draw Neptune's GLB at the `uranus` slot while keeping IDs and camera shots unchanged (visual-only swap). */
+const AESTHETIC_NEPTUNE_GLB_AT_URANUS_SLOT = '/assets/solar/models/neptune.glb'
+
+function meshConfigForPlanet(config: PlanetConfig): PlanetConfig {
+  if (config.id !== 'uranus') return config
+  return {
+    ...config,
+    modelPath: AESTHETIC_NEPTUNE_GLB_AT_URANUS_SLOT,
+    // 3× prior 6.0 — Neptune GLB dominates the frame at uranus shot (experience).
+    scale: 18.0,
+    fallbackRadius: 0.25,
+    rotationSpeed: 0.10,
+  }
+}
 
 /** Warms TextureLoader cache when `deep` is active (same window as Neptune GLB). */
 function UranusTexturePreload({ active }: { active: boolean }) {
@@ -253,13 +268,21 @@ function UranusTexturePreload({ active }: { active: boolean }) {
   return null
 }
 
-function UranusTexturedInner({ visible, onClick }: { visible: boolean; onClick?: () => void }) {
+function UranusTexturedInner({
+  position,
+  visible,
+  onClick,
+}: {
+  position: [number, number, number]
+  visible: boolean
+  onClick?: () => void
+}) {
   const [sphereMap, cloudsMap, cloudsNormal] = useTexture([...URANUS_DETAIL_TEXTURE_URLS])
 
   if (!visible) return null
 
   return (
-    <group position={URANUS_POS}>
+    <group position={position}>
       {/* ── Planet body — textured sphere from GLB material "material" ── */}
       <mesh
         frustumCulled={false}
@@ -295,21 +318,23 @@ function UranusTexturedInner({ visible, onClick }: { visible: boolean; onClick?:
 
 /**
  * Mounts `useTexture` once `warm` is true (journey ready + deep group), so GPU upload
- * does not coincide with the Neptune→Uranus camera move. `visible` only toggles meshes.
+ * does not coincide with the Mars→Uranus camera move. `visible` only toggles meshes.
  */
 function UranusGuaranteedMesh({
   warm,
   visible,
+  worldPosition,
   onClick,
 }: {
   warm: boolean
   visible: boolean
+  worldPosition: [number, number, number]
   onClick?: () => void
 }) {
   if (!warm) return null
   return (
     <Suspense fallback={null}>
-      <UranusTexturedInner visible={visible} onClick={onClick} />
+      <UranusTexturedInner position={worldPosition} visible={visible} onClick={onClick} />
     </Suspense>
   )
 }
@@ -443,14 +468,15 @@ if (!IS_SAFE) {
 }
 
 // ── Progressive loader (discrete shots — scroll container stays at top) ───────
-// Peak index only increases: after unlocking mid/deep once, reset-to-Sun does not
-// unmount GLBs already resolved (matches prior Set-based behaviour).
+// On immersive entry: only Sun–Earth GLBs. Each outward leg prefetches the next asset so
+// Mars/Moon/Ice giants are not all fetched when leaving Earth (prior `mid`+`deep` bundle).
+// Peak index only increases; reset-to-Sun does not unload GLBs already resolved.
 
-function useProgressiveLoader(
+function useAllowedPlanetLoads(
   currentShotId: PlanetId,
   targetShotId: PlanetId | null,
   safe: boolean,
-): Set<LoadingGroup> {
+): Set<PlanetId> {
   const snapshotMax = useMemo(() => {
     if (safe) return 0
     const cur = getPlanetIndexById(currentShotId)
@@ -459,19 +485,20 @@ function useProgressiveLoader(
   }, [currentShotId, targetShotId, safe])
 
   const [peakIdx, setPeakIdx] = useState(0)
-  // Monotonic peak: adjust state during render when the discrete journey advances
-  // (avoids setState in an effect; reset-to-sun keeps prior peak so mid/deep stay unlocked).
   if (snapshotMax > peakIdx) {
     setPeakIdx(snapshotMax)
   }
   const maxIdx = Math.max(peakIdx, snapshotMax)
 
   return useMemo(() => {
-    const groups = new Set<LoadingGroup>(['initial'])
-    if (safe) return groups
-    if (maxIdx >= EARTH_SHOT_REGISTRY_INDEX) groups.add('mid')
-    if (maxIdx >= MARS_SHOT_REGISTRY_INDEX) groups.add('deep')
-    return groups
+    const base: PlanetId[] = ['sun', 'mercury', 'venus', 'earth']
+    if (safe) return new Set<PlanetId>(base)
+    const allowed = new Set<PlanetId>(base)
+    if (maxIdx >= PREFETCH_MOON_AFTER_MERcury_SHOT) allowed.add('moon')
+    if (maxIdx >= PREFETCH_MARS_AFTER_VENUS_SHOT) allowed.add('mars')
+    if (maxIdx >= PREFETCH_INNER_ICE_GIANT_AFTER_EARTH_SHOT) allowed.add('neptune')
+    if (maxIdx >= PREFETCH_OUTER_ICE_GIANT_AFTER_MARS_SHOT) allowed.add('uranus')
+    return allowed
   }, [maxIdx, safe])
 }
 
@@ -674,14 +701,14 @@ function SolarSceneWebGL({
     onBlackholeResetPhaseChange,
   } = useDiscreteShotNavigation(scrollContainerRef)
 
-  const activeGroups = useProgressiveLoader(discreteCurrentShotId, discreteTargetShotId, IS_SAFE)
+  const allowedPlanetLoads = useAllowedPlanetLoads(discreteCurrentShotId, discreteTargetShotId, IS_SAFE)
 
   // Read cinematic T each frame for the DOM overlay (only active during cinematic)
   const cinematicT = useCinematicT(blackholeCinematicTRef, isBlackholeCinematic)
   const resetCinematicT = useCinematicT(blackholeResetTRef, isBlackholeResetting)
 
   // ── Discrete path: lock scroll container at scrollTop=0 ──────────────────────
-  // The discrete system controls ALL shots (sun → uranus). While it is active,
+  // The discrete system controls ALL shots (sun → blackhole). While it is active,
   // the legacy scroll-progress must stay at 0 so useShotNavigation never reports
   // a contradictory currentShot. We do this by clamping scrollTop to 0 on every
   // scroll event that leaks through (e.g. small wheel movements below the intent
@@ -696,10 +723,13 @@ function SolarSceneWebGL({
     return () => el.removeEventListener('scroll', lockScroll)
   }, [scrollContainerRef])
 
-  // Blackhole and Uranus excluded from the GLB pipeline.
-  // Uranus: replaced by UranusGuaranteedMesh (procedural textured mesh).
-  // Blackhole: procedural shader (BlackholeShaderMesh), only when its shot is active.
-  const RENDERED_PLANETS = PLANET_REGISTRY.filter((p) => p.id !== 'blackhole' && p.id !== 'uranus')
+  // `neptune` id: procedural Uranus-style mesh (no PlanetMesh). `uranus` id: Neptune GLB via meshConfigForPlanet swap.
+  const RENDERED_PLANETS = PLANET_REGISTRY.filter(
+    (p) =>
+      p.id !== 'blackhole' &&
+      p.id !== 'neptune' &&
+      (p.modelPath.length > 0 || p.id === 'uranus'),
+  )
 
   // Blackhole shader visibility rules (same as former GLB gating):
   //   - Normal navigation: show when it is the current or target shot.
@@ -720,11 +750,39 @@ function SolarSceneWebGL({
     !isBlackholeCinematic &&
     !isBlackholeResetting
 
-  const URANUS_VISIBLE =
-    !isBlackholeCinematic &&
-    (discreteCurrentShotId === 'uranus' ||
-      discreteTargetShotId   === 'uranus' ||
-      (discreteCurrentShotId === 'neptune' && discreteIsTransitioning))
+  /** Same sync pattern as CameraRig: ref flips synchronously in startBlackholeCinematic before React re-renders. */
+  const inBlackholeCinematicActive =
+    isBlackholeCinematic || (isBlackholeCinematicRef?.current ?? false)
+
+  /**
+   * Procedural inner ice giant (`neptune` slot) — only at its hold / when transitioning to-from it.
+   * Not shown from Mars (Neptune GLB provides the distant cue there).
+   */
+  const innerIceGiantProceduralVisible =
+    !inBlackholeCinematicActive &&
+    !isBlackholeResetting &&
+    discreteTargetShotId !== 'blackhole' &&
+    discreteCurrentShotId !== 'blackhole' &&
+    (discreteCurrentShotId === 'neptune' ||
+      discreteTargetShotId === 'neptune' ||
+      discreteCurrentShotId === 'uranus' ||
+      discreteTargetShotId === 'uranus')
+
+  /**
+   * Neptune GLB (`uranus` slot): distant backdrop from **Mars** onward, then full shot on outer ice giant.
+   * Loads with `allowedPlanetLoads` at Mars so the mesh is already mounted before the inner-ice transition (no “pop”).
+   */
+  const outerNeptuneGlbVisible =
+    !inBlackholeCinematicActive &&
+    !isBlackholeResetting &&
+    discreteTargetShotId !== 'blackhole' &&
+    discreteCurrentShotId !== 'blackhole' &&
+    (discreteCurrentShotId === 'mars' ||
+      discreteTargetShotId === 'mars' ||
+      discreteCurrentShotId === 'neptune' ||
+      discreteTargetShotId === 'neptune' ||
+      discreteCurrentShotId === 'uranus' ||
+      discreteTargetShotId === 'uranus')
 
   const [activePlanet, setActivePlanet] = useState<PlanetConfig | null>(null)
   const [sunPanelVisible, setSunPanelVisible] = useState(false)
@@ -772,7 +830,7 @@ function SolarSceneWebGL({
   const [cameraPhase, setCameraPhase]     = useState<CameraPhaseId>('intro')
   const [shotPhase, setShotPhase]         = useState<ShotPhaseId>('sun')
   // Gate: how many GLBs in the 'initial' group need to load before we start the journey.
-  // Must use RENDERED_PLANETS (excludes blackhole + uranus) — uranus uses a procedural
+  // Must use RENDERED_PLANETS (excludes `neptune` — procedural ice giant — and blackhole).
   // mesh and never fires onGlbLoaded, so counting it would stall the gate forever.
   const initialGroupSize = RENDERED_PLANETS.filter((p) => p.loadingGroup === 'initial').length
   const [journeyReady, setJourneyReady]   = useState(IS_SAFE) // safe mode skips GLB gate
@@ -1475,30 +1533,26 @@ function SolarSceneWebGL({
 
               {/* Uranus detail textures — preload + warm when deep group is active (aligned with Neptune GLB). */}
               <UranusTexturePreload
-                active={!IS_SAFE && journeyReady && activeGroups.has('deep')}
+                active={!IS_SAFE && journeyReady && allowedPlanetLoads.has('neptune')}
               />
 
-              {/* Uranus guaranteed mesh — hidden during blackhole cinematic so it never appears in frame */}
+              {/* Procedural Uranus-style mesh at inner ice-giant slot (`neptune` id) — hidden during blackhole cinematic */}
               <UranusGuaranteedMesh
-                warm={!IS_SAFE && journeyReady && activeGroups.has('deep')}
-                visible={
-                  !isBlackholeCinematic &&
-                  (discreteCurrentShotId === 'uranus' ||
-                    discreteTargetShotId   === 'uranus' ||
-                    (discreteCurrentShotId === 'neptune' && discreteIsTransitioning))
-                }
+                warm={!IS_SAFE && journeyReady && allowedPlanetLoads.has('neptune')}
+                worldPosition={neptuneConfig.position}
+                visible={innerIceGiantProceduralVisible}
                 onClick={() => {
-                  if (cameraPhase !== 'uranus-hold') return
-                  const nextClosed = !uranusPanelManuallyClosedRef.current
-                  uranusPanelManuallyClosedRef.current = nextClosed
+                  if (cameraPhase !== 'neptune-hold') return
+                  const nextClosed = !neptunePanelManuallyClosedRef.current
+                  neptunePanelManuallyClosedRef.current = nextClosed
                   if (nextClosed) {
-                    if (uranusHoldTimerRef.current) {
-                      window.clearTimeout(uranusHoldTimerRef.current)
-                      uranusHoldTimerRef.current = null
+                    if (neptuneHoldTimerRef.current) {
+                      window.clearTimeout(neptuneHoldTimerRef.current)
+                      neptuneHoldTimerRef.current = null
                     }
-                    setUranusPanelVisible(false)
+                    setNeptunePanelVisible(false)
                   } else {
-                    setUranusPanelVisible(true)
+                    setNeptunePanelVisible(true)
                   }
                 }}
               />
@@ -1537,7 +1591,7 @@ function SolarSceneWebGL({
 
               {/* Safe mode: procedural spheres only, no Suspense, no GLBs. */}
               {IS_SAFE && RENDERED_PLANETS.map((config) => (
-                <SafeSphere key={config.id} config={config} />
+                <SafeSphere key={config.id} config={meshConfigForPlanet(config)} />
               ))}
 
               {/*
@@ -1549,18 +1603,22 @@ function SolarSceneWebGL({
                * Runtime evidence showed `Html` from drei was still the crash
                * source, so immersive mode now avoids any Canvas-attached DOM.
                */}
-              {!IS_SAFE && RENDERED_PLANETS.map((config) => (
+              {!IS_SAFE && RENDERED_PLANETS.map((config) => {
+                const meshConfig = meshConfigForPlanet(config)
+                const showPlanet =
+                  config.id !== 'uranus' || outerNeptuneGlbVisible
+                return (
+                <group key={config.id} visible={showPlanet}>
                 <Suspense
-                  key={config.id}
-                  fallback={<SuspenseFallbackSphere config={config} />}
+                  fallback={<SuspenseFallbackSphere config={meshConfig} />}
                 >
                   <GLBErrorBoundary
-                    fallback={<SuspenseFallbackSphere config={config} />}
+                    fallback={<SuspenseFallbackSphere config={meshConfig} />}
                     onError={() => setGlbFailed((n) => n + 1)}
                   >
                     <PlanetMesh
-                      config={config}
-                      activeGroups={activeGroups}
+                      config={meshConfig}
+                      allowedPlanetLoads={allowedPlanetLoads}
                       onPlanetClick={handlePlanetClick}
                       onGlbLoaded={() => {
                         if (glbLoadedIdsRef.current.has(config.id)) return
@@ -1576,7 +1634,8 @@ function SolarSceneWebGL({
                     />
                   </GLBErrorBoundary>
                 </Suspense>
-              ))}
+                </group>
+              )})}
             </Canvas>
 
             {/* Cinematic fade-to-black — covers the 3D scene during departure only.
@@ -1817,7 +1876,7 @@ function SolarSceneWebGL({
 
       {isFinaleActive && (
         <div className={styles.finaleBadge} aria-live="polite" aria-atomic="true">
-          Grand Finale
+          {locale === 'es' ? 'Gran final' : 'Grand Finale'}
         </div>
       )}
 
@@ -1872,7 +1931,7 @@ function SolarSceneWebGL({
           </div>
           <div>shotPhase={shotPhase} | cameraPhase={cameraPhase}</div>
           <div>intent={discreteWheelIntent.toFixed(0)}</div>
-          <div>uranusVisible={URANUS_VISIBLE ? 'yes' : 'no'} | blackholeVisible={BLACKHOLE_VISIBLE ? 'yes' : 'no'}</div>
+          <div>outerNeptuneGlb={outerNeptuneGlbVisible ? 'yes' : 'no'} | innerIceProc={innerIceGiantProceduralVisible ? 'yes' : 'no'} | blackholeVisible={BLACKHOLE_VISIBLE ? 'yes' : 'no'}</div>
           {/* ── LEGACY (solo referencia, no controla cámara) ── */}
           <div style={{ borderTop: '1px solid rgba(147,197,253,0.2)', marginTop: '0.3rem', paddingTop: '0.3rem', color: '#64748b' }}>
             [LEGACY — no controla cámara]
@@ -1890,7 +1949,7 @@ function SolarSceneWebGL({
           canvasSize={canvasSize}
           cameraPos={cameraPos}
           scrollProgress={scrollProgress}
-          activeGroups={activeGroups}
+          activePlanetLoads={allowedPlanetLoads}
           glbLoaded={glbLoaded}
           glbFailed={glbFailed}
           audioEnabled={audioEnabled}

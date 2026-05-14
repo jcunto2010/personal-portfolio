@@ -47,9 +47,9 @@ const TUTORIAL_STEPS: Record<V2Locale, readonly TutorialStep[]> = {
   es: [
     {
       imgL: IMG_SUN_NO,
-      labelL: 'Sun — vista inicial',
+      labelL: 'Sol — vista inicial',
       imgR: IMG_MERCURY,
-      labelR: 'Mercury — siguiente planeta',
+      labelR: 'Mercurio — siguiente planeta',
       tag: 'Tutorial 1 de 2',
       title: 'Haz scroll ↑↓ o swipe ↑↓ para viajar entre planetas',
       desc:
@@ -58,9 +58,9 @@ const TUTORIAL_STEPS: Record<V2Locale, readonly TutorialStep[]> = {
     },
     {
       imgL: IMG_SUN_NO,
-      labelL: 'Sun — sin card',
+      labelL: 'Sol — sin card',
       imgR: IMG_SUN_WITH,
-      labelR: 'Sun — card visible',
+      labelR: 'Sol — card visible',
       tag: 'Tutorial 2 de 2',
       title: 'Haz click o tap en el planeta para revelar su información',
       desc:

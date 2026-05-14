@@ -379,10 +379,10 @@ export function CameraRig({
 
       let posDamp = DAMP_HOLD
 
-      // ── Blackhole cinematic transition (Uranus → Blackhole) ───────────────
+      // ── Blackhole cinematic transition (Uranus shot pose → Blackhole) ───────────────
       //
       // Three narrative phases:
-      //   A) departure (0.00→0.20): camera stays near Uranus, lookAt rotates LEFT
+      //   A) departure (0.00→0.20): camera stays near Uranus shot pose, lookAt rotates LEFT
       //      toward the void — the "turn away" moment.
       //   B) warp     (0.20→0.85): camera accelerates in a straight line toward
       //      Blackhole, lookAt tracks the travel direction (not BH yet).
@@ -397,14 +397,12 @@ export function CameraRig({
 
         // ── One-time setup at the very first frame (raw === 0) ────────────
         if (raw === 0) {
-          // voidLook: far LEFT and DEEP so Uranus is fully off-frame by end of departure.
-          // Uranus at [22, -1, -328]; cam at [16, -1, -319.5]. Aggressive offset so
-          // the camera looks at empty void with no planet in view.
+          // voidLook: far LEFT and DEEP so the ice giant is fully off-frame by end of departure.
           voidLookRef.current
             .copy(uranusPose.cam)
             .add(new THREE.Vector3(-50, 0, -70))
 
-          // warpDir: normalised direction from Uranus cam to Blackhole cam.
+          // warpDir: normalised direction from Uranus-shot cam to Blackhole cam.
           // The camera travels along this axis during warp.
           warpDirRef.current
             .subVectors(blackholePose.cam, uranusPose.cam)
@@ -417,7 +415,7 @@ export function CameraRig({
 
         if (next < CINEMATIC_DEPARTURE_END) {
           // ── Phase A — Departure ──────────────────────────────────────────
-          // Position: nearly static at Uranus cam (very slight forward drift).
+          // Position: nearly static at Uranus-shot cam (very slight forward drift).
           // LookAt: rotates from uranusPose.look → voidLook (easeInOutCubic).
           cinPhase = 'departure'
           const localT = easeInOutCubic(next / CINEMATIC_DEPARTURE_END)
@@ -436,7 +434,7 @@ export function CameraRig({
 
         } else if (next < CINEMATIC_WARP_END) {
           // ── Phase B — Warp ───────────────────────────────────────────────
-          // Position: straight-line travel from Uranus cam toward Blackhole cam.
+          // Position: straight-line travel from Uranus-shot cam toward Blackhole cam.
           //   Uses easeInCubic so the camera accelerates hard at the start.
           // LookAt: always points ahead along the travel direction (not at BH).
           //   This keeps the "tunnel" feel — the destination is not yet revealed.
