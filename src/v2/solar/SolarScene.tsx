@@ -750,16 +750,12 @@ function SolarSceneWebGL({
     !isBlackholeCinematic &&
     !isBlackholeResetting
 
-  /** Same sync pattern as CameraRig: ref flips synchronously in startBlackholeCinematic before React re-renders. */
-  const inBlackholeCinematicActive =
-    isBlackholeCinematic || (isBlackholeCinematicRef?.current ?? false)
-
   /**
    * Procedural inner ice giant (`neptune` slot) — only at its hold / when transitioning to-from it.
    * Not shown from Mars (Neptune GLB provides the distant cue there).
    */
   const innerIceGiantProceduralVisible =
-    !inBlackholeCinematicActive &&
+    !isBlackholeCinematic &&
     !isBlackholeResetting &&
     discreteTargetShotId !== 'blackhole' &&
     discreteCurrentShotId !== 'blackhole' &&
@@ -773,7 +769,7 @@ function SolarSceneWebGL({
    * Loads with `allowedPlanetLoads` at Mars so the mesh is already mounted before the inner-ice transition (no “pop”).
    */
   const outerNeptuneGlbVisible =
-    !inBlackholeCinematicActive &&
+    !isBlackholeCinematic &&
     !isBlackholeResetting &&
     discreteTargetShotId !== 'blackhole' &&
     discreteCurrentShotId !== 'blackhole' &&
