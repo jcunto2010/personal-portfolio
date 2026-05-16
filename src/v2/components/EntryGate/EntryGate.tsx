@@ -13,6 +13,9 @@ interface EntryGateProps {
 
 const STAR_COUNT = 150
 
+/** Staggered text/UI intro: title first, then +1s per block (fade duration). */
+const INTRO_FADE = 'introFadeIn 1s ease forwards'
+
 const CREDITS = [
   {
     section: { en: '3D Models', es: 'Modelos 3D' },
@@ -329,9 +332,16 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         <div className={styles.introTitleBlock}>
           <div className={styles.introTitleInner}>
             <h1
-              className={`${styles.introH1} ${
-                shouldAnimate && animateIntro ? styles.introH1In : ''
-              }`}
+              className={styles.introH1}
+              style={
+                shouldAnimate
+                  ? {
+                      opacity: 0,
+                      animation: animateIntro ? INTRO_FADE : undefined,
+                      animationDelay: animateIntro ? '0.5s' : undefined,
+                    }
+                  : undefined
+              }
             >
               {ui.introTitlePrefix} <span className={styles.introName}>{ui.introName}</span>
             </h1>
@@ -341,10 +351,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
                 shouldAnimate
                   ? {
                       opacity: 0,
-                      animation: animateIntro
-                        ? `introFadeIn 1.5s ease forwards`
-                        : undefined,
-                      animationDelay: animateIntro ? '2.5s' : undefined,
+                      animation: animateIntro ? INTRO_FADE : undefined,
+                      animationDelay: animateIntro ? '1.5s' : undefined,
                     }
                   : { opacity: 1 }
               }
@@ -356,8 +364,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
               shouldAnimate
                 ? {
                     opacity: 0,
-                    animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
-                    animationDelay: animateIntro ? '4s' : undefined,
+                    animation: animateIntro ? INTRO_FADE : undefined,
+                    animationDelay: animateIntro ? '2.5s' : undefined,
                   }
                 : { opacity: 1 }
             }
@@ -370,8 +378,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
               shouldAnimate
                 ? {
                     opacity: 0,
-                    animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
-                    animationDelay: animateIntro ? '5.5s' : undefined,
+                    animation: animateIntro ? INTRO_FADE : undefined,
+                    animationDelay: animateIntro ? '3.5s' : undefined,
                   }
                 : { opacity: 1 }
             }
@@ -392,8 +400,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
             shouldAnimate
               ? {
                   opacity: 0,
-                  animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
-                  animationDelay: animateIntro ? '7.5s' : undefined,
+                  animation: animateIntro ? INTRO_FADE : undefined,
+                  animationDelay: animateIntro ? '4.5s' : undefined,
                 }
               : { opacity: 1 }
           }
@@ -473,8 +481,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           shouldAnimate
             ? {
                 opacity: 0,
-                animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
-                animationDelay: animateIntro ? '9.5s' : undefined,
+                animation: animateIntro ? INTRO_FADE : undefined,
+                animationDelay: animateIntro ? '5.5s' : undefined,
               }
             : { opacity: 1 }
         }
@@ -486,8 +494,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           shouldAnimate
             ? {
                 opacity: 0,
-                animation: animateIntro ? `introFadeIn 1.5s ease forwards` : undefined,
-                animationDelay: animateIntro ? '9.5s' : undefined,
+                animation: animateIntro ? INTRO_FADE : undefined,
+                animationDelay: animateIntro ? '6.5s' : undefined,
               }
             : { opacity: 1 }
         }
@@ -503,8 +511,8 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
           shouldAnimate
             ? {
                 opacity: 0,
-                animation: animateIntro ? 'introFadeIn 1.5s ease forwards' : undefined,
-                animationDelay: animateIntro ? '9.5s' : undefined,
+                animation: animateIntro ? INTRO_FADE : undefined,
+                animationDelay: animateIntro ? '7.5s' : undefined,
               }
             : { opacity: 1 }
         }

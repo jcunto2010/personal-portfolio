@@ -47,23 +47,9 @@
   }
 }
 
-@keyframes introH1FloatIn {
-  from {
-    transform: translateY(8px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
 .starFadeIn {
   will-change: opacity;
   animation: starFadeIn 1.2s ease forwards;
-}
-
-.introH1In {
-  will-change: transform;
-  animation: introH1FloatIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Main content column — centered, full width for layout */
