@@ -11,6 +11,7 @@ import {
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '../../lib/utils'
+import { usePlayWhenVisible } from '../../v2/hooks/usePlayWhenVisible'
 import { CodeSnippet } from './code-snippet'
 
 if (typeof window !== 'undefined') {
@@ -329,6 +330,7 @@ export function CinematicHero({
   const mockupRef = useRef<HTMLDivElement>(null)
   const cardVerticalScrollRef = useRef<HTMLDivElement>(null)
   const requestRef = useRef<number>(0)
+  const playWhenVisible = usePlayWhenVisible()
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -636,12 +638,12 @@ export function CinematicHero({
                             transform: `translate3d(${videoNudgeX}px, 0, 0) scaleX(${videoScaleX}) scaleY(${videoScaleY})`,
                             transformOrigin: 'center center',
                           }}
+                          ref={playWhenVisible}
                           src={videoSrc}
                           muted
-                          autoPlay
                           loop
                           playsInline
-                          preload="auto"
+                          preload="metadata"
                         />
                       </div>
                     ) : (

@@ -5,6 +5,7 @@ import { PlayCircle } from 'lucide-react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { cn } from '../../lib/utils'
+import { usePlayWhenVisible } from '../../v2/hooks/usePlayWhenVisible'
 import { CodeSnippet } from './code-snippet'
 import {
   CINEMATIC_MOCK_VIDEO_SCALE,
@@ -59,6 +60,7 @@ export function CinematicHeroMobile({
   const featuresRef = useRef<HTMLDivElement>(null)
   const snippetRef = useRef<HTMLDivElement>(null)
   const stackRef = useRef<HTMLDivElement>(null)
+  const playWhenVisible = usePlayWhenVisible()
 
   // Convert snippets to CodeFile format for CodeSnippet component
   const codeFiles = useMemo(() => {
@@ -231,12 +233,12 @@ export function CinematicHeroMobile({
                         transform: `translate3d(${videoNudgeX}px, 0, 0) scaleX(${videoScaleX}) scaleY(${videoScaleY})`,
                         transformOrigin: 'center center',
                       }}
+                      ref={playWhenVisible}
                       src={videoSrc}
                       muted
-                      autoPlay
                       loop
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                     />
                   </div>
                 ) : (
