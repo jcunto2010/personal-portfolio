@@ -32,114 +32,6 @@ export const CINEMATIC_MOCK_VIDEO_SCALE_STARTUP_EXTRA_Y = 0.984
 /** Sheen highlight color — applied inline per frame on `.card-sheen` (avoids CSS custom props in rAF). */
 const CINEMATIC_CARD_SHEEN_SPOT = 'rgba(255,255,255,0.06)'
 
-// Helper to detect language from code for syntax highlighting
-function detectLanguage(code: string, filename?: string): string {
-  // Detect by filename extension if provided
-  if (filename) {
-    if (filename.endsWith('.dart')) return 'dart'
-    if (filename.endsWith('.kt') || filename.endsWith('.java')) return 'java'
-    if (filename.endsWith('.tsx') || filename.endsWith('.ts')) return 'typescript'
-    if (filename.endsWith('.jsx') || filename.endsWith('.js')) return 'javascript'
-  }
-
-  // Check for Dart-specific type patterns (very strong indicators)
-  const hasDartTypePattern = /Future<[^>]+>\s+\w+\s*\(/.test(code) ||
-    /Map<String\s*,\s*dynamic>/.test(code) ||
-    /List<[^>]+>/.test(code)
-
-  // Dart-specific keywords and patterns (weighted more heavily)
-  const dartIndicators = [
-    { pattern: 'Future<', weight: 3 },
-    { pattern: 'Stream<', weight: 3 },
-    { pattern: 'await ', weight: 2 },
-    { pattern: 'async ', weight: 2 },
-    { pattern: 'final ', weight: 2 },
-    { pattern: 'const ', weight: 1 },
-    { pattern: 'Widget', weight: 3 },
-    { pattern: 'StatelessWidget', weight: 5 },
-    { pattern: 'StatefulWidget', weight: 5 },
-    { pattern: 'BuildContext', weight: 4 },
-    { pattern: 'setState(', weight: 4 },
-    { pattern: 'mounted', weight: 3 },
-    { pattern: 'initState', weight: 4 },
-    { pattern: 'dispose()', weight: 3 },
-    { pattern: 'Column(', weight: 3 },
-    { pattern: 'Row(', weight: 3 },
-    { pattern: 'Container(', weight: 3 },
-    { pattern: 'Scaffold(', weight: 4 },
-    { pattern: 'EdgeInsets', weight: 3 },
-    { pattern: 'BoxDecoration', weight: 3 },
-    { pattern: 'Colors.', weight: 3 },
-    { pattern: 'required ', weight: 2 },
-    { pattern: 'factory ', weight: 3 },
-    { pattern: 'part ', weight: 2 },
-    { pattern: 'extension ', weight: 2 },
-    { pattern: 'mixin ', weight: 2 },
-    { pattern: 'on ', weight: 1 },
-  ]
-
-  // TypeScript/JavaScript indicators
-  const tsIndicators = [
-    { pattern: 'interface ', weight: 3 },
-    { pattern: 'type ', weight: 2 },
-    { pattern: 'export const', weight: 2 },
-    { pattern: 'export function', weight: 2 },
-    { pattern: 'export async', weight: 2 },
-    { pattern: 'import React', weight: 3 },
-    { pattern: 'from \'react\'', weight: 3 },
-    { pattern: 'from "react"', weight: 3 },
-    { pattern: 'const [', weight: 2 },
-    { pattern: 'useState(', weight: 3 },
-    { pattern: 'useEffect(', weight: 3 },
-    { pattern: 'useCallback(', weight: 3 },
-    { pattern: 'useMemo(', weight: 3 },
-    { pattern: 'JSX.', weight: 3 },
-    { pattern: 'React.', weight: 2 },
-    { pattern: '=> {', weight: 1 },
-    { pattern: 'function(', weight: 1 },
-    { pattern: 'typeof ', weight: 2 },
-    { pattern: 'as ', weight: 1 },
-    { pattern: 'namespace ', weight: 3 },
-    { pattern: 'declare ', weight: 3 },
-    { pattern: 'module.exports', weight: 3 },
-    { pattern: 'require(', weight: 2 },
-  ]
-
-  // Check for JSX (strong indicator of TypeScript/React)
-  const hasJSX = /<[A-Z][a-zA-Z]*/.test(code) || /className=/.test(code) || /on[A-Z][a-zA-Z]*=/.test(code)
-
-  // Calculate weighted scores
-  const dartScore = dartIndicators.reduce((sum, { pattern, weight }) => {
-    return sum + (code.includes(pattern) ? weight : 0)
-  }, 0)
-
-  const tsScore = tsIndicators.reduce((sum, { pattern, weight }) => {
-    return sum + (code.includes(pattern) ? weight : 0)
-  }, 0)
-
-  // Strong Dart type pattern detection
-  if (hasDartTypePattern) return 'dart'
-
-  // JSX is a strong indicator for TypeScript
-  if (hasJSX) return 'typescript'
-
-  // Return based on weighted scores with threshold
-  if (dartScore >= 3 && dartScore > tsScore) return 'dart'
-  if (tsScore >= 3) return 'typescript'
-
-  // Default based on likely patterns
-  if (dartScore > 0 && tsScore === 0) return 'dart'
-  if (tsScore > 0 && dartScore === 0) return 'typescript'
-
-  // Check for generic Dart patterns in function signatures
-  if (/\w+<[^>]+>\s+\w+\s*\([^)]*\)\s*\{/.test(code) && !code.includes('interface') && !code.includes('type ')) {
-    return 'dart'
-  }
-
-  // Default to typescript for web projects
-  return 'typescript'
-}
-
 const INJECTED_STYLES = `
   .gsap-reveal { visibility: hidden; }
   .transform-style-3d { transform-style: preserve-3d; }
@@ -317,6 +209,7 @@ interface StoreLink {
 }
 
 interface CodeSnippetContent {
+  /** Filename; its extension picks the highlighter (`.dart`, otherwise TypeScript). */
   title: string
   code: string
 }
@@ -890,7 +783,7 @@ export function CinematicHero({
               )}
             >
               <CodeSnippet
-                files={snippets.map((s) => ({ filename: s.title, language: detectLanguage(s.code, s.title), code: s.code }))}
+                files={snippets.map((s) => ({ filename: s.title, language: s.title.endsWith('.dart') ? 'dart' : 'typescript', code: s.code }))}
                 autoHeight
                 className={cn(
                   equalThirdsColumns ? 'w-full' : 'w-full max-w-[28rem] lg:scale-[0.94] min-[1440px]:scale-100',
