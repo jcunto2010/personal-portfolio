@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { m } from 'framer-motion'
 import { Github, Linkedin } from 'lucide-react'
 import { useLocale } from '../../v2/lib/localeContext'
-import ButtonWithIconDemo from './button-witn-icon'
+import ButtonWithIconDemo from './button-with-icon'
 
 interface HeroProps {
   onExploreWork?: () => void
