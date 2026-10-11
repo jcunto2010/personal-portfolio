@@ -586,6 +586,27 @@
   color: rgba(255, 255, 255, 0.88);
 }
 
+/* Short viewports (landscape phones, small windows): the stacked intro is taller than the screen.
+   Start it below the language switcher, tighten it, let it scroll, and move Credits out from under the buttons. */
+@media (max-height: 560px) {
+  .overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+
+  .introContent {
+    justify-content: flex-start;
+    gap: 1.5rem;
+    padding-top: 5rem;
+  }
+
+  .creditsBtn {
+    bottom: 1rem;
+    left: 2rem;
+    transform: none;
+  }
+}
+
 .creditsOverlay {
   position: fixed;
   inset: 0;
