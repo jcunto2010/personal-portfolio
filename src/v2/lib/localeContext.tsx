@@ -52,6 +52,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', onStorage)
   }, [])
 
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
+
   const setLocale = useCallback((next: V2Locale) => {
     setLocaleState(next)
     try {
