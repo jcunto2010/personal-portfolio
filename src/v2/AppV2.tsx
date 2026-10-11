@@ -11,7 +11,7 @@ import { LocaleProvider } from './lib/localeContext'
  * V2 is the sole application entry point (mounted from index.html → main.v2.tsx).
  *
  * BrowserRouter with basename='/'. The server must redirect all paths to
- * index.html (SPA fallback) — configured in vercel.json and netlify.toml.
+ * index.html (SPA fallback) — configured in vercel.json.
  *
  * The `.v2-root` class activates all V2 CSS custom properties defined
  * in tokens/tokens.css.

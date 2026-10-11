@@ -5,26 +5,7 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Content Security Policy — T-007
-         'unsafe-eval' is required by Three.js/WebGL shader compilation (GLSL).
-         'blob:' covers R3F worker URLs.
-         No external CDNs, analytics or service workers are active in this phase.
-         Tighten further (remove unsafe-eval) once GLSL shaders are pre-compiled. -->
-    <meta http-equiv="Content-Security-Policy"
-      content="
-        default-src 'self';
-        script-src  'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://www.googletagmanager.com;
-        style-src   'self' 'unsafe-inline';
-        img-src     'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com;
-        connect-src 'self' blob: https://www.google-analytics.com https://www.googletagmanager.com;
-        media-src   'self' https://*.r2.dev https://assets.jonathancustodio.com https://assets.jonathancuntodiaz.com;
-        font-src    'self';
-        worker-src  'self' blob:;
-        frame-src   'none';
-        object-src  'none';
-        base-uri    'self';
-        form-action 'self';
-      " />
+    <!-- Content Security Policy is sent as a response header: see vercel.json. -->
 
     <!-- Primary SEO -->
     <title>Jonathan Cunto Díaz — Frontend Developer & Portfolio</title>

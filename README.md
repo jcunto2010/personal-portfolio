@@ -27,7 +27,6 @@ npm run lhci         # Lighthouse CI
 ## Deploy
 
 - **Producción:** Vercel (`vercel.json`)
-- **Alternativo:** Netlify (`netlify.toml`)
 - El CI (`.github/workflows/ci.yml`) ejecuta lint, build, E2E y Lighthouse en cada PR.
 
 ## Estructura del proyecto
@@ -60,4 +59,4 @@ La aplicación se monta desde [`index.html`](index.html) → [`src/v2/main.v2.ts
 - Estándares de código: [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md)
 - Licencia: [MIT](LICENSE)
 
-**Jonathan Cunto Díaz** — [jonathancuntodiaz.com](https://jonathancuntodiaz.com) · GitHub [@jcunto2010](https://github.com/jcunto2010)
+**Jonathan Cunto Díaz** — [jonathancuntodiaz.com](https://www.jonathancuntodiaz.com) · GitHub [@jcunto2010](https://github.com/jcunto2010)
