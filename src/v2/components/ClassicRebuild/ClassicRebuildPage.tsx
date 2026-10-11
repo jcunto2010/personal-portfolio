@@ -22,7 +22,7 @@ export function ClassicRebuildPage() {
 
   const ui = {
     modeBadge: isEs ? 'Modo clásico' : 'Classic mode',
-    title: isEs ? 'Jonathan Cunto Diaz' : 'Jonathan Cunto Diaz',
+    title: isEs ? 'Jonathan Cunto Díaz' : 'Jonathan Cunto Díaz',
     subtitle: isEs ? 'Frontend Developer' : 'Frontend Developer',
     intro:
       isEs

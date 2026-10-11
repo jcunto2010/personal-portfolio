@@ -86,7 +86,7 @@ export function AboutTextBlock() {
       <div className={styles.photoWrap} ref={photoWrapRef}>
         <img
           src="/assets/projects/johnny_hero.webp"
-          alt={isEs ? 'Foto de Jonathan Cunto-Diaz' : 'Jonathan Cunto-Diaz portrait'}
+          alt={isEs ? 'Foto de Jonathan Cunto Díaz' : 'Jonathan Cunto Díaz portrait'}
           className={styles.photo}
           loading="lazy"
         />
