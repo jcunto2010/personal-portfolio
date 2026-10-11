@@ -56,6 +56,7 @@ import { EntryGate } from '../../components/EntryGate/EntryGate'
 import { NonImmersiveHome } from '../../components/NonImmersiveHome/NonImmersiveHome'
 import { SpaceLoadingScreen } from '../../components/SpaceLoadingScreen/SpaceLoadingScreen'
 import { useJourneyLoader } from '../../lib/useJourneyLoader'
+import { useLocale } from '../../lib/localeContext'
 
 /** Editorial home (ClassicRebuildPage, Three shader chunk, etc.) — lazy so EntryGate + H1 are not blocked by that JS. */
 const LazyHomeV2 = lazy(() => import('./HomeV2'))
@@ -186,6 +187,7 @@ function HomeV2Inner() {
   const { mode, audioEnabled, setMode, setAudioEnabled, exitFullscreen } = useAppMode()
   const audio = useAudioShell()
   const location = useLocation()
+  const backToSelectionLabel = useLocale().locale === 'es' ? '← Volver a la selección' : '← Back to selection'
   const isCinematicTestRoute = location.pathname === '/cinematic-mode'
 
   type EntryPhase = 'select' | 'loading' | 'ready'
@@ -344,7 +346,7 @@ function HomeV2Inner() {
                   cursor: 'pointer',
                 }}
               >
-                ← Volver a la selección
+                {backToSelectionLabel}
               </button>
             </div>
           )}
@@ -381,7 +383,7 @@ function HomeV2Inner() {
                 cursor: 'pointer',
               }}
             >
-              ← Volver a la selección
+              {backToSelectionLabel}
             </button>
           </div>
         </>

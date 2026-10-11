@@ -55,8 +55,8 @@ export function StartupConnectSection() {
       className="relative w-full overflow-x-hidden overflow-y-visible"
     >
       <HeroComponent
-        tagline1={isEs ? 'Ahora vamos con' : "Now let's go with"}
-        tagline2={isEs ? 'Startup Connect' : 'Startup Connect'}
+        tagline1={isEs ? 'Ahora vamos con' : 'Next up:'}
+        tagline2="StartupConnect"
         appLabel="StartupConnect"
         sourcePanelTitle={isEs ? 'Código real de StartupConnect' : 'Real StartupConnect source'}
         sourcePanelEyebrow={isEs ? 'Fragmentos de código' : 'Source snippets'}

@@ -7,8 +7,8 @@ export interface PlanetContent {
 const PLANET_CONTENT_EN: Record<string, PlanetContent> = {
   sun: {
     body: [
-      "Hi, I'm Jonathan — an Industrial Engineer turned software developer. I've worked in product, data, and automation before writing my first line of code.",
-      'This solar system is my portfolio: each planet is a chapter — skills, how it\'s made, projects, and contact. Navigate freely or follow the orbital path.',
+      "Hi, I'm Jonathan — an Industrial Engineer turned software developer. I worked in product, data, and automation before writing my first line of code.",
+      'This solar system is my portfolio: each planet is a chapter — skills, how it\'s made, projects, experience, and contact. Navigate freely or follow the orbital path.',
     ],
   },
   mercury: {
@@ -21,13 +21,13 @@ const PLANET_CONTENT_EN: Record<string, PlanetContent> = {
   venus: {
     body: [
       "How it's made: the cosmic layer is built with React Three Fiber (Three.js in React), using lazy-loaded GLB models and progressive loading waves.",
-      'UI text stays fully accessible: overlays are rendered via portals, focus is managed on open, and all motion respects `prefers-reduced-motion`. WebGL is progressive — the content always works without it.',
+      'UI text stays fully accessible: overlays are rendered via portals, focus is managed on open, and all motion respects prefers-reduced-motion. WebGL is progressive — the content always works without it.',
     ],
   },
   earth: {
     body: [
       'Projects hub: two case studies anchor this journey — one mobile, one web.',
-      'Reservo.AI (Flutter + Gemini AI) and StartupConnect (React + Spring Boot) each have a dedicated case-study route with role, stack, and key technical details.',
+      'Reservo.AI (Flutter + Gemini AI) and StartupConnect (React + Spring Boot) each have their own stop — the Moon and Mars — with role, stack, and key technical details.',
     ],
   },
   moon: {
@@ -66,7 +66,7 @@ const PLANET_CONTENT_ES: Record<string, PlanetContent> = {
   sun: {
     body: [
       'Hola, soy Jonathan — Ingeniero Industrial reconvertido en desarrollador de software. Trabajé en producto, datos y automatización antes de escribir mi primera línea de código.',
-      'Este sistema solar es mi portafolio: cada planeta es un capítulo — habilidades, cómo se hizo, proyectos y contacto. Navega libremente o sigue el camino orbital.',
+      'Este sistema solar es mi portafolio: cada planeta es un capítulo — habilidades, cómo se hizo, proyectos, experiencia y contacto. Navega libremente o sigue el camino orbital.',
     ],
   },
   mercury: {
@@ -79,13 +79,13 @@ const PLANET_CONTENT_ES: Record<string, PlanetContent> = {
   venus: {
     body: [
       'Cómo se hizo: la capa cósmica está construida con React Three Fiber (Three.js en React), usando modelos GLB cargados bajo demanda y progressive loading waves.',
-      'El texto de UI se mantiene accesible: overlays vía portals, el foco se gestiona al abrir y el movimiento respeta `prefers-reduced-motion`. WebGL es progresivo — el contenido siempre funciona sin él.',
+      'El texto de UI se mantiene accesible: overlays vía portals, el foco se gestiona al abrir y el movimiento respeta prefers-reduced-motion. WebGL es progresivo — el contenido siempre funciona sin él.',
     ],
   },
   earth: {
     body: [
       'Hub de proyectos: dos case studies anclan este viaje — uno mobile, uno web.',
-      'Reservo.AI (Flutter + Gemini AI) y StartupConnect (React + Spring Boot) tienen cada uno una ruta de case study con rol, stack y detalles técnicos clave.',
+      'Reservo.AI (Flutter + Gemini AI) y StartupConnect (React + Spring Boot) tienen cada uno su propia parada — la Luna y Marte — con rol, stack y detalles técnicos clave.',
     ],
   },
   moon: {

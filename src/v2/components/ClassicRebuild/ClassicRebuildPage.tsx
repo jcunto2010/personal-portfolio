@@ -154,7 +154,7 @@ export function ClassicRebuildPage() {
           title={ui.skillsTitle}
           description={
             isEs
-              ? 'Un stack curado de herramientas y frameworks modernos que uso para construir productos performantes y escalables.'
+              ? 'Un stack curado de herramientas y frameworks modernos que uso para construir productos de alto rendimiento y escalables.'
               : 'A curated stack of modern tools and frameworks I use to build performant, scalable products.'
           }
         />

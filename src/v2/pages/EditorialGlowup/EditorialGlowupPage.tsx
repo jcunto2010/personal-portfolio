@@ -101,7 +101,7 @@ export default function ClassicModePage() {
             title={isEs ? 'Skills' : 'Skills'}
             description={
               isEs
-                ? 'Tecnologías y herramientas que uso para construir productos performantes y escalables.'
+                ? 'Tecnologías y herramientas que uso para construir productos de alto rendimiento y escalables.'
                 : 'Technologies and tools I use to build performant and scalable products.'
             }
           />
