@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import AppV2 from './AppV2'
-import { initTelemetry } from './lib/telemetry'
 import './tailwind.css'
 
 /**
@@ -13,7 +12,3 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <AppV2 />
   </React.StrictMode>,
 )
-
-void initTelemetry().catch((err) => {
-  console.error('[telemetry] initTelemetry failed', err)
-})

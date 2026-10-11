@@ -45,8 +45,7 @@ function preloadImage(src: string): Promise<void> {
 async function preloadClassicAssets(): Promise<void> {
   if (classicAssetsLoaded) return
 
-  const heroImage =
-    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=900&h=1200&fit=crop&crop=faces&auto=format&q=80'
+  const heroImage = '/assets/projects/johnny_hero.webp'
 
   const projectImages = projectsV2.flatMap((project) => [
     project.coverImage,

@@ -71,8 +71,10 @@ export interface PlanetConfig {
   id: PlanetId
   /** Human-readable label used in overlays (Phase 3). */
   label: string
+  labelEs: string
   /** Narrative section this body represents. */
   section: string
+  sectionEs: string
   /** Path to the GLB asset under /public. Empty string if no GLB (e.g. blackhole shader). */
   modelPath: string
   /** [x, y, z] position in scene units. */
@@ -146,7 +148,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'sun',
     label: 'Sun',
+    labelEs: 'Sol',
     section: 'Intro / About',
+    sectionEs: 'Intro / Acerca de',
     modelPath: SUN_GLB_URL,
     position: [0, 0, 0],
     scale: 3.5,
@@ -172,7 +176,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'mercury',
     label: 'Mercury',
+    labelEs: 'Mercurio',
     section: 'Skills',
+    sectionEs: 'Habilidades',
     modelPath: '/assets/solar/models/mercury.glb',
     // RIGHT lane (+X) — Mercury enters from the right side of the journey.
     // Camera hold pose is to the LEFT (-X relative to planet) so the camera
@@ -215,7 +221,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'venus',
     label: 'Venus',
+    labelEs: 'Venus',
     section: 'How It Was Made',
+    sectionEs: 'Cómo se hizo',
     modelPath: '/assets/solar/models/venus.glb',
     // RIGHT lane (+X). Camera hold pose is on the left (-X relative to planet).
     position: [16, -1.2, -100],
@@ -243,7 +251,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'earth',
     label: 'Earth',
+    labelEs: 'Tierra',
     section: 'Projects Hub',
+    sectionEs: 'Centro de proyectos',
     modelPath: '/assets/solar/models/earth.glb',
     // LEFT lane (-X). Camera hold pose is on the right (+X relative to planet).
     position: [-16, 0.8, -155],
@@ -269,7 +279,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'moon',
     label: 'Moon',
+    labelEs: 'Luna',
     section: 'Reservo.AI',
+    sectionEs: 'Reservo.AI',
     modelPath: '/assets/solar/models/moon.glb',
     // Slightly LEFT, tighter to Earth — Moon feels part of Earth block.
     position: [-20, 2.0, -170],
@@ -296,7 +308,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'mars',
     label: 'Mars',
+    labelEs: 'Marte',
     section: 'StartupConnect',
+    sectionEs: 'StartupConnect',
     modelPath: '/assets/solar/models/mars.glb',
     // RIGHT lane (+X). Camera hold pose is on the left (-X relative to planet).
     position: [18, -1.8, -215],
@@ -324,7 +338,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'neptune',
     label: 'Uranus',
+    labelEs: 'Urano',
     section: 'Experience',
+    sectionEs: 'Experiencia',
     /** Procedural Uranus-style mesh at this slot (visual). GLB path kept for asset preload only. */
     modelPath: '/assets/solar/models/neptune.glb',
     // LEFT lane (-X). Camera hold pose is on the right.
@@ -359,7 +375,9 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   {
     id: 'uranus',
     label: 'Neptune',
+    labelEs: 'Neptuno',
     section: 'Contact',
+    sectionEs: 'Contacto',
     /** SolarScene draws neptune.glb at this slot (visual). */
     modelPath: '',
     // RIGHT lane (+X). Camera hold pose is on the left.
@@ -391,8 +409,10 @@ export const PLANET_REGISTRY: PlanetConfig[] = [
   },
   {
     id: 'blackhole',
-    label: 'Blackhole',
+    label: 'Black hole',
+    labelEs: 'Agujero negro',
     section: 'Grand Finale',
+    sectionEs: 'Gran final',
     /** No GLB — rendered by BlackholeShaderMesh in SolarScene. */
     modelPath: '',
     position: [0, 0, -400],

@@ -585,9 +585,13 @@ export function SolarScene({
     return (
       <div className={styles.solarSceneRoot} style={{ display: 'grid', placeItems: 'center', background: '#030712' }}>
         <div style={{ textAlign: 'center', color: '#e2e8f0', fontFamily: FONT_BODY, padding: '2rem' }}>
-          <p style={{ margin: 0, fontSize: '1rem' }}>WebGL no disponible en este navegador/GPU.</p>
+          <p style={{ margin: 0, fontSize: '1rem' }}>
+            {locale === 'es' ? 'WebGL no disponible en este navegador/GPU.' : 'WebGL is not available in this browser or GPU.'}
+          </p>
           <p style={{ margin: '0.75rem 0 1.5rem', opacity: 0.75, fontSize: '0.85rem' }}>
-            Cambia a modo clásico o revisa la aceleración por hardware.
+            {locale === 'es'
+              ? 'Cambia a modo clásico o revisa la aceleración por hardware.'
+              : 'Switch to classic mode or check that hardware acceleration is on.'}
           </p>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <ExpandOnHoverIconButton
@@ -1822,13 +1826,13 @@ function SolarSceneWebGL({
             letterSpacing: '0.12em', textTransform: 'uppercase',
             margin: 0, opacity: 0.9,
           }}>
-            Loading solar system…
+            {locale === 'es' ? 'Cargando sistema solar…' : 'Loading solar system…'}
           </p>
           <p style={{
             color: 'rgba(255,255,255,0.35)', fontFamily: FONT_BODY, fontSize: '12px',
             margin: 0,
           }}>
-            {glbLoaded} / {initialGroupSize} models ready
+            {glbLoaded} / {initialGroupSize} {locale === 'es' ? 'modelos listos' : 'models ready'}
           </p>
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>

@@ -1,4 +1,4 @@
 Contact: mailto:security@jonathancuntodiaz.com
 Expires: 2027-12-31T23:59:00.000Z
 Preferred-Languages: es, en
-Canonical: https://jonathancuntodiaz.com/.well-known/security.txt
+Canonical: https://www.jonathancuntodiaz.com/.well-known/security.txt

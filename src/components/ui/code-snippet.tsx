@@ -125,7 +125,7 @@ export function CodeSnippet({ files, className, autoHeight = false }: CodeSnippe
         >
           {({ className: highlightClassName, style, tokens, getLineProps, getTokenProps }) => (
             <pre
-              className={cn(highlightClassName, 'm-0 p-2 text-[8px] leading-3 sm:text-[10px] sm:leading-4')}
+              className={cn(highlightClassName, 'm-0 p-2 text-[10px] leading-4')}
               style={{
                 ...style,
                 background: 'transparent',

@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { Hero } from '../../../components/ui/animated-hero'
 import LightPillar from '../../../components/ui/LightPillar'
 import { IntegrationHero } from '../../../components/ui/integration-hero'
@@ -17,6 +17,20 @@ export default function ClassicModePage() {
   const prefersReduced = useReducedMotion()
   const { locale } = useLocale()
   const isEs = locale === 'es'
+
+  // index.html carries the home page's title and canonical; this page has its own.
+  useEffect(() => {
+    const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    const home = { title: document.title, href: canonical?.href }
+    document.title = isEs
+      ? 'Jonathan Cunto-Diaz — Proyectos y experiencia'
+      : 'Jonathan Cunto-Diaz — Projects & Experience'
+    if (canonical) canonical.href = 'https://www.jonathancuntodiaz.com/classic-mode'
+    return () => {
+      document.title = home.title
+      if (canonical && home.href) canonical.href = home.href
+    }
+  }, [isEs])
 
   useLayoutEffect(() => {
     const root = document.documentElement
@@ -50,6 +64,7 @@ export default function ClassicModePage() {
           padding: '2rem 1rem',
           fontFamily: 'var(--v2-font-body)',
           position: 'relative',
+          overflowX: 'clip',
         }}
       >
         <div
@@ -87,7 +102,7 @@ export default function ClassicModePage() {
             title={isEs ? 'Skills' : 'Skills'}
             description={
               isEs
-                ? 'Tecnologías y herramientas que uso para construir productos performantes y escalables.'
+                ? 'Tecnologías y herramientas que uso para construir productos de alto rendimiento y escalables.'
                 : 'Technologies and tools I use to build performant and scalable products.'
             }
           />

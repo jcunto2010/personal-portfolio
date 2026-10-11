@@ -39,7 +39,7 @@ export function Timeline({
 
   return (
     <div
-      className="w-full bg-transparent md:px-10"
+      className="bg-transparent md:px-10"
       style={{ fontFamily: "var(--v2-font-body, 'Proxima Nova', 'Inter', 'Arial', sans-serif)" }}
       ref={containerRef}
     >

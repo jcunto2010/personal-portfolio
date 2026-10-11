@@ -22,7 +22,7 @@ export function ClassicRebuildPage() {
 
   const ui = {
     modeBadge: isEs ? 'Modo clásico' : 'Classic mode',
-    title: isEs ? 'Jonathan Cunto Diaz' : 'Jonathan Cunto Diaz',
+    title: isEs ? 'Jonathan Cunto-Diaz' : 'Jonathan Cunto-Diaz',
     subtitle: isEs ? 'Frontend Developer' : 'Frontend Developer',
     intro:
       isEs
@@ -66,7 +66,7 @@ export function ClassicRebuildPage() {
         ? 'Ingeniero Industrial reconvertido en desarrollador de software. Entiendo los productos desde el negocio, los datos y el código — y construyo los tres. Actualmente enfocado en frontend moderno y apps mobile con IA.'
         : 'Industrial Engineer turned software developer. I understand products from the business, data, and code sides — and I build all three. Currently focused on modern frontend and AI-powered mobile apps.',
     // E2E suite asserts the single h1 contains "Jonathan".
-    heroHeading: isEs ? 'Jonathan Cunto Díaz' : 'Jonathan Cunto Díaz',
+    heroHeading: isEs ? 'Jonathan Cunto-Diaz' : 'Jonathan Cunto-Diaz',
     ctaWork: isEs ? 'View my work' : 'View my work',
     ctaContact: isEs ? 'Get in touch' : 'Get in touch',
     navHome: isEs ? 'Inicio' : 'Home',
@@ -154,7 +154,7 @@ export function ClassicRebuildPage() {
           title={ui.skillsTitle}
           description={
             isEs
-              ? 'Un stack curado de herramientas y frameworks modernos que uso para construir productos performantes y escalables.'
+              ? 'Un stack curado de herramientas y frameworks modernos que uso para construir productos de alto rendimiento y escalables.'
               : 'A curated stack of modern tools and frameworks I use to build performant, scalable products.'
           }
         />

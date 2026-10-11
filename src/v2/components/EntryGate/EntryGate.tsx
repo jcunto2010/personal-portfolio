@@ -233,10 +233,10 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     ? {
         ariaEntry: 'Entrada al portafolio',
         introTitlePrefix: 'Hola, mi nombre es',
-        introName: 'Jonathan Cunto Diaz',
+        introName: 'Jonathan Cunto-Diaz',
         introRole: 'Frontend Developer',
         introDesc1:
-          'Creo aplicaciones web hermosas, responsivas y fáciles de usar usando tecnologías modernas como React, TypeScript y Tailwind CSS. Apasionado por el código limpio y experiencias de usuario excepcionales.',
+          'De Ingeniería Industrial al desarrollo de software: frontend moderno, apps con IA y productos digitales con foco en negocio, datos y ejecución.',
         introDesc2: '',
         introButtonsGroup: 'Selecciona el modo de experiencia',
         immersiveLabel: 'Modo Inmersivo',
@@ -245,7 +245,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         immersiveBtnAria: 'Activar modo inmersivo',
         audioAriaOn: 'Silenciar sonido',
         audioAriaOff: 'Activar sonido',
-        classicLabel: 'Modo clásico',
+        classicLabel: 'Modo Clásico',
         classicSub: 'Experiencia editorial enfocada en contenido',
         creditsBtn: 'Créditos',
         creditsTitle: 'Créditos',
@@ -256,10 +256,10 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     : {
         ariaEntry: 'Portfolio entry',
         introTitlePrefix: 'Hi, my name is',
-        introName: 'Jonathan Cunto Diaz',
+        introName: 'Jonathan Cunto-Diaz',
         introRole: 'Frontend Developer',
         introDesc1:
-          'I create beautiful, responsive, and user-friendly web applications using modern technologies like React, TypeScript, and Tailwind CSS. Passionate about clean code and exceptional user experiences.',
+          'From Industrial Engineering to software development: modern frontend, AI-powered apps, and digital products focused on business, data, and execution.',
         introDesc2: '',
         introButtonsGroup: 'Select experience mode',
         immersiveLabel: 'Immersive Mode',
@@ -268,7 +268,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         immersiveBtnAria: 'Activate immersive mode',
         audioAriaOn: 'Mute sound',
         audioAriaOff: 'Unmute sound',
-        classicLabel: 'Classic mode',
+        classicLabel: 'Classic Mode',
         classicSub: 'Editorial experience focused on content',
         creditsBtn: 'Credits',
         creditsTitle: 'Credits',

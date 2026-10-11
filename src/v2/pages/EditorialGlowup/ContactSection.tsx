@@ -8,7 +8,7 @@ export function ContactSection() {
 
   return (
     <section id="contact" aria-label={isEs ? 'Contacto' : 'Contact'}>
-      <main className="w-full">
+      <div className="w-full">
         <LetsWorkTogether
           locale={locale}
           bookCallHref="https://calendly.com/cnto-jnthn-97/30min"
@@ -21,7 +21,7 @@ export function ContactSection() {
                   successLabel: 'Perfecto',
                   successTitle: 'Conversemos',
                   bookCallLabel: 'Agendar llamada',
-                  discussLabel: 'Vamos a discutir',
+                  discussLabel: 'Hablemos',
                   githubLabel: 'Ver en GitHub',
                   linkedinLabel: 'Conectemos',
                   headingLine1: 'Trabajemos',
@@ -44,7 +44,7 @@ export function ContactSection() {
                   bookCallLabel: 'Book a call',
                   discussLabel: "Let's discuss",
                   githubLabel: 'See my GitHub work',
-                  linkedinLabel: "Let's Connect",
+                  linkedinLabel: "Let's connect",
                   headingLine1: "Let's work",
                   headingLine2: 'together',
                   description:
@@ -60,7 +60,7 @@ export function ContactSection() {
                 }
           }
         />
-      </main>
+      </div>
     </section>
   )
 }

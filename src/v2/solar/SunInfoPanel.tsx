@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PlanetConfig } from './planetRegistry'
 import { useLocale } from '../lib/localeContext'
-import { getPlanetSectionLabel } from './planetSectionLabel'
-import { getPlanetDisplayName } from './planetDisplayName'
 import { getPlanetContent } from './planetContent'
 import { getProjectBySlug } from '../data/projects.v2'
 import { contactV2 } from '../data/contact.v2'
@@ -54,7 +52,8 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
 
   if (!open) return null
 
-  const displayName = getPlanetDisplayName(config.id, locale)
+  const displayName = locale === 'es' ? config.labelEs : config.label
+  const sectionLabel = locale === 'es' ? config.sectionEs : config.section
 
   return (
     <aside
@@ -72,7 +71,7 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
             <h2 className={styles.planetName}>{displayName}</h2>
             <p className={styles.portfolioPhase}>
               <span className={styles.dot} aria-hidden="true" style={{ background: config.accentColor }} />
-              {getPlanetSectionLabel(config.id, locale)}
+              {sectionLabel}
             </p>
           </div>
           <button
@@ -160,7 +159,7 @@ export function SunInfoPanel({ config, open, align = 'right', onClose }: SunInfo
             )
           ) : (
             <p className={styles.phaseText}>
-              {displayName} — {getPlanetSectionLabel(config.id, locale)}
+              {displayName} — {sectionLabel}
             </p>
           ))}
 

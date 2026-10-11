@@ -12,7 +12,6 @@ type VercelRequest = {
 type VercelResponse = {
   status: (code: number) => VercelResponse
   json: (body: unknown) => void
-  setHeader: (name: string, value: string) => void
 }
 
 type ContactPayload = {
@@ -133,20 +132,11 @@ function buildContactEmailHtml({
 }
 
 function getPayload(req: VercelRequest): ContactPayload {
-  if (typeof req.body === 'string') return JSON.parse(req.body) as ContactPayload
-  return (req.body ?? {}) as ContactPayload
+  const body: unknown = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+  return (body ?? {}) as ContactPayload
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).json({})
-    return
-  }
-
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
@@ -189,10 +179,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return
   }
 
-  const name = sanitize(payload.name)
+  // name lands in the email subject, so it must stay on one line
+  const name = sanitize(payload.name).replace(/[\r\n]+/g, ' ')
   const email = sanitize(payload.email).toLowerCase()
   const message = sanitize(payload.message)
-  const locale = typeof payload.locale === 'string' ? sanitize(payload.locale) : 'unknown'
+  const locale = payload.locale === 'es' || payload.locale === 'en' ? payload.locale : 'unknown'
 
   if (name.length < 2 || name.length > 120) {
     res.status(400).json({ error: 'Invalid name' })
@@ -212,7 +203,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const resend = new Resend(apiKey)
 
   try {
-    await resend.emails.send({
+    // The SDK reports failures in `error` instead of throwing.
+    const { error } = await resend.emails.send({
       from,
       to,
       replyTo: email,
@@ -227,6 +219,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ].join('\n'),
       html: buildContactEmailHtml({ name, email, message }),
     })
+    if (error) throw new Error(error.message)
 
     res.status(200).json({ ok: true })
   } catch {
