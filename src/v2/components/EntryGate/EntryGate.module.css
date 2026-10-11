@@ -89,6 +89,9 @@
 }
 
 .introName {
+  /* Keep the name together: wrap it as a unit, and never right after its hyphen. */
+  display: inline-block;
+  text-wrap: balance;
   font-weight: 300;
   color: #00d9a3;
 }
