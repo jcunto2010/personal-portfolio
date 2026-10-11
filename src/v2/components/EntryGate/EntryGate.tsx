@@ -233,7 +233,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     ? {
         ariaEntry: 'Entrada al portafolio',
         introTitlePrefix: 'Hola, mi nombre es',
-        introName: 'Jonathan Cunto Díaz',
+        introName: 'Jonathan Cunto-Diaz',
         introRole: 'Frontend Developer',
         introDesc1:
           'De Ingeniería Industrial al desarrollo de software: frontend moderno, apps con IA y productos digitales con foco en negocio, datos y ejecución.',
@@ -256,7 +256,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
     : {
         ariaEntry: 'Portfolio entry',
         introTitlePrefix: 'Hi, my name is',
-        introName: 'Jonathan Cunto Díaz',
+        introName: 'Jonathan Cunto-Diaz',
         introRole: 'Frontend Developer',
         introDesc1:
           'From Industrial Engineering to software development: modern frontend, AI-powered apps, and digital products focused on business, data, and execution.',

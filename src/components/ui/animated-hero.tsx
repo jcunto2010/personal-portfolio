@@ -45,8 +45,8 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
             <h1 className="text-4xl md:text-6xl min-[1440px]:text-7xl max-w-6xl tracking-tight text-center font-semibold text-white flex flex-col items-center">
               <span className="text-white">
                 {isEs
-                  ? 'Bienvenido, soy Jonathan Cunto Díaz:'
-                  : "Welcome, I'm Jonathan Cunto Díaz:"}
+                  ? 'Bienvenido, soy Jonathan Cunto-Diaz:'
+                  : "Welcome, I'm Jonathan Cunto-Diaz:"}
               </span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1 h-[1.08em]">
                 {titles.map((title, index) => (

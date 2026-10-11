@@ -23,8 +23,8 @@ export default function ClassicModePage() {
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
     const home = { title: document.title, href: canonical?.href }
     document.title = isEs
-      ? 'Jonathan Cunto Díaz — Proyectos y experiencia'
-      : 'Jonathan Cunto Díaz — Projects & Experience'
+      ? 'Jonathan Cunto-Diaz — Proyectos y experiencia'
+      : 'Jonathan Cunto-Diaz — Projects & Experience'
     if (canonical) canonical.href = 'https://www.jonathancuntodiaz.com/classic-mode'
     return () => {
       document.title = home.title

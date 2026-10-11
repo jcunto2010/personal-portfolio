@@ -1,4 +1,4 @@
-# Jonathan Cunto Díaz — Portfolio V2
+# Jonathan Cunto-Diaz — Portfolio V2
 
 Portafolio personal construido con React 19, Vite 7 y TypeScript. Presenta dos modos de experiencia:
 
@@ -59,4 +59,4 @@ La aplicación se monta desde [`index.html`](index.html) → [`src/v2/main.v2.ts
 - Estándares de código: [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md)
 - Licencia: [MIT](LICENSE)
 
-**Jonathan Cunto Díaz** — [jonathancuntodiaz.com](https://www.jonathancuntodiaz.com) · GitHub [@jcunto2010](https://github.com/jcunto2010)
+**Jonathan Cunto-Diaz** — [jonathancuntodiaz.com](https://www.jonathancuntodiaz.com) · GitHub [@jcunto2010](https://github.com/jcunto2010)
