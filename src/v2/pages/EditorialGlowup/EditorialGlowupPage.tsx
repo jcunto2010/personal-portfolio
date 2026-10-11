@@ -64,6 +64,7 @@ export default function ClassicModePage() {
           padding: '2rem 1rem',
           fontFamily: 'var(--v2-font-body)',
           position: 'relative',
+          overflowX: 'clip',
         }}
       >
         <div
