@@ -21,13 +21,11 @@ function Hero({ onExploreWork, onContact }: HeroProps) {
             'Desarrollador Frontend',
             'Desarrollador Mobile',
             'Product Manager',
-            'Diseñador de Producto',
           ]
         : [
             'Frontend Developer',
             'Mobile Developer',
             'Product Manager',
-            'Product Designer',
           ],
     [isEs],
   )
