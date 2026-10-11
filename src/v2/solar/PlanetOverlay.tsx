@@ -23,8 +23,6 @@ import type { PlanetConfig } from './planetRegistry'
 import { getPlanetContent } from './planetContent'
 import styles from './PlanetOverlay.module.css'
 import { useLocale } from '../lib/localeContext'
-import { getPlanetSectionLabel } from './planetSectionLabel'
-import { getPlanetDisplayName } from './planetDisplayName'
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -37,7 +35,8 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
   const closeBtnRef = useRef<HTMLButtonElement>(null)
   const labelId = `planet-overlay-title-${config.id}`
   const { locale } = useLocale()
-  const displayName = getPlanetDisplayName(config.id, locale)
+  const displayName = locale === 'es' ? config.labelEs : config.label
+  const sectionLabel = locale === 'es' ? config.sectionEs : config.section
 
   // Focus close button on mount
   useEffect(() => {
@@ -54,7 +53,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
   }, [onClose])
 
   const content = getPlanetContent(config.id, locale) ?? {
-    body: [`${displayName} — ${getPlanetSectionLabel(config.id, locale)}`],
+    body: [`${displayName} — ${sectionLabel}`],
   }
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -84,7 +83,7 @@ export function PlanetOverlay({ config, onClose }: PlanetOverlayProps) {
             <h2 id={labelId} className={styles.planetName}>
               {displayName}
             </h2>
-            <p className={styles.sectionLabel}>{getPlanetSectionLabel(config.id, locale)}</p>
+            <p className={styles.sectionLabel}>{sectionLabel}</p>
           </div>
 
           <button
