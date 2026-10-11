@@ -18,7 +18,7 @@ export function AboutTextBlock() {
 
   const paragraphOne = isEs
     ? 'Soy un perfil híbrido entre ingeniería, producto y desarrollo. Diseño y construyo experiencias digitales de alto impacto con foco en rendimiento, claridad visual y resultados medibles.'
-    : 'I am a hybrid profile across engineering, product, and development. I design and build high-impact digital experiences focused on performance, visual clarity, and measurable outcomes.'
+    : 'I work across engineering, product, and development. I design and build high-impact digital experiences focused on performance, visual clarity, and measurable outcomes.'
 
   const paragraphTwo = isEs
     ? 'Trabajo desde la estrategia hasta la implementación, conectando decisiones de negocio con ejecución técnica para entregar productos sólidos y escalables.'

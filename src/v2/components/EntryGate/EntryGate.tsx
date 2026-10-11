@@ -236,7 +236,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         introName: 'Jonathan Cunto Díaz',
         introRole: 'Frontend Developer',
         introDesc1:
-          'Creo aplicaciones web hermosas, responsivas y fáciles de usar usando tecnologías modernas como React, TypeScript y Tailwind CSS. Apasionado por el código limpio y experiencias de usuario excepcionales.',
+          'De Ingeniería Industrial al desarrollo de software: frontend moderno, apps con IA y productos digitales con foco en negocio, datos y ejecución.',
         introDesc2: '',
         introButtonsGroup: 'Selecciona el modo de experiencia',
         immersiveLabel: 'Modo Inmersivo',
@@ -259,7 +259,7 @@ export function EntryGate({ onEnter, skipAnimations = false }: EntryGateProps) {
         introName: 'Jonathan Cunto Díaz',
         introRole: 'Frontend Developer',
         introDesc1:
-          'I create beautiful, responsive, and user-friendly web applications using modern technologies like React, TypeScript, and Tailwind CSS. Passionate about clean code and exceptional user experiences.',
+          'From Industrial Engineering to software development: modern frontend, AI-powered apps, and digital products focused on business, data, and execution.',
         introDesc2: '',
         introButtonsGroup: 'Select experience mode',
         immersiveLabel: 'Immersive Mode',
