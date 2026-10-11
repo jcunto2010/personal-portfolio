@@ -19,7 +19,6 @@ Portafolio personal construido con React 19, Vite 7 y TypeScript. Presenta dos m
 npm install          # instala dependencias
 npm run dev          # servidor de desarrollo en localhost:5173
 npm run build        # build de producción
-npm run test:unit    # tests unitarios con Vitest
 npm run test:e2e     # tests E2E con Playwright
 npm run bundle:check # verifica presupuesto de bundle (T-005)
 npm run lhci         # Lighthouse CI
@@ -29,7 +28,7 @@ npm run lhci         # Lighthouse CI
 
 - **Producción:** Vercel (`vercel.json`)
 - **Alternativo:** Netlify (`netlify.toml`)
-- El CI (`.github/workflows/ci.yml`) ejecuta lint, build, tests unitarios, E2E y Lighthouse en cada PR.
+- El CI (`.github/workflows/ci.yml`) ejecuta lint, build, E2E y Lighthouse en cada PR.
 
 ## Estructura del proyecto
 
